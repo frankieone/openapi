@@ -208,9 +208,6 @@
             "$ref": "#/components/parameters/query_page"
           },
           {
-            "$ref": "#/components/parameters/query_manual_status"
-          },
-          {
             "$ref": "#/components/parameters/query_after_activity_at"
           },
           {
@@ -268,6 +265,16 @@
           },
           "403": {
             "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
             "content": {
               "application/json": {
                 "schema": {
@@ -632,7 +639,8 @@
         "schema": {
           "type": "integer",
           "default": 20,
-          "minimum": 1
+          "minimum": 1,
+          "maximum": 200
         }
       },
       "query_page": {
@@ -642,16 +650,8 @@
         "required": false,
         "schema": {
           "type": "integer",
-          "default": 1
-        }
-      },
-      "query_manual_status": {
-        "name": "status",
-        "in": "query",
-        "required": false,
-        "description": "Query parameter to filter activities and evaluations by manual status",
-        "schema": {
-          "$ref": "#/components/schemas/Activity-Result-Manual-Status-Query"
+          "default": 1,
+          "minimum": 1
         }
       },
       "query_after_activity_at": {
@@ -1020,7 +1020,8 @@
           "PLACE_OF_BUSINESS",
           "OFFICIAL_CORRESPONDANCE",
           "PLACE_OF_BIRTH",
-          "OFFICE_LOCALITY"
+          "OFFICE_LOCALITY",
+          "AUTHORITATIVE_RESIDENTIAL"
         ]
       },
       "Address-StatusEnum": {
@@ -1287,7 +1288,7 @@
       },
       "Party-Detail": {
         "type": "object",
-        "description": "A party describes the details of one of the parties in a given transaction (natch). It can be used to \ndescribe any participant and is differentiated by the paymentRole fulfilled.\n\nYou can either provide the raw entity ID as a reference or fill in the details. If an entity ID is provided,\ndata provided here will not be used to enrich the entity and will be ignored in favour of the underlying entity details.\n",
+        "description": "A party describes the details of one of the parties in a given transaction (natch). It can be used to \ndescribe any participant and is differentiated by the paymentRole fulfilled.\n\nYou can either provide the raw entity ID as a reference or fill in the details. If an entity ID is provided,\nthe data will be extracted from the entity in the Frankie system. Data provided here will take precedence \nover the entity data but will not enrich the entity details in the Frankie system.\n",
         "allOf": [
           {
             "$ref": "#/components/schemas/Party-Detail-Summary"
@@ -1299,20 +1300,16 @@
       },
       "Activity-Type": {
         "type": "string",
+        "description": "The different types of activities able to be monitored",
         "enum": [
-          "REGISTRATION",
-          "LOGIN",
-          "FIAT_WITHDRAWAL",
-          "FIAT_DEPOSIT",
-          "CRYPTO_WITHDRAWAL",
-          "CRYPTO_DEPOSIT"
+          "TRANSACTION",
+          "EVENT"
         ]
       },
       "Activity-Detail-Base": {
         "type": "object",
         "required": [
-          "activityType",
-          "activityAt"
+          "activityType"
         ],
         "properties": {
           "activityType": {
@@ -1325,21 +1322,44 @@
           }
         }
       },
-      "Activity-Registration": {
-        "type": "object",
-        "description": "An activity detailing a registration of a customer",
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Activity-Detail-Base"
-          }
+      "Event-Type": {
+        "type": "string",
+        "description": "The type of event that has occurred",
+        "enum": [
+          "LOGIN",
+          "LOGOUT",
+          "SIGNUP",
+          "PASSWORD_RESET",
+          "PASSWORD_CHANGE",
+          "ADDRESS_CHANGE",
+          "PHONE_CHANGE",
+          "EMAIL_CHANGE",
+          "ACCOUNT_UPDATE",
+          "2FA_UPDATE",
+          "PAYMENT_METHOD_LINK"
         ]
       },
-      "Activity-Login": {
+      "Event": {
         "type": "object",
-        "description": "An activity detailing a login of a customer",
+        "description": "An event represents a non-financial event in the customers platform.",
+        "required": [
+          "eventType"
+        ],
+        "properties": {
+          "eventType": {
+            "$ref": "#/components/schemas/Event-Type"
+          }
+        }
+      },
+      "Activity-Event": {
+        "type": "object",
+        "description": "An activity detailing an event",
         "allOf": [
           {
             "$ref": "#/components/schemas/Activity-Detail-Base"
+          },
+          {
+            "$ref": "#/components/schemas/Event"
           }
         ]
       },
@@ -1353,81 +1373,29 @@
           "AUD"
         ]
       },
-      "Transaction-Payment-Summary": {
-        "type": "object",
-        "required": [
-          "amount",
-          "currency"
-        ],
-        "description": "Payment detail summary",
-        "properties": {
-          "amount": {
-            "type": "number",
-            "format": "double",
-            "description": "The amount to be applied to the party"
-          },
-          "currency": {
-            "$ref": "#/components/schemas/Currency"
-          }
-        }
-      },
-      "Transaction-Payment-Role": {
+      "Currency-Type": {
         "type": "string",
+        "description": "Indicates the type of currency",
         "enum": [
-          "TXN_ROLE_ORIGINATOR",
-          "TXN_ROLE_BENEFICIARY"
+          "FIAT",
+          "CRYPTO"
         ]
       },
-      "Transaction-Payment-Type": {
+      "Transaction-Method": {
         "type": "string",
+        "description": "The method of payment used for the transaction",
         "enum": [
-          "CARD",
-          "BANK",
+          "CARD_DEBIT",
+          "CARD_CREDIT",
+          "CARD_PREPAID",
+          "BANK_TRANSFER",
           "WIRE",
           "CRYPTO",
-          "OTHER"
-        ]
-      },
-      "Transaction-Payment-Status": {
-        "type": "string",
-        "description": "Status of payment",
-        "enum": [
-          "ACCEPTED",
-          "DENIED_FRAUD",
-          "DENIED",
-          "PENDING"
-        ]
-      },
-      "Transaction-Payment": {
-        "type": "object",
-        "required": [
-          "role",
-          "type"
-        ],
-        "description": "Payment details",
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Transaction-Payment-Summary"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "role": {
-                "$ref": "#/components/schemas/Transaction-Payment-Role"
-              },
-              "type": {
-                "$ref": "#/components/schemas/Transaction-Payment-Type"
-              },
-              "description": {
-                "type": "string",
-                "description": "Short description of the payment from the perspective of the\nparty, or any attached reference details.\n",
-                "maxLength": 240
-              },
-              "status": {
-                "$ref": "#/components/schemas/Transaction-Payment-Status"
-              }
-            }
-          }
+          "WALLET",
+          "ACH",
+          "ECHECK",
+          "REMITTANCE",
+          "CASH"
         ]
       },
       "Transaction-Account-Type": {
@@ -1437,6 +1405,8 @@
           "CHECKING",
           "SAVINGS",
           "CRYPTO_WALLET",
+          "TRUST",
+          "CARD",
           "OTHER"
         ]
       },
@@ -1474,9 +1444,6 @@
       },
       "Transaction-Account": {
         "type": "object",
-        "required": [
-          "pan"
-        ],
         "description": "Account details",
         "allOf": [
           {
@@ -1527,35 +1494,10 @@
       },
       "Transaction-Type": {
         "type": "string",
-        "description": "Indicates the type of transaction",
+        "description": "The type of movement of funds",
         "enum": [
-          "BUY",
-          "SELL",
-          "DEPOSIT",
-          "WITHDRAW",
-          "REFUND",
-          "PAYMENT",
-          "TOPUP"
-        ]
-      },
-      "Transaction-Disbursement-Type": {
-        "type": "string",
-        "description": "Type of a payment paid out of business",
-        "enum": [
-          "BILL_PAY",
-          "DELIVERY",
-          "DEPOSIT",
-          "PICKUP",
-          "RELOAD"
-        ]
-      },
-      "Transaction-Transfer-Type": {
-        "type": "string",
-        "description": "The type of the transfer that was used in the transaction.",
-        "enum": [
-          "ACH",
-          "ECHECK",
-          "DOMESTIC_WIRE"
+          "WITHDRAWAL",
+          "DEPOSIT"
         ]
       },
       "Transaction-Merchant-Industry-Code": {
@@ -1592,80 +1534,59 @@
           }
         }
       },
-      "Transaction-Order-Details": {
-        "type": "object",
-        "description": "An order describes the details of an order that a customer made.",
-        "properties": {
-          "previousOrderCount": {
-            "type": "integer",
-            "description": "The number of orders the customer made in the past. (excluding sent order)"
-          },
-          "lastOrderDate": {
-            "type": "string",
-            "format": "YYYY-MM-DD",
-            "description": "Last order date",
-            "example": "1983-04-22"
-          },
-          "orderChannel": {
-            "type": "string"
-          },
-          "previousUnpaidOrderCount": {
-            "type": "integer",
-            "description": "The number of orders for which the account still owes money."
-          }
-        }
-      },
       "Transaction": {
         "type": "object",
-        "description": "A transaction represents the details of a deposit or withdrawal of a customer.",
+        "description": "A transaction represents the details of a deposit or withdrawal of a entity.",
         "required": [
-          "payment",
-          "account"
+          "amount",
+          "currency",
+          "currencyType",
+          "transactionType",
+          "transferMethod",
+          "transactionIdentifier"
         ],
         "properties": {
-          "payment": {
-            "$ref": "#/components/schemas/Transaction-Payment"
+          "amount": {
+            "type": "number",
+            "format": "double",
+            "description": "The amount to be applied to the party"
+          },
+          "currency": {
+            "$ref": "#/components/schemas/Currency"
+          },
+          "currencyType": {
+            "$ref": "#/components/schemas/Currency-Type"
+          },
+          "transferMethod": {
+            "$ref": "#/components/schemas/Transaction-Method"
+          },
+          "counterpartyAmount": {
+            "type": "number",
+            "format": "double",
+            "description": "The amount to be applied to the party"
+          },
+          "counterpartyCurrency": {
+            "$ref": "#/components/schemas/Currency"
+          },
+          "counterpartyCurrencyType": {
+            "$ref": "#/components/schemas/Currency-Type"
+          },
+          "counterpartyTransferMethod": {
+            "$ref": "#/components/schemas/Transaction-Method"
+          },
+          "description": {
+            "type": "string",
+            "description": "Short description of the payment from the perspective of the\nparty, or any attached reference details.\n",
+            "maxLength": 240
           },
           "account": {
             "$ref": "#/components/schemas/Transaction-Account"
           },
-          "type": {
+          "transactionType": {
             "$ref": "#/components/schemas/Transaction-Type"
-          },
-          "disbursementType": {
-            "$ref": "#/components/schemas/Transaction-Disbursement-Type"
-          },
-          "transferType": {
-            "$ref": "#/components/schemas/Transaction-Transfer-Type"
           },
           "merchant": {
             "$ref": "#/components/schemas/Transaction-Merchant-Details"
-          },
-          "order": {
-            "$ref": "#/components/schemas/Transaction-Order-Details"
-          },
-          "transactedAt": {
-            "description": "when the transaction took place",
-            "type": "string",
-            "format": "date-time"
-          }
-        }
-      },
-      "Transaction-Details": {
-        "type": "object",
-        "description": "Transaction details",
-        "required": [
-          "transactionIdentifier"
-        ],
-        "properties": {
-          "originatorTransaction": {
-            "$ref": "#/components/schemas/Transaction"
-          },
-          "counterParty": {
-            "$ref": "#/components/schemas/Party-Detail"
-          },
-          "counterPartyTransaction": {
-            "$ref": "#/components/schemas/Transaction"
           },
           "transactionIdentifier": {
             "type": "string",
@@ -1673,129 +1594,81 @@
           }
         }
       },
-      "Activity-Fiat-Withdrawal": {
+      "Counter-Party-Detail": {
         "type": "object",
-        "description": "An activity detailing a fiat withdrawal",
-        "required": [
-          "transaction"
-        ],
+        "description": "A party describes the details of one of the parties in a given transaction (natch). It can be used to \ndescribe any participant and is differentiated by the paymentRole fulfilled.\n\nYou can either provide the raw entity ID as a reference or fill in the details. If an entity ID is provided,\nthe data will be extracted from the entity in the Frankie system. Data provided here will take precedence \nover the entity data but will not enrich the entity details in the Frankie system.\n",
         "allOf": [
           {
-            "$ref": "#/components/schemas/Activity-Detail-Base"
+            "$ref": "#/components/schemas/Party-Detail"
           },
           {
             "type": "object",
             "properties": {
-              "transaction": {
-                "$ref": "#/components/schemas/Transaction-Details"
+              "account": {
+                "$ref": "#/components/schemas/Transaction-Account"
               }
             }
           }
         ]
       },
-      "Activity-Fiat-Deposit": {
+      "Transaction-Details": {
         "type": "object",
-        "description": "An activity detailing a fiat deposit",
+        "description": "Transaction details",
         "required": [
           "transaction"
         ],
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Activity-Detail-Base"
+        "properties": {
+          "transaction": {
+            "$ref": "#/components/schemas/Transaction"
           },
-          {
-            "type": "object",
-            "properties": {
-              "transaction": {
-                "$ref": "#/components/schemas/Transaction-Details"
-              }
-            }
+          "counterparty": {
+            "$ref": "#/components/schemas/Counter-Party-Detail"
           }
-        ]
+        }
       },
-      "Activity-Crypto-Withdrawal": {
+      "Activity-Transaction": {
         "type": "object",
-        "description": "An activity detailing a crypto withdrawal",
-        "required": [
-          "transaction"
-        ],
+        "description": "An activity detailing a transaction",
         "allOf": [
           {
             "$ref": "#/components/schemas/Activity-Detail-Base"
           },
           {
-            "type": "object",
-            "properties": {
-              "transaction": {
-                "$ref": "#/components/schemas/Transaction-Details"
-              }
-            }
-          }
-        ]
-      },
-      "Activity-Crypto-Deposit": {
-        "type": "object",
-        "description": "An activity detailing a crypto deposit",
-        "required": [
-          "transaction"
-        ],
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Activity-Detail-Base"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "transaction": {
-                "$ref": "#/components/schemas/Transaction-Details"
-              }
-            }
+            "$ref": "#/components/schemas/Transaction-Details"
           }
         ]
       },
       "Activity-Detail": {
         "type": "object",
-        "description": "Details of the acitvity being checked",
+        "description": "Details of the activity being checked",
         "oneOf": [
           {
-            "$ref": "#/components/schemas/Activity-Fiat-Deposit"
+            "$ref": "#/components/schemas/Activity-Event"
           },
           {
-            "$ref": "#/components/schemas/Activity-Fiat-Withdrawal"
-          },
-          {
-            "$ref": "#/components/schemas/Activity-Crypto-Deposit"
-          },
-          {
-            "$ref": "#/components/schemas/Activity-Crypto-Withdrawal"
-          },
-          {
-            "$ref": "#/components/schemas/Activity-Login"
-          },
-          {
-            "$ref": "#/components/schemas/Activity-Registration"
+            "$ref": "#/components/schemas/Activity-Transaction"
           }
         ],
         "discriminator": {
           "propertyName": "activityType",
           "mapping": {
-            "REGISTRATION": "#/components/schemas/Activity-Registration",
-            "LOGIN": "#/components/schemas/Activity-Login",
-            "FIAT_WITHDRAWAL": "#/components/schemas/Activity-Fiat-Withdrawal",
-            "FIAT_DEPOSIT": "#/components/schemas/Activity-Fiat-Deposit",
-            "CRYPTO_WITHDRAWAL": "#/components/schemas/Activity-Crypto-Withdrawal",
-            "CRYPTO_DEPOSIT": "#/components/schemas/Activity-Crypto-Deposit"
+            "EVENT": "#/components/schemas/Activity-Event",
+            "TRANSACTION": "#/components/schemas/Activity-Transaction"
           }
         }
       },
       "Activity-Evaluate-Req-Body": {
         "type": "object",
         "description": "Input data for activity evaluation",
+        "required": [
+          "party",
+          "detail"
+        ],
         "properties": {
           "session": {
             "$ref": "#/components/schemas/Session"
           },
-          "originator": {
+          "party": {
             "$ref": "#/components/schemas/Party-Detail"
           },
           "detail": {
@@ -1910,7 +1783,6 @@
       "Device-ID": {
         "type": "string",
         "description": "ID of the device",
-        "readOnly": true,
         "format": "ulid"
       },
       "Device-Properties": {
@@ -2083,6 +1955,10 @@
       },
       "Activity-Base": {
         "type": "object",
+        "required": [
+          "party",
+          "detail"
+        ],
         "description": "Activity details",
         "properties": {
           "activityId": {
@@ -2091,7 +1967,7 @@
           "session": {
             "$ref": "#/components/schemas/Session"
           },
-          "originator": {
+          "party": {
             "$ref": "#/components/schemas/Party-Detail"
           },
           "detail": {
@@ -2144,9 +2020,9 @@
           "FALSE_POSITIVE",
           "TRUE_POSITIVE_ACCEPT",
           "TRUE_POSITIVE_REJECT",
-          "UNKNOWN"
+          "IN_REVIEW"
         ],
-        "description": "The status of the result.\n- FALSE_POSITIVE: When the result is determined to be false positive and the activity is within the risk profile to continue.\n- TRUE_POSITIVE_ACCEPT: When the result is determined to be true positive and the activity is within the risk profile to continue.\n- TRUE_POSITIVE_REJECT: When the result is determined to be true positive and the activity is NOT within the risk profile to continue.\n- UNKNOWN: When the outcome for the activity is unknown but you do not necessarily want to resolve it.\n"
+        "description": "The status of the result.\n- FALSE_POSITIVE: When the result is determined to be false positive and the activity is within the risk profile to continue.\n- TRUE_POSITIVE_ACCEPT: When the result is determined to be true positive and the activity is within the risk profile to continue.\n- TRUE_POSITIVE_REJECT: When the result is determined to be true positive and the activity is NOT within the risk profile to continue.\n- IN_REVIEW: When the activity has been picked up for review.\n"
       },
       "Indicator-ID": {
         "type": "string",
@@ -2299,10 +2175,6 @@
       "Activity": {
         "type": "object",
         "description": "Activity details",
-        "required": [
-          "originator",
-          "detail"
-        ],
         "allOf": [
           {
             "$ref": "#/components/schemas/Activity-Base"
@@ -2409,8 +2281,7 @@
         "type": "string",
         "default": "ACTIVITY_AT",
         "enum": [
-          "ACTIVITY_AT",
-          "RISK"
+          "ACTIVITY_AT"
         ]
       },
       "Sort-Enum": {
@@ -2421,17 +2292,6 @@
           "ASC",
           "DESC"
         ]
-      },
-      "Activity-Result-Manual-Status-Query": {
-        "type": "string",
-        "enum": [
-          "FALSE_POSITIVE",
-          "TRUE_POSITIVE_ACCEPT",
-          "TRUE_POSITIVE_REJECT",
-          "UNKNOWN",
-          "UNSET"
-        ],
-        "description": "The status of the result.\n- FALSE_POSITIVE: When the result is determined to be false positive and the activity is within the risk profile to continue.\n- TRUE_POSITIVE_ACCEPT: When the result is determined to be true positive and the activity is within the risk profile to continue.\n- TRUE_POSITIVE_REJECT: When the result is determined to be true positive and the activity is NOT within the risk profile to continue.\n- UNKNOWN: When the outcome for the activity is unknown but you do not necessarily want to resolve it.\n- UNSET: When the manual status is not set, but a process result exists for the activity. (e.g. it has been alerted but not yet actioned in any capacity)\n"
       },
       "Entity-ID": {
         "type": "string",
@@ -2489,21 +2349,20 @@
         "enum": [
           "FALSE_POSITIVE",
           "TRUE_POSITIVE_ACCEPT",
-          "TRUE_POSITIVE",
           "TRUE_POSITIVE_REJECT",
-          "UNKNOWN",
-          "UNKNOWN_ACCEPT",
-          "UNKNOWN_REJECT"
+          "IN_REVIEW",
+          "NEEDS_ATTENTION"
         ],
-        "description": "The manual status that the activity process result should be set to.\n- FALSE_POSITIVE: The result is determined to be a false positive, but you do not necessarily want to resolve it.\n- TRUE_POSITIVE_ACCEPT: The result is determined to be a true positive and you want to resolve it. \"Accept\" infers you want to accept the activity.\n- TRUE_POSITIVE: The result is determined to be a true positive, but you do not necessarily want to resolve it.\n- TRUE_POSITIVE_REJECT: The result is determined to be a true positive and you want to resolve it. \"Reject\" infers you want to reject the activity.\n- UNKNOWN: The result is determined to be unknown, but you do not necessarily want to resolve it.\n- UNKNOWN_ACCEPT: The result is determined to be unknown and you want to resolve it. \"Accept\" infers you want to accept the activity.\n- UNKNOWN_REJECT: The result is determined to be unknown and you want to resolve it. \"Reject\" infers you want to reject the activity.\n"
+        "description": "The status of the result.\n- FALSE_POSITIVE: When the result is determined to be false positive and the activity is within the risk profile to continue.\n- TRUE_POSITIVE_ACCEPT: When the result is determined to be true positive and the activity is within the risk profile to continue.\n- TRUE_POSITIVE_REJECT: When the result is determined to be true positive and the activity is NOT within the risk profile to continue.\n- IN_REVIEW: When the activity has been picked up for review.\n- NEEDS_ATTENTION: When the activity has is yet to be picked up for review.\n"
       },
       "Comment": {
         "type": "object",
         "properties": {
           "commentId": {
             "type": "string",
-            "description": "Unique identifier for the comment.",
-            "example": "55fc5d54-46f7-49c8-bf78-e07ec79cd6e7",
+            "description": "Unique identifier for the comment",
+            "format": "ulid",
+            "example": "01K3G4CCQ3DY3B1413S19M9QW1",
             "readOnly": true
           },
           "text": {
@@ -2736,6 +2595,16 @@
           }
         }
       },
+      "GenderEnum": {
+        "type": "string",
+        "enum": [
+          "MALE",
+          "FEMALE",
+          "NON_BINARY",
+          "OTHER",
+          "UNSPECIFIED"
+        ]
+      },
       "Supplementary-Data-AML-MatchData": {
         "type": "object",
         "required": [
@@ -2802,6 +2671,9 @@
           "isRelated": {
             "type": "boolean",
             "description": "Indicates if this match is a related party of the searched individual or organization."
+          },
+          "gender": {
+            "$ref": "#/components/schemas/GenderEnum"
           }
         }
       },
@@ -3861,14 +3733,18 @@
           "ANNUAL_RETURN",
           "REPORT",
           "TRUST_DEED",
+          "DEED_OF_VARIATION",
+          "REGISTER_OF_UNIT_HOLDERS",
           "PARTNERSHIP_AGREEMENT",
           "ADMIN_CHANGE",
           "COMPANY_REPORT",
           "CHECK_RESULTS",
           "AVIATION_SECURITY_ID",
-          "MARITIME_SECURITY_ID"
+          "MARITIME_SECURITY_ID",
+          "ORGANIZATION_PROFILE",
+          "ORGANIZATION_OWNERSHIP"
         ],
-        "description": "Valid document ID types.\n\n  - \"OTHER\": Generic document type. Unspecified.\n  - \"DRIVERS_LICENSE\": Driver's license.\n  - \"PASSPORT\": Passport.\n  - \"VISA\": Visa document (not Visa payment card).\n  - \"IMMIGRATION\": Immigration card.\n  - \"NATIONAL_ID\": Any national ID card.\n  - \"TAX_ID\": Any national tax identifier.\n  - \"NATIONAL_HEALTH_ID\": Any national health program ID card (e.g., Medicare, NHS).\n  - \"CONCESSION\": State-issued concession card.\n  - \"HEALTH_CONCESSION\": State-issued health-specific concession card.\n  - \"PENSION\": State-issued pension ID.\n  - \"MILITARY_ID\": Military ID.\n  - \"BIRTH_CERT\": Birth certificate.\n  - \"CITIZENSHIP\": Citizenship certificate.\n  - \"MARRIAGE_CERT\": Marriage certificate.\n  - \"DEATH_CERT\": Death certificate.\n  - \"NAME_CHANGE\": Name change confirmation.\n  - \"UTILITY_BILL\": Regulated utility bill, such as electricity, gas, etc.\n  - \"BANK_STATEMENT\": Bank/card statement.\n  - \"BANK_ACCOUNT\": Bank account.\n  - \"INTENT_PROOF\": Proof of intent, generally a photo/video or a scanned letter.\n  - \"ATTESTATION\": Document of attestation (e.g., Statutory Declaration).\n\n  NOTE: These cannot be used as a supporting document:\n  - \"SELF_IMAGE\": A \"selfie\" used for comparisons.\n  - \"DEVICE\": Device ID.\n  - \"VEHICLE_REGISTRATION\": Vehicle registration number.\n  - \"PROOF_OF_ADDRESS\": Any document that provides proof of address.\n  - \"HOUSE_REGISTRATION\": House registration document.\n  - \"YELLOW_HOUSE_REGISTRATION\": Yellow House Registration Thor Ror 13.\n  - \"WORK_PERMIT\": Work permit.\n  - \"EMPLOYMENT_CERTIFICATE\": Certificate of employment.\n  - \"NOTARY_PUBLIC_ID\": Notary Public Identification.\n\n  Business-related documentation:\n\n  - \"EXTERNAL_ADMIN\": Details of appointed administrator.\n  - \"CHARGES\": Details of any charges laid against a company or director.\n  - \"PRE_ASIC\": Any documents that are Pre-ASIC.\n  - \"ANNUAL_RETURN\": Details of a company's annual return.\n  - \"REPORT\": Frankie-generated report.\n  - \"TRUST_DEED\": Corporate trust deed.\n  - \"PARTNERSHIP_AGREEMENT\": Partnership agreement documents.\n  - \"ADMIN_CHANGE\": Change of administrator.\n  - \"COMPANY_REPORT\": Registry-filed company reports.\n\n  Special document types:\n\n  - \"CHECK_RESULTS\": Special document type for specifying results of checks completed other than through Frankie.\n  - \"AVIATION_SECURITY_ID\": Aviation Security Identification Card.\n  - \"MARITIME_SECURITY_ID\": Maritime Security Identification Card."
+        "description": "Valid document ID types.\n\n  - \"OTHER\": Generic document type. Unspecified.\n  - \"DRIVERS_LICENSE\": Driver's license.\n  - \"PASSPORT\": Passport.\n  - \"VISA\": Visa document (not Visa payment card).\n  - \"IMMIGRATION\": Immigration card.\n  - \"NATIONAL_ID\": Any national ID card.\n  - \"TAX_ID\": Any national tax identifier.\n  - \"NATIONAL_HEALTH_ID\": Any national health program ID card (e.g., Medicare, NHS).\n  - \"CONCESSION\": State-issued concession card.\n  - \"HEALTH_CONCESSION\": State-issued health-specific concession card.\n  - \"PENSION\": State-issued pension ID.\n  - \"MILITARY_ID\": Military ID.\n  - \"BIRTH_CERT\": Birth certificate.\n  - \"CITIZENSHIP\": Citizenship certificate.\n  - \"MARRIAGE_CERT\": Marriage certificate.\n  - \"DEATH_CERT\": Death certificate.\n  - \"NAME_CHANGE\": Name change confirmation.\n  - \"UTILITY_BILL\": Regulated utility bill, such as electricity, gas, etc.\n  - \"BANK_STATEMENT\": Bank/card statement.\n  - \"BANK_ACCOUNT\": Bank account.\n  - \"INTENT_PROOF\": Proof of intent, generally a photo/video or a scanned letter.\n  - \"ATTESTATION\": Document of attestation (e.g., Statutory Declaration).\n\n  NOTE: These cannot be used as a supporting document:\n  - \"SELF_IMAGE\": A \"selfie\" used for comparisons.\n  - \"DEVICE\": Device ID.\n  - \"VEHICLE_REGISTRATION\": Vehicle registration number.\n  - \"PROOF_OF_ADDRESS\": Any document that provides proof of address.\n  - \"HOUSE_REGISTRATION\": House registration document.\n  - \"YELLOW_HOUSE_REGISTRATION\": Yellow House Registration Thor Ror 13.\n  - \"WORK_PERMIT\": Work permit.\n  - \"EMPLOYMENT_CERTIFICATE\": Certificate of employment.\n  - \"NOTARY_PUBLIC_ID\": Notary Public Identification.\n\n  Business-related documentation:\n\n  - \"EXTERNAL_ADMIN\": Details of appointed administrator.\n  - \"CHARGES\": Details of any charges laid against a company or director.\n  - \"PRE_ASIC\": Any documents that are Pre-ASIC.\n  - \"ANNUAL_RETURN\": Details of a company's annual return.\n  - \"REPORT\": Frankie-generated report.\n  - \"TRUST_DEED\": Corporate trust deed.\n  - \"DEED_OF_VARIATION\": Deed of variation document.\n  - \"REGISTER_OF_UNIT_HOLDERS\": Register of unit holders document.\n  - \"PARTNERSHIP_AGREEMENT\": Partnership agreement documents.\n  - \"ADMIN_CHANGE\": Change of administrator.\n  - \"COMPANY_REPORT\": Registry-filed company reports.\n  - \"ORGANIZATION_PROFILE\": Organization profile document.\n  - \"ORGANIZATION_OWNERSHIP\": Organization ownership document.\n\n  Special document types:\n\n  - \"CHECK_RESULTS\": Special document type for specifying results of checks completed other than through Frankie.\n  - \"AVIATION_SECURITY_ID\": Aviation Security Identification Card.\n  - \"MARITIME_SECURITY_ID\": Maritime Security Identification Card."
       },
       "Supplementary-Data-IDV-Document": {
         "type": "object",
@@ -4685,6 +4561,15 @@
         ],
         "description": "Any manual status set after the results have been reviewed.\n- FALSE_POSITIVE: The result is determined to be a false positive, but you do not necessarily want to resolve it.\n- TRUE_POSITIVE_REJECT: The result is determined to be a true positive and you want to resolve it. \"Reject\" infers you want to reject the activity.\n"
       },
+      "Process-Result-Manual-StatusEnum-SupportDoc": {
+        "type": "string",
+        "enum": [
+          "APPROVED",
+          "REJECTED",
+          "NEEDS_ATTENTION"
+        ],
+        "description": "Any manual status set after the results have been reviewed.\n- APPROVED: When the document has been reviewed and is acceptable.\n- REJECTED: When the document has been reviewed and is deemed to be not acceptable.\n- NEEDS_ATTENTION: When the document has been reviewed and requires further attention.\n"
+      },
       "Process-Result-Manual-StatusEnum": {
         "allOf": [
           {
@@ -4701,6 +4586,9 @@
           },
           {
             "$ref": "#/components/schemas/Process-Result-Manual-StatusEnum-Matchlist"
+          },
+          {
+            "$ref": "#/components/schemas/Process-Result-Manual-StatusEnum-SupportDoc"
           }
         ]
       },
