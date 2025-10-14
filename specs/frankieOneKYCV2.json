@@ -1387,6 +1387,9 @@
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "meta": {
+                      "$ref": "#/components/schemas/List-Operation-Meta"
+                    },
                     "requestId": {
                       "$ref": "#/components/schemas/Request-ID"
                     },
@@ -5496,19 +5499,7 @@
                 "type": "object",
                 "properties": {
                   "document": {
-                    "allOf": [
-                      {
-                        "type": "object",
-                        "properties": {
-                          "class": {
-                            "$ref": "#/components/schemas/Document-Class"
-                          }
-                        }
-                      },
-                      {
-                        "$ref": "#/components/schemas/Document-Information"
-                      }
-                    ]
+                    "$ref": "#/components/schemas/Document-Create"
                   },
                   "comment": {
                     "$ref": "#/components/schemas/Comment"
@@ -5711,7 +5702,7 @@
         }
       ],
       "patch": {
-        "summary": "Update a single document by it's id.",
+        "summary": "Update a single document by its id.",
         "responses": {
           "200": {
             "description": "OK",
@@ -5890,7 +5881,7 @@
         ]
       },
       "get": {
-        "summary": "Get a single document by it's id.",
+        "summary": "Get a single document by its id.",
         "responses": {
           "200": {
             "description": "OK",
@@ -6016,7 +6007,7 @@
           }
         },
         "operationId": "getDocument",
-        "description": "Get a single document by it's id.",
+        "description": "Get a single document by its id.",
         "parameters": [
           {
             "$ref": "#/components/parameters/Api-Key"
@@ -6375,6 +6366,194 @@
         ],
         "tags": [
           "Individual Documents"
+        ],
+        "security": [
+          {
+            "Api-Key": []
+          },
+          {
+            "jwt": [
+              "kyc:api"
+            ]
+          }
+        ]
+      }
+    },
+    "/v2/individuals/{entityId}/documents/{documentId}/status": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/entityId"
+        },
+        {
+          "$ref": "#/components/parameters/documentId"
+        }
+      ],
+      "patch": {
+        "summary": "Update the status of a supporting document",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "requestId": {
+                      "$ref": "#/components/schemas/Request-ID"
+                    },
+                    "processResults": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Process-Result-Object"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "Invalid EntityId": {
+                    "value": {
+                      "errorCode": "API-0400,",
+                      "errorMsg": "Multiple Errors: See Issues list",
+                      "details": [
+                        {
+                          "issue": "entityId in path must be of type uuid: \"test\"",
+                          "issueLocation": "VALIDATE-entityId"
+                        }
+                      ],
+                      "requestId": "01HM5XJ7VASZ3EJMB1VQGTBFJ4"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "Invalid authentication": {
+                    "value": {
+                      "errorCode": "AUTH-0002,",
+                      "errorMsg": "Unauthorized",
+                      "details": [
+                        {
+                          "issue": "Invalid Authentication provided. Access denied.",
+                          "issueLocation": "request"
+                        }
+                      ],
+                      "requestId": "00000000S6MNG7624K2TDXT1E3"
+                    }
+                  },
+                  "No Api-Key": {
+                    "value": {
+                      "errorCode": "AUTH-0401",
+                      "errorMsg": "Unauthorized",
+                      "details": [
+                        {
+                          "issue": "No api key provided. Access denied.",
+                          "issueLocation": "request"
+                        }
+                      ],
+                      "requestId": "00000001S6MNG7624K2TDXT1E3"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "manualStatus": {
+                    "$ref": "#/components/schemas/Process-Result-Manual-StatusEnum-SupportDoc"
+                  },
+                  "comment": {
+                    "$ref": "#/components/schemas/Comment"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "updateSupportingDocumentStatus",
+        "description": "Update the status of a support document. This will create or update the process result for the given document. The given document must be a support document with an attachment, otherwise the request will fail with a 400 Bad Request error. Only support documents can currently be reviewed in this way.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Api-Key"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-CustomerID"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-CustomerChildID"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-Channel"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-Username"
+          }
+        ],
+        "tags": [
+          "Individual Results"
         ],
         "security": [
           {
@@ -6764,7 +6943,7 @@
         }
       ],
       "post": {
-        "summary": "Queries the IDV provider for a token to be used with their sdk. This allows a provider SDK to be instantiated, this is to be called before starting the IDV or OCR process.",
+        "summary": "Get an IDV Token for the given individual.",
         "requestBody": {
           "content": {
             "application/json": {
@@ -6890,7 +7069,7 @@
           }
         },
         "operationId": "getIDVToken",
-        "description": "Get an IDV Token for the given individual.",
+        "description": "Queries the IDV provider for a token to be used with their sdk. This allows a provider SDK to be instantiated, this is to be called before starting the IDV or OCR process.",
         "parameters": [
           {
             "$ref": "#/components/parameters/Api-Key"
@@ -7957,7 +8136,8 @@
           "PLACE_OF_BUSINESS",
           "OFFICIAL_CORRESPONDANCE",
           "PLACE_OF_BIRTH",
-          "OFFICE_LOCALITY"
+          "OFFICE_LOCALITY",
+          "AUTHORITATIVE_RESIDENTIAL"
         ]
       },
       "Date-Type": {
@@ -8355,6 +8535,17 @@
           }
         ]
       },
+      "Document-Class": {
+        "type": "string",
+        "enum": [
+          "OTHER",
+          "IDENTITY",
+          "SUPPORTING",
+          "REPORT"
+        ],
+        "description": "The classification of the document, indicating how it should be used or interpreted.",
+        "example": "IDENTITY"
+      },
       "Document-ID": {
         "type": "string",
         "format": "uuid",
@@ -8401,14 +8592,18 @@
           "ANNUAL_RETURN",
           "REPORT",
           "TRUST_DEED",
+          "DEED_OF_VARIATION",
+          "REGISTER_OF_UNIT_HOLDERS",
           "PARTNERSHIP_AGREEMENT",
           "ADMIN_CHANGE",
           "COMPANY_REPORT",
           "CHECK_RESULTS",
           "AVIATION_SECURITY_ID",
-          "MARITIME_SECURITY_ID"
+          "MARITIME_SECURITY_ID",
+          "ORGANIZATION_PROFILE",
+          "ORGANIZATION_OWNERSHIP"
         ],
-        "description": "Valid document ID types.\n\n  - \"OTHER\": Generic document type. Unspecified.\n  - \"DRIVERS_LICENSE\": Driver's license.\n  - \"PASSPORT\": Passport.\n  - \"VISA\": Visa document (not Visa payment card).\n  - \"IMMIGRATION\": Immigration card.\n  - \"NATIONAL_ID\": Any national ID card.\n  - \"TAX_ID\": Any national tax identifier.\n  - \"NATIONAL_HEALTH_ID\": Any national health program ID card (e.g., Medicare, NHS).\n  - \"CONCESSION\": State-issued concession card.\n  - \"HEALTH_CONCESSION\": State-issued health-specific concession card.\n  - \"PENSION\": State-issued pension ID.\n  - \"MILITARY_ID\": Military ID.\n  - \"BIRTH_CERT\": Birth certificate.\n  - \"CITIZENSHIP\": Citizenship certificate.\n  - \"MARRIAGE_CERT\": Marriage certificate.\n  - \"DEATH_CERT\": Death certificate.\n  - \"NAME_CHANGE\": Name change confirmation.\n  - \"UTILITY_BILL\": Regulated utility bill, such as electricity, gas, etc.\n  - \"BANK_STATEMENT\": Bank/card statement.\n  - \"BANK_ACCOUNT\": Bank account.\n  - \"INTENT_PROOF\": Proof of intent, generally a photo/video or a scanned letter.\n  - \"ATTESTATION\": Document of attestation (e.g., Statutory Declaration).\n\n  NOTE: These cannot be used as a supporting document:\n  - \"SELF_IMAGE\": A \"selfie\" used for comparisons.\n  - \"DEVICE\": Device ID.\n  - \"VEHICLE_REGISTRATION\": Vehicle registration number.\n  - \"PROOF_OF_ADDRESS\": Any document that provides proof of address.\n  - \"HOUSE_REGISTRATION\": House registration document.\n  - \"YELLOW_HOUSE_REGISTRATION\": Yellow House Registration Thor Ror 13.\n  - \"WORK_PERMIT\": Work permit.\n  - \"EMPLOYMENT_CERTIFICATE\": Certificate of employment.\n  - \"NOTARY_PUBLIC_ID\": Notary Public Identification.\n\n  Business-related documentation:\n\n  - \"EXTERNAL_ADMIN\": Details of appointed administrator.\n  - \"CHARGES\": Details of any charges laid against a company or director.\n  - \"PRE_ASIC\": Any documents that are Pre-ASIC.\n  - \"ANNUAL_RETURN\": Details of a company's annual return.\n  - \"REPORT\": Frankie-generated report.\n  - \"TRUST_DEED\": Corporate trust deed.\n  - \"PARTNERSHIP_AGREEMENT\": Partnership agreement documents.\n  - \"ADMIN_CHANGE\": Change of administrator.\n  - \"COMPANY_REPORT\": Registry-filed company reports.\n\n  Special document types:\n\n  - \"CHECK_RESULTS\": Special document type for specifying results of checks completed other than through Frankie.\n  - \"AVIATION_SECURITY_ID\": Aviation Security Identification Card.\n  - \"MARITIME_SECURITY_ID\": Maritime Security Identification Card."
+        "description": "Valid document ID types.\n\n  - \"OTHER\": Generic document type. Unspecified.\n  - \"DRIVERS_LICENSE\": Driver's license.\n  - \"PASSPORT\": Passport.\n  - \"VISA\": Visa document (not Visa payment card).\n  - \"IMMIGRATION\": Immigration card.\n  - \"NATIONAL_ID\": Any national ID card.\n  - \"TAX_ID\": Any national tax identifier.\n  - \"NATIONAL_HEALTH_ID\": Any national health program ID card (e.g., Medicare, NHS).\n  - \"CONCESSION\": State-issued concession card.\n  - \"HEALTH_CONCESSION\": State-issued health-specific concession card.\n  - \"PENSION\": State-issued pension ID.\n  - \"MILITARY_ID\": Military ID.\n  - \"BIRTH_CERT\": Birth certificate.\n  - \"CITIZENSHIP\": Citizenship certificate.\n  - \"MARRIAGE_CERT\": Marriage certificate.\n  - \"DEATH_CERT\": Death certificate.\n  - \"NAME_CHANGE\": Name change confirmation.\n  - \"UTILITY_BILL\": Regulated utility bill, such as electricity, gas, etc.\n  - \"BANK_STATEMENT\": Bank/card statement.\n  - \"BANK_ACCOUNT\": Bank account.\n  - \"INTENT_PROOF\": Proof of intent, generally a photo/video or a scanned letter.\n  - \"ATTESTATION\": Document of attestation (e.g., Statutory Declaration).\n\n  NOTE: These cannot be used as a supporting document:\n  - \"SELF_IMAGE\": A \"selfie\" used for comparisons.\n  - \"DEVICE\": Device ID.\n  - \"VEHICLE_REGISTRATION\": Vehicle registration number.\n  - \"PROOF_OF_ADDRESS\": Any document that provides proof of address.\n  - \"HOUSE_REGISTRATION\": House registration document.\n  - \"YELLOW_HOUSE_REGISTRATION\": Yellow House Registration Thor Ror 13.\n  - \"WORK_PERMIT\": Work permit.\n  - \"EMPLOYMENT_CERTIFICATE\": Certificate of employment.\n  - \"NOTARY_PUBLIC_ID\": Notary Public Identification.\n\n  Business-related documentation:\n\n  - \"EXTERNAL_ADMIN\": Details of appointed administrator.\n  - \"CHARGES\": Details of any charges laid against a company or director.\n  - \"PRE_ASIC\": Any documents that are Pre-ASIC.\n  - \"ANNUAL_RETURN\": Details of a company's annual return.\n  - \"REPORT\": Frankie-generated report.\n  - \"TRUST_DEED\": Corporate trust deed.\n  - \"DEED_OF_VARIATION\": Deed of variation document.\n  - \"REGISTER_OF_UNIT_HOLDERS\": Register of unit holders document.\n  - \"PARTNERSHIP_AGREEMENT\": Partnership agreement documents.\n  - \"ADMIN_CHANGE\": Change of administrator.\n  - \"COMPANY_REPORT\": Registry-filed company reports.\n  - \"ORGANIZATION_PROFILE\": Organization profile document.\n  - \"ORGANIZATION_OWNERSHIP\": Organization ownership document.\n\n  Special document types:\n\n  - \"CHECK_RESULTS\": Special document type for specifying results of checks completed other than through Frankie.\n  - \"AVIATION_SECURITY_ID\": Aviation Security Identification Card.\n  - \"MARITIME_SECURITY_ID\": Maritime Security Identification Card."
       },
       "Document-Supplementary-Data-Base": {
         "type": "object",
@@ -8507,6 +8702,11 @@
               "familyName": {
                 "type": "string",
                 "description": "The family name as printed on the certificate."
+              },
+              "countryOfBirth": {
+                "type": "string",
+                "description": "The country of birth as printed on the certificate. ISO 3166-1 alpha-3 code.",
+                "example": "AUS"
               }
             }
           }
@@ -8650,6 +8850,46 @@
           }
         ]
       },
+      "Document-Supplementary-Data-Name-Change-Certificate": {
+        "type": "object",
+        "description": "Supplementary information relevant to a name change certificate.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Document-Supplementary-Data-Base"
+          },
+          {
+            "type": "object",
+            "description": "Supplementary information relevant to a name change certificate.",
+            "properties": {
+              "dateOfPrint": {
+                "type": "string",
+                "description": "The date the name change certificate was printed.",
+                "example": "2000/01/01"
+              },
+              "registrationDate": {
+                "type": "string",
+                "description": "The date the name change certificate was registered.",
+                "example": "2000/01/01"
+              },
+              "registeredFamilyName": {
+                "type": "string",
+                "description": "The family name registered in the name change certificate.",
+                "example": "Doe"
+              },
+              "registeredGivenName": {
+                "type": "string",
+                "description": "The given name registered in the name change certificate.",
+                "example": "John"
+              },
+              "registeredOtherGivenNames": {
+                "type": "string",
+                "description": "Other given names registered in the name change certificate.",
+                "example": "Roy Michael"
+              }
+            }
+          }
+        ]
+      },
       "Document-Supplementary-Data": {
         "type": "object",
         "description": "Supplementary information relevant to a specific document or report type.",
@@ -8671,6 +8911,9 @@
           },
           {
             "$ref": "#/components/schemas/Document-Supplementary-Data-Marriage-Certificate"
+          },
+          {
+            "$ref": "#/components/schemas/Document-Supplementary-Data-Name-Change-Certificate"
           }
         ],
         "discriminator": {
@@ -8681,7 +8924,8 @@
             "NATIONAL_ID": "#/components/schemas/Document-Supplementary-Data-National-ID",
             "CITIZENSHIP": "#/components/schemas/Document-Supplementary-Data-Citizenship",
             "PASSPORT": "#/components/schemas/Document-Supplementary-Data-Passport",
-            "MARRIAGE_CERT": "#/components/schemas/Document-Supplementary-Data-Marriage-Certificate"
+            "MARRIAGE_CERT": "#/components/schemas/Document-Supplementary-Data-Marriage-Certificate",
+            "NAME_CHANGE": "#/components/schemas/Document-Supplementary-Data-Name-Change-Certificate"
           }
         }
       },
@@ -8812,6 +9056,9 @@
           "country"
         ],
         "properties": {
+          "class": {
+            "$ref": "#/components/schemas/Document-Class"
+          },
           "documentId": {
             "$ref": "#/components/schemas/Document-ID"
           },
@@ -9528,19 +9775,40 @@
           }
         ]
       },
+      "Entity-ID-Writeable": {
+        "type": "string",
+        "description": "Entities are assigned an auto-generated UUID to ensure global uniqueness, represented as entityId. The entityId allows for precise modification when required.\nTo modify an entity, set the entityId of the entity you wish to update in an update request.",
+        "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+      },
+      "Entity-Type-Writeable": {
+        "type": "string",
+        "enum": [
+          "INDIVIDUAL",
+          "ORGANIZATION",
+          "UNKNOWN"
+        ],
+        "description": "The type of entity within Frankie. This can be \"INDIVIDUAL\", \"ORGANIZATION\", or \"UNKNOWN\"."
+      },
       "Comment": {
         "type": "object",
         "properties": {
           "commentId": {
             "type": "string",
-            "description": "Unique identifier for the comment.",
-            "example": "55fc5d54-46f7-49c8-bf78-e07ec79cd6e7",
+            "description": "Unique identifier for the comment",
+            "format": "ulid",
+            "example": "01K3G4CCQ3DY3B1413S19M9QW1",
             "readOnly": true
           },
           "text": {
             "type": "string",
             "description": "The text content of the comment.",
             "example": "Update after speaking to customer over the phone directly."
+          },
+          "entityId": {
+            "$ref": "#/components/schemas/Entity-ID-Writeable"
+          },
+          "entityType": {
+            "$ref": "#/components/schemas/Entity-Type-Writeable"
           }
         }
       },
@@ -9868,6 +10136,9 @@
           "BAD_DATA_EMAIL",
           "BAD_DATA_ID",
           "BAD_DATA_MOBILE",
+          "BAD_DATA_DEVICE",
+          "BAD_DATA_IP_ADDRESS",
+          "BAD_DATA_EMAIL_ADDRESS",
           "BAD_DATA_NAME",
           "BLOCKED",
           "COMPROMISED_DOCUMENT",
@@ -9886,6 +10157,7 @@
           "FRAUD_IP_ADDRESS",
           "FRAUD_EMAIL_ADDRESS",
           "FRAUD_PHONE_NUMBER",
+          "FRAUD_INCOMPLETE",
           "FRAUD_ISSUE",
           "FRAUD_LIST",
           "IMAGE_INTEGRITY",
@@ -9911,9 +10183,13 @@
           "WATCHLIST",
           "ACTIVITY_AML",
           "ACTIVITY_FRAUD",
-          "ACTIVITY_DEVICE"
+          "ACTIVITY_EVENT",
+          "ACTIVITY_DEVICE",
+          "SUPPORT_DOCUMENT_MISSING",
+          "SUPPORT_DOCUMENT_REJECTED",
+          "SUPPORT_DOCUMENT_UNREVIEWED"
         ],
-        "description": "For each category, this provides the specific issue type.\n\nAML:\n  - PEP: The entity has Politically Exposed Person (PEP) hits.\n  - SANCTION: The entity has sanction hits.\n  - MEDIA: The entity has adverse media hits.\n  - WATCHLIST: The entity has watchlist hits.\n\nBAD_DATA:\n  - BAD_DATA_NAME: Name is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_DOB: Date of Birth is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_ADDRESS: Address is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_ID: ID is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_EMAIL: Email is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_MOBILE: Mobile is required for verification but is missing or unusable due to data quality issues.\n\nBLOCKLISTED:\n  - MATCHED_INTERNAL: The entity matched an internal blocklist.\n  - MATCHED_SHARED: The entity matched a shared blocklist.\n  - MATCHED_EXTERNAL: The entity matched an external blocklist.\n\nDECEASED:\n  - DECEASED: The person whose data is being verified is deceased.\n\nDEVICE:\n  - DEVICE_FRAUD_MATCH: Fraud detected on the device.\n  - DEVICE_INVALID: The device is invalid.\n\nDUPLICATE:\n  - DUPLICATE: The entity is a duplicate of another entity.\n\nEXPIRY:\n  - REQUIRES_KYC: KYC process needs to be re-initiated.\n  - REQUIRES_IDV: IDV process needs to be re-initiated.\n  - REQUIRES_AML: AML process needs to be re-initiated.\n  - REQUIRES_VISA: Visa process needs to be re-initiated.\n\nFRAUD:\n  - FRAUD_LIST: The entity is on a fraud list.\n  - FRAUD_CHECK: Fraud detected during checks.\n  - FRAUD_DEVICE: Device fraud detected.\n  - FRAUD_IP_ADDRESS: IP address fraud detected.\n  - FRAUD_EMAIL_ADDRESS: Email address fraud detected.\n  - FRAUD_PHONE_NUMBER: Phone number fraud detected.\n\nIDV:\n  - DATA_COMPARISON: Data comparison issue.\n  - DATA_VALIDATION: Data validation issue.\n  - DATA_CONSISTENCY: Data consistency issue.\n  - VISUAL_AUTHENTICITY: Visual authenticity issue.\n  - IMAGE_INTEGRITY: Image integrity issue.\n  - COMPROMISED_DOCUMENT: Document is compromised.\n  - LIVENESS_DETECTION: Liveness detection failed.\n  - DOCUMENT_COMPARISON: Document comparison issue.\n\nINFORMATIONAL:\n  - CREDIT_HEADER: Credit header information was returned as part of a credit agency check.\n\nKYC:\n  - PARTIAL: The KYC check was only partially successful.\n  - NOT_FOUND: No match was found for the given data.\n\nOCR:\n  - OCR: The OCR data does not match what was entered by the user.\n\nSYSTEM:\n  - SERVICE_TIMEOUT: All providers have timed out.\n  - SERVICE_ERROR: All providers have returned an error or an internal error has occurred.\n\nVISA:\n  - DENY_LIST: The entity matched a visa deny list.\n  - VISA_FAILED: Visa check failed from the provider.\n\nWATCHLIST:\n  - INTERNAL_MATCH: The entity matched an internal watchlist.\n\nACTIVITY:\n  - ACTIVITY_AML: AML-related activity issue.\n  - ACTIVITY_FRAUD: Fraud-related activity issue.\n  - ACTIVITY_DEVICE: Device-related activity issue."
+        "description": "For each category, this provides the specific issue type.\n\nAML:\n  - PEP: The entity has Politically Exposed Person (PEP) hits.\n  - SANCTION: The entity has sanction hits.\n  - MEDIA: The entity has adverse media hits.\n  - WATCHLIST: The entity has watchlist hits.\n\nBAD_DATA:\n  - BAD_DATA_NAME: Name is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_DOB: Date of Birth is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_ADDRESS: Address is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_ID: ID is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_EMAIL: Email is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_MOBILE: Mobile is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_DEVICE: Device is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_IP_ADDRESS: IP Address is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_EMAIL_ADDRESS: Email Address is required for verification but is missing or unusable due to data quality issues.\n\nBLOCKLISTED:\n  - MATCHED_INTERNAL: The entity matched an internal blocklist.\n  - MATCHED_SHARED: The entity matched a shared blocklist.\n  - MATCHED_EXTERNAL: The entity matched an external blocklist.\n\nDECEASED:\n  - DECEASED: The person whose data is being verified is deceased.\n\nDEVICE:\n  - DEVICE_FRAUD_MATCH: Fraud detected on the device.\n  - DEVICE_INVALID: The device is invalid.\n\nDUPLICATE:\n  - DUPLICATE: The entity is a duplicate of another entity.\n\nEXPIRY:\n  - REQUIRES_KYC: KYC process needs to be re-initiated.\n  - REQUIRES_IDV: IDV process needs to be re-initiated.\n  - REQUIRES_AML: AML process needs to be re-initiated.\n  - REQUIRES_VISA: Visa process needs to be re-initiated.\n\nFRAUD:\n  - FRAUD_LIST: The entity is on a fraud list.\n  - FRAUD_CHECK: Fraud detected during checks.\n  - FRAUD_DEVICE: Device fraud detected.\n  - FRAUD_IP_ADDRESS: IP address fraud detected.\n  - FRAUD_EMAIL_ADDRESS: Email address fraud detected.\n  - FRAUD_PHONE_NUMBER: Phone number fraud detected.\n\nIDV:\n  - DATA_COMPARISON: Data comparison issue.\n  - DATA_VALIDATION: Data validation issue.\n  - DATA_CONSISTENCY: Data consistency issue.\n  - VISUAL_AUTHENTICITY: Visual authenticity issue.\n  - IMAGE_INTEGRITY: Image integrity issue.\n  - COMPROMISED_DOCUMENT: Document is compromised.\n  - LIVENESS_DETECTION: Liveness detection failed.\n  - DOCUMENT_COMPARISON: Document comparison issue.\n\nINFORMATIONAL:\n  - CREDIT_HEADER: Credit header information was returned as part of a credit agency check.\n\nKYC:\n  - PARTIAL: The KYC check was only partially successful.\n  - NOT_FOUND: No match was found for the given data.\n\nOCR:\n  - OCR: The OCR data does not match what was entered by the user.\n\nSYSTEM:\n  - SERVICE_TIMEOUT: All providers have timed out.\n  - SERVICE_ERROR: All providers have returned an error or an internal error has occurred.\n\nVISA:\n  - DENY_LIST: The entity matched a visa deny list.\n  - VISA_FAILED: Visa check failed from the provider.\n\nWATCHLIST:\n  - INTERNAL_MATCH: The entity matched an internal watchlist.\n\nACTIVITY:\n  - ACTIVITY_AML: The entity has had an activity that is flagged for AML\n  - ACTIVITY_FRAUD: The entity has had an activity that is flagged for fraud\n  - ACTIVITY_EVENT: The entity has had an activity that is deemed as suspicious, but not exactly classified as either fraud or AML"
       },
       "Workflow-Issue-Severity": {
         "type": "string",
@@ -9995,10 +10271,11 @@
       },
       "Workflow-LifecyclePhaseEnum": {
         "type": "string",
-        "description": "Specifies the lifecycle phase of the customer in which this workflow is executed:\n  - ONBOARDING: Workflow is in the onboarding stage.\n  - MONITORING: Workflow is in the monitoring stage.\n  - OTHER: Workflow is in another stage.\n",
+        "description": "Specifies the lifecycle phase of the customer in which this workflow is executed:\n  - ONBOARDING: Workflow is in the onboarding stage.\n  - MONITORING: Workflow is in the monitoring stage.\n  - REFRESH: Workflow is in the refresh stage.\n  - OTHER: Workflow is in another stage.\n",
         "enum": [
           "ONBOARDING",
           "MONITORING",
+          "REFRESH",
           "OTHER"
         ],
         "default": "OTHER"
@@ -10510,6 +10787,10 @@
           "workflowName": {
             "type": "string",
             "description": "Name of the workflow."
+          },
+          "workflowDisplayName": {
+            "type": "string",
+            "description": "The display name for the workflow. This field is optional, when the value exists workflow name displayed in portal will be the value of this field."
           },
           "type": {
             "type": "string",
@@ -11398,6 +11679,26 @@
           }
         }
       },
+      "Workflow-Step-Summary-Activity-Counts": {
+        "type": "object",
+        "properties": {
+          "fraud": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "aml": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "event": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          }
+        }
+      },
       "Workflow-Step-Summary-Activity": {
         "type": "object",
         "description": "Provides details of the overall activity step results.\n",
@@ -11405,23 +11706,11 @@
           "stepName"
         ],
         "properties": {
-          "totalFraud": {
-            "type": "integer",
-            "format": "int32",
-            "minimum": 0,
-            "description": "Total number of fraud hits found."
+          "totalResolved": {
+            "$ref": "#/components/schemas/Workflow-Step-Summary-Activity-Counts"
           },
-          "totalAML": {
-            "type": "integer",
-            "format": "int32",
-            "minimum": 0,
-            "description": "Total number of AML (Anti-Money Laundering) hits found."
-          },
-          "totalDevice": {
-            "type": "integer",
-            "format": "int32",
-            "minimum": 0,
-            "description": "Total number of device hits found."
+          "totalUnresolved": {
+            "$ref": "#/components/schemas/Workflow-Step-Summary-Activity-Counts"
           },
           "stepName": {
             "type": "string",
@@ -11495,6 +11784,30 @@
           }
         }
       },
+      "Workflow-Step-Summary-SupportDoc": {
+        "type": "object",
+        "description": "Provides summary details for the supporting document step.\n",
+        "required": [
+          "stepName"
+        ],
+        "properties": {
+          "approvedCount": {
+            "type": "integer",
+            "description": "Number of support documents approved"
+          },
+          "rejectedCount": {
+            "type": "integer",
+            "description": "Number of support documents rejected"
+          },
+          "unresolvedCount": {
+            "type": "integer",
+            "description": "Number of support documents unresolved"
+          },
+          "stepName": {
+            "type": "string"
+          }
+        }
+      },
       "Workflow-Step-Summary": {
         "type": "object",
         "oneOf": [
@@ -11533,6 +11846,9 @@
           },
           {
             "$ref": "#/components/schemas/Workflow-Step-Summary-Fraud"
+          },
+          {
+            "$ref": "#/components/schemas/Workflow-Step-Summary-SupportDoc"
           }
         ],
         "discriminator": {
@@ -11549,7 +11865,8 @@
             "MATCHLIST": "#/components/schemas/Workflow-Step-Summary-Matchlist",
             "DUPLICATE": "#/components/schemas/Workflow-Step-Summary-Duplicate",
             "ACTIVITY": "#/components/schemas/Workflow-Step-Summary-Activity",
-            "FRAUD": "#/components/schemas/Workflow-Step-Summary-Fraud"
+            "FRAUD": "#/components/schemas/Workflow-Step-Summary-Fraud",
+            "SUPPORT_DOC": "#/components/schemas/Workflow-Step-Summary-SupportDoc"
           }
         }
       },
@@ -11727,7 +12044,7 @@
         "properties": {
           "type": {
             "type": "string",
-            "description": "The type of supplementary data. Possible values:\n  - AML\n  - KYC_ADDRESS\n  - KYC_DOB\n  - KYC_GENDER\n  - KYC_NAME\n  - ID\n  - VISA\n  - NAME_VALIDATION\n  - KYB_ORGANIZATION\n  - MATCHLIST\n  - DUPLICATE\n  - FRAUD_DEVICE\n  - FRAUD_EMAIL\n  - FRAUD_PHONE\n  - FRAUD_LOOKUP\n  - ACTIVITY_AML\n  - ACTIVITY_DEVICE\n  - ACTIVITY_FRAUD\n",
+            "description": "The type of supplementary data. Possible values:\n  - AML\n  - KYC_ADDRESS\n  - KYC_DOB\n  - KYC_GENDER\n  - KYC_NAME\n  - ID\n  - VISA\n  - NAME_VALIDATION\n  - KYB_ORGANIZATION\n  - MATCHLIST\n  - DUPLICATE\n  - FRAUD_DEVICE\n  - FRAUD_EMAIL\n  - FRAUD_PHONE\n  - FRAUD_LOOKUP\n  - ACTIVITY_AML\n  - ACTIVITY_EVENT\n  - ACTIVITY_FRAUD\n",
             "enum": [
               "AML",
               "KYC_ADDRESS",
@@ -11746,7 +12063,7 @@
               "FRAUD_IP_ADDRESS",
               "FRAUD_LOOKUP",
               "ACTIVITY_AML",
-              "ACTIVITY_DEVICE",
+              "ACTIVITY_EVENT",
               "ACTIVITY_FRAUD"
             ]
           }
@@ -11862,6 +12179,9 @@
           "isRelated": {
             "type": "boolean",
             "description": "Indicates if this match is a related party of the searched individual or organization."
+          },
+          "gender": {
+            "$ref": "#/components/schemas/GenderEnum"
           }
         }
       },
@@ -13181,190 +13501,485 @@
         "description": "Activity ID that identifies an activity within the Frankie platform",
         "format": "ulid"
       },
-      "Evaluation-ID": {
-        "type": "string",
-        "description": "The ID of the evaluation",
-        "readOnly": true,
-        "format": "ulid"
-      },
-      "Activity-Result-ID": {
-        "type": "string",
-        "readOnly": true,
-        "description": "Activity Result ID that identifies a result from an evaluation of an activity",
-        "format": "ulid"
-      },
-      "Result-Reference-Type": {
-        "type": "string",
-        "description": "The type of the reference (e.g. url)",
-        "enum": [
-          "URL",
-          "REFERENCE"
-        ]
-      },
-      "Result-Reference": {
+      "Session": {
         "type": "object",
+        "description": "Session details for an activity, this is always scoped to a singular entity.",
         "properties": {
-          "name": {
+          "token": {
             "type": "string",
-            "description": "The source of the result (e.g. sardine)"
-          },
-          "type": {
-            "$ref": "#/components/schemas/Result-Reference-Type"
-          },
-          "reference": {
-            "type": "string",
-            "description": "A link or reference to the source of the result. \nThe format will depend on the source and the reference type.\n"
+            "description": "A token to identify the specific session for the activity"
           }
         }
       },
-      "Indicator-ID": {
-        "type": "string",
-        "readOnly": true,
-        "format": "ulid",
-        "description": "Indicator ID that identifies an indicator from a check on an activity"
-      },
-      "Rule-ID": {
-        "type": "string",
-        "readOnly": true,
-        "format": "ulid",
-        "description": "Rule ID that identifies an instance of a rule within the Frankie platform"
-      },
-      "Supplementary-Data-Activity-Result-Detail-Rule": {
+      "Party-Detail-Individual": {
         "type": "object",
+        "description": "Party details for an individual\n",
         "properties": {
-          "ruleId": {
-            "$ref": "#/components/schemas/Rule-ID"
+          "name": {
+            "$ref": "#/components/schemas/Individual-Name"
           },
-          "reference": {
+          "dateOfBirth": {
+            "$ref": "#/components/schemas/Date-Of-Birth"
+          }
+        }
+      },
+      "Party-Detail-Organization": {
+        "type": "object",
+        "description": "Party details for an organization\n",
+        "properties": {
+          "sourceId": {
+            "type": "string",
+            "description": "The source from where a specific information was sourced from. This is a link to an informationSource object in the informationSources map."
+          },
+          "registeredName": {
+            "type": "string",
+            "description": "The registered name of the organization"
+          },
+          "registeredSubdivision": {
+            "description": "The subdivision that the organization was registered at",
             "type": "string"
           },
-          "name": {
+          "registeredCountry": {
+            "description": "The country that the organization was registered at",
+            "type": "string"
+          },
+          "registrationNumber": {
+            "description": "The registration number of the organization in the registry",
+            "type": "string"
+          },
+          "registrationNumberType": {
+            "description": "The type of the registration number, e.g. ACN, ABN, etc",
+            "type": "string"
+          },
+          "registrationNumberDescription": {
+            "description": "The description of type of the registration number, e.g. Australian Company Number, Australian Business Number, etc",
+            "type": "string"
+          }
+        }
+      },
+      "Party-Detail-Summary": {
+        "type": "object",
+        "description": "A summary of the party details\n",
+        "properties": {
+          "entityId": {
+            "$ref": "#/components/schemas/Entity-ID-Writeable"
+          },
+          "entityType": {
+            "$ref": "#/components/schemas/Entity-Type-Writeable"
+          },
+          "externalReference": {
+            "$ref": "#/components/schemas/External-Reference"
+          },
+          "individual": {
+            "$ref": "#/components/schemas/Party-Detail-Individual"
+          },
+          "organization": {
+            "$ref": "#/components/schemas/Party-Detail-Organization"
+          },
+          "entityName": {
+            "type": "string",
+            "description": "The name of the entity, use this if the entity type is not clear"
+          },
+          "createdAt": {
+            "description": "When the entity was created",
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Party-Detail-Contact": {
+        "type": "object",
+        "properties": {
+          "addresses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Address"
+            }
+          },
+          "phoneNumbers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Phone-Number"
+            }
+          },
+          "emailAddresses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Email"
+            }
+          }
+        }
+      },
+      "Party-Detail": {
+        "type": "object",
+        "description": "A party describes the details of one of the parties in a given transaction (natch). It can be used to \ndescribe any participant and is differentiated by the paymentRole fulfilled.\n\nYou can either provide the raw entity ID as a reference or fill in the details. If an entity ID is provided,\nthe data will be extracted from the entity in the Frankie system. Data provided here will take precedence \nover the entity data but will not enrich the entity details in the Frankie system.\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Party-Detail-Summary"
+          },
+          {
+            "$ref": "#/components/schemas/Party-Detail-Contact"
+          }
+        ]
+      },
+      "Activity-Type": {
+        "type": "string",
+        "description": "The different types of activities able to be monitored",
+        "enum": [
+          "TRANSACTION",
+          "EVENT"
+        ]
+      },
+      "Activity-Detail-Base": {
+        "type": "object",
+        "required": [
+          "activityType"
+        ],
+        "properties": {
+          "activityType": {
+            "$ref": "#/components/schemas/Activity-Type"
+          },
+          "activityAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The timestamp that the activity occurred in UTC ISO8601 format"
+          }
+        }
+      },
+      "Event-Type": {
+        "type": "string",
+        "description": "The type of event that has occurred",
+        "enum": [
+          "LOGIN",
+          "LOGOUT",
+          "SIGNUP",
+          "PASSWORD_RESET",
+          "PASSWORD_CHANGE",
+          "ADDRESS_CHANGE",
+          "PHONE_CHANGE",
+          "EMAIL_CHANGE",
+          "ACCOUNT_UPDATE",
+          "2FA_UPDATE",
+          "PAYMENT_METHOD_LINK"
+        ]
+      },
+      "Event": {
+        "type": "object",
+        "description": "An event represents a non-financial event in the customers platform.",
+        "required": [
+          "eventType"
+        ],
+        "properties": {
+          "eventType": {
+            "$ref": "#/components/schemas/Event-Type"
+          }
+        }
+      },
+      "Activity-Event": {
+        "type": "object",
+        "description": "An activity detailing an event",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Activity-Detail-Base"
+          },
+          {
+            "$ref": "#/components/schemas/Event"
+          }
+        ]
+      },
+      "Currency": {
+        "type": "string",
+        "description": "3-digit ISO 4217 currency code or crypto symbol",
+        "example": [
+          "BTC",
+          "USD",
+          "ETH",
+          "AUD"
+        ]
+      },
+      "Currency-Type": {
+        "type": "string",
+        "description": "Indicates the type of currency",
+        "enum": [
+          "FIAT",
+          "CRYPTO"
+        ]
+      },
+      "Transaction-Method": {
+        "type": "string",
+        "description": "The method of payment used for the transaction",
+        "enum": [
+          "CARD_DEBIT",
+          "CARD_CREDIT",
+          "CARD_PREPAID",
+          "BANK_TRANSFER",
+          "WIRE",
+          "CRYPTO",
+          "WALLET",
+          "ACH",
+          "ECHECK",
+          "REMITTANCE",
+          "CASH"
+        ]
+      },
+      "Transaction-Account-Type": {
+        "type": "string",
+        "description": "The type of the account that was used in the financial transaction.",
+        "enum": [
+          "CHECKING",
+          "SAVINGS",
+          "CRYPTO_WALLET",
+          "TRUST",
+          "CARD",
+          "OTHER"
+        ]
+      },
+      "Transaction-Account-Summary": {
+        "type": "object",
+        "description": "Account details",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/Transaction-Account-Type"
+          },
+          "pan": {
+            "type": "string",
+            "description": "The primary account number (PAN) / crypto wallet of the party at the source service"
+          }
+        }
+      },
+      "Transaction-Account-Class": {
+        "type": "string",
+        "description": "The class of the account",
+        "enum": [
+          "PERSONAL",
+          "BUSINESS",
+          "OTHER"
+        ]
+      },
+      "Transaction-Account-ExternalId-Type": {
+        "type": "string",
+        "description": "An Account External ID type, usually associated with a PayID type.",
+        "enum": [
+          "EXTERNAL_ID_NUMBER",
+          "EXTERNAL_MOBILE",
+          "EXTERNAL_EMAIL",
+          "EXTERNAL_REGISTRATION_NUMBER"
+        ]
+      },
+      "Transaction-Account": {
+        "type": "object",
+        "description": "Account details",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Transaction-Account-Summary"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "hashedPan": {
+                "type": "string",
+                "description": "The Sha-256 hash of card number (PAN) of the party at the source service"
+              },
+              "maskedPan": {
+                "type": "string",
+                "description": "The masked card number (PAN) of the party at the source service"
+              },
+              "route": {
+                "type": "string",
+                "description": "The branch/BIN/BSB identifier to go with the pan"
+              },
+              "iban": {
+                "type": "string",
+                "description": "The IBAN identifier to go with the pan"
+              },
+              "swiftCode": {
+                "type": "string",
+                "description": "The Swift code identifier (or BIC - Bank Identifier Code) to go with the pan"
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the account/card",
+                "maxLength": 64
+              },
+              "class": {
+                "$ref": "#/components/schemas/Transaction-Account-Class"
+              },
+              "externalIdentifier": {
+                "type": "string",
+                "description": "If there is an external identifier associated with this account (e.g. PayID for an NPP transaction), then include that here",
+                "maxLength": 100
+              },
+              "externalIdentifierType": {
+                "$ref": "#/components/schemas/Transaction-Account-ExternalId-Type"
+              }
+            }
+          }
+        ]
+      },
+      "Transaction-Type": {
+        "type": "string",
+        "description": "The type of movement of funds",
+        "enum": [
+          "WITHDRAWAL",
+          "DEPOSIT"
+        ]
+      },
+      "Transaction-Merchant-Industry-Code": {
+        "type": "object",
+        "description": "A merchant industry code and description pair. (e.g. MCC, ANZSIC)",
+        "properties": {
+          "code": {
+            "description": "Short standard code or normalized representation of the information",
             "type": "string"
           },
           "description": {
+            "description": "The information relevant to the code, could be a more descriptive information",
             "type": "string"
           },
-          "isActive": {
-            "type": "boolean"
+          "type": {
+            "description": "Determines the type of the industry code.",
+            "type": "string"
           }
         }
       },
-      "Supplementary-Data-Activity-Result-Detail-Indicator": {
+      "Transaction-Merchant-Details": {
         "type": "object",
+        "description": "A merchant reflects details of the merchant owner.",
         "properties": {
-          "indicatorId": {
-            "$ref": "#/components/schemas/Indicator-ID"
+          "merchantIdentifier": {
+            "type": "string",
+            "description": "The merchant identifier of the merchant owner."
           },
-          "name": {
-            "type": "string"
-          },
-          "value": {
-            "type": "string"
-          },
-          "score": {
-            "type": "string"
-          },
-          "rules": {
+          "industryCodes": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/Supplementary-Data-Activity-Result-Detail-Rule"
+              "$ref": "#/components/schemas/Transaction-Merchant-Industry-Code"
             }
           }
         }
       },
-      "Supplementary-Data-Activity-Result-Detail": {
+      "Transaction": {
         "type": "object",
+        "description": "A transaction represents the details of a deposit or withdrawal of a entity.",
+        "required": [
+          "amount",
+          "currency",
+          "currencyType",
+          "transactionType",
+          "transferMethod",
+          "transactionIdentifier"
+        ],
         "properties": {
-          "activityId": {
-            "$ref": "#/components/schemas/Activity-ID"
+          "amount": {
+            "type": "number",
+            "format": "double",
+            "description": "The amount to be applied to the party"
           },
-          "evaluationId": {
-            "$ref": "#/components/schemas/Evaluation-ID"
+          "currency": {
+            "$ref": "#/components/schemas/Currency"
           },
-          "activityResultId": {
-            "$ref": "#/components/schemas/Activity-Result-ID"
+          "currencyType": {
+            "$ref": "#/components/schemas/Currency-Type"
           },
-          "reference": {
-            "$ref": "#/components/schemas/Result-Reference"
+          "transferMethod": {
+            "$ref": "#/components/schemas/Transaction-Method"
           },
-          "indicators": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Supplementary-Data-Activity-Result-Detail-Indicator"
-            }
+          "counterpartyAmount": {
+            "type": "number",
+            "format": "double",
+            "description": "The amount to be applied to the party"
+          },
+          "counterpartyCurrency": {
+            "$ref": "#/components/schemas/Currency"
+          },
+          "counterpartyCurrencyType": {
+            "$ref": "#/components/schemas/Currency-Type"
+          },
+          "counterpartyTransferMethod": {
+            "$ref": "#/components/schemas/Transaction-Method"
+          },
+          "description": {
+            "type": "string",
+            "description": "Short description of the payment from the perspective of the\nparty, or any attached reference details.\n",
+            "maxLength": 240
+          },
+          "account": {
+            "$ref": "#/components/schemas/Transaction-Account"
+          },
+          "transactionType": {
+            "$ref": "#/components/schemas/Transaction-Type"
+          },
+          "merchant": {
+            "$ref": "#/components/schemas/Transaction-Merchant-Details"
+          },
+          "transactionIdentifier": {
+            "type": "string",
+            "description": "A payment identifier supplied by an external party / source to associate with this party in the transaction.\nThis should be a unique reference for the customer to tie their transaction records to Frankie data."
           }
         }
       },
-      "Supplementary-Data-Activity-AML": {
+      "Counter-Party-Detail": {
         "type": "object",
-        "description": "Provides details of an activity Anti-Money Laundering (AML) result.\n",
+        "description": "A party describes the details of one of the parties in a given transaction (natch). It can be used to \ndescribe any participant and is differentiated by the paymentRole fulfilled.\n\nYou can either provide the raw entity ID as a reference or fill in the details. If an entity ID is provided,\nthe data will be extracted from the entity in the Frankie system. Data provided here will take precedence \nover the entity data but will not enrich the entity details in the Frankie system.\n",
         "allOf": [
           {
-            "$ref": "#/components/schemas/Supplementary-Data-Base"
+            "$ref": "#/components/schemas/Party-Detail"
           },
           {
             "type": "object",
             "properties": {
-              "riskLevel": {
-                "type": "string",
-                "description": "Indicates the assessed risk level for the activity."
-              },
-              "activityResults": {
-                "type": "array",
-                "description": "A list of detailed results for the activity AML check.",
-                "items": {
-                  "$ref": "#/components/schemas/Supplementary-Data-Activity-Result-Detail"
-                }
+              "account": {
+                "$ref": "#/components/schemas/Transaction-Account"
               }
             }
           }
         ]
       },
-      "Supplementary-Data-Activity-Fraud": {
+      "Transaction-Details": {
         "type": "object",
-        "description": "Defines the details of an activity fraud result.\n",
+        "description": "Transaction details",
+        "required": [
+          "transaction"
+        ],
+        "properties": {
+          "transaction": {
+            "$ref": "#/components/schemas/Transaction"
+          },
+          "counterparty": {
+            "$ref": "#/components/schemas/Counter-Party-Detail"
+          }
+        }
+      },
+      "Activity-Transaction": {
+        "type": "object",
+        "description": "An activity detailing a transaction",
         "allOf": [
           {
-            "$ref": "#/components/schemas/Supplementary-Data-Base"
+            "$ref": "#/components/schemas/Activity-Detail-Base"
           },
           {
-            "type": "object",
-            "properties": {
-              "riskLevel": {
-                "type": "string"
-              },
-              "activityResults": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/Supplementary-Data-Activity-Result-Detail"
-                }
-              }
-            }
+            "$ref": "#/components/schemas/Transaction-Details"
           }
         ]
       },
-      "Supplementary-Data-Activity-Device": {
+      "Activity-Detail": {
         "type": "object",
-        "description": "Defines the details of an activity device result.\n",
-        "allOf": [
+        "description": "Details of the activity being checked",
+        "oneOf": [
           {
-            "$ref": "#/components/schemas/Supplementary-Data-Base"
+            "$ref": "#/components/schemas/Activity-Event"
           },
           {
-            "type": "object",
-            "properties": {
-              "riskLevel": {
-                "type": "string"
-              },
-              "activityResults": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/Supplementary-Data-Activity-Result-Detail"
-                }
-              }
-            }
+            "$ref": "#/components/schemas/Activity-Transaction"
           }
-        ]
+        ],
+        "discriminator": {
+          "propertyName": "activityType",
+          "mapping": {
+            "EVENT": "#/components/schemas/Activity-Event",
+            "TRANSACTION": "#/components/schemas/Activity-Transaction"
+          }
+        }
       },
       "Behavior-Biometrics": {
         "type": "object",
@@ -13440,7 +14055,6 @@
       "Device-ID": {
         "type": "string",
         "description": "ID of the device",
-        "readOnly": true,
         "format": "ulid"
       },
       "Device-Properties": {
@@ -13611,15 +14225,209 @@
           }
         ]
       },
-      "Session": {
+      "Activity-Base": {
         "type": "object",
-        "description": "Session details for an activity, this is always scoped to a singular entity.",
+        "required": [
+          "party",
+          "detail"
+        ],
+        "description": "Activity details",
         "properties": {
-          "token": {
+          "activityId": {
+            "$ref": "#/components/schemas/Activity-ID"
+          },
+          "session": {
+            "$ref": "#/components/schemas/Session"
+          },
+          "party": {
+            "$ref": "#/components/schemas/Party-Detail"
+          },
+          "detail": {
+            "$ref": "#/components/schemas/Activity-Detail"
+          },
+          "device": {
+            "$ref": "#/components/schemas/Device"
+          },
+          "activityRequestId": {
             "type": "string",
-            "description": "A token to identify the specific session for the activity"
+            "format": "ulid",
+            "description": "The request ID associated to the activity being submitted"
           }
         }
+      },
+      "Evaluation-ID": {
+        "type": "string",
+        "description": "The ID of the evaluation",
+        "readOnly": true,
+        "format": "ulid"
+      },
+      "Activity-Result-ID": {
+        "type": "string",
+        "readOnly": true,
+        "description": "Activity Result ID that identifies a result from an evaluation of an activity",
+        "format": "ulid"
+      },
+      "Result-Reference-Type": {
+        "type": "string",
+        "description": "The type of the reference (e.g. url)",
+        "enum": [
+          "URL",
+          "REFERENCE"
+        ]
+      },
+      "Result-Reference": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The source of the result (e.g. sardine)"
+          },
+          "type": {
+            "$ref": "#/components/schemas/Result-Reference-Type"
+          },
+          "reference": {
+            "type": "string",
+            "description": "A link or reference to the source of the result. \nThe format will depend on the source and the reference type.\n"
+          }
+        }
+      },
+      "Indicator-ID": {
+        "type": "string",
+        "readOnly": true,
+        "format": "ulid",
+        "description": "Indicator ID that identifies an indicator from a check on an activity"
+      },
+      "Rule-ID": {
+        "type": "string",
+        "readOnly": true,
+        "format": "ulid",
+        "description": "Rule ID that identifies an instance of a rule within the Frankie platform"
+      },
+      "Supplementary-Data-Activity-Result-Detail-Rule": {
+        "type": "object",
+        "properties": {
+          "ruleId": {
+            "$ref": "#/components/schemas/Rule-ID"
+          },
+          "reference": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Supplementary-Data-Activity-Result-Detail-Indicator": {
+        "type": "object",
+        "properties": {
+          "indicatorId": {
+            "$ref": "#/components/schemas/Indicator-ID"
+          },
+          "name": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          },
+          "score": {
+            "type": "string"
+          },
+          "rules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Supplementary-Data-Activity-Result-Detail-Rule"
+            }
+          }
+        }
+      },
+      "Supplementary-Data-Activity-Result-Detail": {
+        "type": "object",
+        "properties": {
+          "riskLevel": {
+            "$ref": "#/components/schemas/Risk-Level"
+          },
+          "evaluationId": {
+            "$ref": "#/components/schemas/Evaluation-ID"
+          },
+          "activityResultId": {
+            "$ref": "#/components/schemas/Activity-Result-ID"
+          },
+          "reference": {
+            "$ref": "#/components/schemas/Result-Reference"
+          },
+          "indicators": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Supplementary-Data-Activity-Result-Detail-Indicator"
+            }
+          }
+        }
+      },
+      "Supplementary-Data-Activity-AML": {
+        "type": "object",
+        "description": "Provides details of an activity Anti-Money Laundering (AML) result.\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "activity": {
+                "$ref": "#/components/schemas/Activity-Base"
+              },
+              "result": {
+                "$ref": "#/components/schemas/Supplementary-Data-Activity-Result-Detail"
+              }
+            }
+          }
+        ]
+      },
+      "Supplementary-Data-Activity-Fraud": {
+        "type": "object",
+        "description": "Defines the details of an activity fraud result.\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "activity": {
+                "$ref": "#/components/schemas/Activity-Base"
+              },
+              "result": {
+                "$ref": "#/components/schemas/Supplementary-Data-Activity-Result-Detail"
+              }
+            }
+          }
+        ]
+      },
+      "Supplementary-Data-Activity-Event": {
+        "type": "object",
+        "description": "Defines the details of an activity device result.\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "activity": {
+                "$ref": "#/components/schemas/Activity-Base"
+              },
+              "result": {
+                "$ref": "#/components/schemas/Supplementary-Data-Activity-Result-Detail"
+              }
+            }
+          }
+        ]
       },
       "Session-Data": {
         "type": "object",
@@ -13851,7 +14659,7 @@
             "$ref": "#/components/schemas/Supplementary-Data-Activity-Fraud"
           },
           {
-            "$ref": "#/components/schemas/Supplementary-Data-Activity-Device"
+            "$ref": "#/components/schemas/Supplementary-Data-Activity-Event"
           },
           {
             "$ref": "#/components/schemas/Supplementary-Data-Fraud-Device"
@@ -13887,7 +14695,7 @@
             "MATCHLIST": "#/components/schemas/Supplementary-Data-Matchlist",
             "ACTIVITY_AML": "#/components/schemas/Supplementary-Data-Activity-AML",
             "ACTIVITY_FRAUD": "#/components/schemas/Supplementary-Data-Activity-Fraud",
-            "ACTIVITY_DEVICE": "#/components/schemas/Supplementary-Data-Activity-Device",
+            "ACTIVITY_EVENT": "#/components/schemas/Supplementary-Data-Activity-Event",
             "FRAUD_DEVICE": "#/components/schemas/Supplementary-Data-Fraud-Device",
             "FRAUD_EMAIL_ADDRESS": "#/components/schemas/Supplementary-Data-Fraud-Email-Address",
             "FRAUD_IP_ADDRESS": "#/components/schemas/Supplementary-Data-Fraud-IP-Address",
@@ -13936,7 +14744,7 @@
           "UNKNOWN_ACCEPT",
           "UNKNOWN_REJECT"
         ],
-        "description": "The manual status that the AML process result should be set to after the results have been reviewed.\n- FALSE_POSITIVE: The result is determined to be a false positive, but you do not necessarily want to resolve it.\n- FALSE_POSITIVE_ACCEPT: The result is determined to be a false positive and you want to resolve it. \"Accept\" infers you want to accept the activity.\n- TRUE_POSITIVE: The result is determined to be a true positive, but you do not necessarily want to resolve it.\n- TRUE_POSITIVE_REJECT: The result is determined to be a true positive and you want to resolve it. \"Reject\" infers you want to reject the activity.\n- UNKNOWN: The result is determined to be unknown, but you do not necessarily want to resolve it.\n- UNKNOWN_ACCEPT: The result is determined to be unknown and you want to resolve it. \"Accept\" infers you want to accept the activity.\n- UNKNOWN_REJECT: The result is determined to be unknown and you want to resolve it. \"Reject\" infers you want to reject the activity.\n"
+        "description": "The manual status that the AML process result should be set to after the results have been reviewed.\n- FALSE_POSITIVE: The result is determined to be a false positive, but you do not necessarily want to resolve it.\n- TRUE_POSITIVE_ACCEPT: The result is determined to be a true positive and you want to resolve it. \"Accept\" infers you want to accept the activity.\n- TRUE_POSITIVE: The result is determined to be a true positive, but you do not necessarily want to resolve it.\n- TRUE_POSITIVE_REJECT: The result is determined to be a true positive and you want to resolve it. \"Reject\" infers you want to reject the activity.\n- UNKNOWN: The result is determined to be unknown, but you do not necessarily want to resolve it.\n- UNKNOWN_ACCEPT: The result is determined to be unknown and you want to resolve it. \"Accept\" infers you want to accept the activity.\n- UNKNOWN_REJECT: The result is determined to be unknown and you want to resolve it. \"Reject\" infers you want to reject the activity.\n"
       },
       "Process-Result-Manual-StatusEnum-KYC": {
         "type": "string",
@@ -13971,6 +14779,15 @@
         ],
         "description": "Any manual status set after the results have been reviewed.\n- FALSE_POSITIVE: The result is determined to be a false positive, but you do not necessarily want to resolve it.\n- TRUE_POSITIVE_REJECT: The result is determined to be a true positive and you want to resolve it. \"Reject\" infers you want to reject the activity.\n"
       },
+      "Process-Result-Manual-StatusEnum-SupportDoc": {
+        "type": "string",
+        "enum": [
+          "APPROVED",
+          "REJECTED",
+          "NEEDS_ATTENTION"
+        ],
+        "description": "Any manual status set after the results have been reviewed.\n- APPROVED: When the document has been reviewed and is acceptable.\n- REJECTED: When the document has been reviewed and is deemed to be not acceptable.\n- NEEDS_ATTENTION: When the document has been reviewed and requires further attention.\n"
+      },
       "Process-Result-Manual-StatusEnum": {
         "allOf": [
           {
@@ -13987,6 +14804,9 @@
           },
           {
             "$ref": "#/components/schemas/Process-Result-Manual-StatusEnum-Matchlist"
+          },
+          {
+            "$ref": "#/components/schemas/Process-Result-Manual-StatusEnum-SupportDoc"
           }
         ]
       },
@@ -14337,6 +15157,46 @@
         "example": "e39b46ca-514b-4730-8caf-7ab423831ff1",
         "readOnly": true
       },
+      "List-Operation-Meta": {
+        "type": "object",
+        "description": "Meta information about the request and response returned during a list operation.",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "description": "The current page number of the request."
+          },
+          "total": {
+            "type": "integer",
+            "description": "The total number of items found for the search criteria."
+          },
+          "limit": {
+            "type": "integer",
+            "description": "The limit applied to this response."
+          },
+          "count": {
+            "type": "integer",
+            "description": "The number of items returned in this response."
+          },
+          "sort": {
+            "type": "string",
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "description": "The sort order applied to the items in the response."
+          },
+          "sortFields": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "createdAt",
+                "updatedAt"
+              ]
+            }
+          }
+        }
+      },
       "Workflow-Execution-State": {
         "type": "string",
         "description": "Indicates the current state of this workflow execution.\nRefer to the documentation for a full description of each possible workflow execution state.\n",
@@ -14400,12 +15260,11 @@
       "Process-Result-Manual-StatusEnum-Fraud": {
         "type": "string",
         "enum": [
-          "FALSE_POSITIVE_ACCEPT",
-          "FALSE_POSITIVE_REJECT",
+          "FALSE_POSITIVE",
           "TRUE_POSITIVE_ACCEPT",
           "TRUE_POSITIVE_REJECT"
         ],
-        "description": "The status that the fraud process result should be set to after the results have been reviewed.\n- FALSE_POSITIVE_ACCEPT: When the result is determined to be false positive and it is an acceptable risk.\n- FALSE_POSITIVE_REJECT: When the result is determined to be false positive and it is an unacceptable risk.\n- TRUE_POSITIVE_ACCEPT: When the result is determined to be true positive and it is an acceptable risk.\n- TRUE_POSITIVE_REJECT: When the result is determined to be true positive and it is an unacceptable risk.\n"
+        "description": "The status that the fraud process result should be set to after the results have been reviewed.\n- FALSE_POSITIVE: When the result is determined to be false positive and it is an acceptable risk.\n- TRUE_POSITIVE_ACCEPT: When the result is determined to be true positive and it is an acceptable risk.\n- TRUE_POSITIVE_REJECT: When the result is determined to be true positive and it is an unacceptable risk.\n"
       },
       "individual_pro_fraud_req": {
         "type": "object",
@@ -14444,46 +15303,6 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/Process-Result-Object"
-            }
-          }
-        }
-      },
-      "List-Operation-Meta": {
-        "type": "object",
-        "description": "Meta information about the request and response returned during a list operation.",
-        "properties": {
-          "page": {
-            "type": "integer",
-            "description": "The current page number of the request."
-          },
-          "total": {
-            "type": "integer",
-            "description": "The total number of items found for the search criteria."
-          },
-          "limit": {
-            "type": "integer",
-            "description": "The limit applied to this response."
-          },
-          "count": {
-            "type": "integer",
-            "description": "The number of items returned in this response."
-          },
-          "sort": {
-            "type": "string",
-            "enum": [
-              "asc",
-              "desc"
-            ],
-            "description": "The sort order applied to the items in the response."
-          },
-          "sortFields": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "enum": [
-                "createdAt",
-                "updatedAt"
-              ]
             }
           }
         }
@@ -14785,16 +15604,22 @@
           "$ref": "#/components/schemas/Search-Match"
         }
       },
-      "Document-Class": {
-        "type": "string",
-        "enum": [
-          "OTHER",
-          "IDENTITY",
-          "SUPPORTING",
-          "REPORT"
-        ],
-        "description": "The classification of the document, indicating how it should be used or interpreted.",
-        "example": "IDENTITY"
+      "Document-Create": {
+        "title": "DocumentCreate",
+        "type": "object",
+        "allOf": [
+          {
+            "type": "object",
+            "properties": {
+              "class": {
+                "$ref": "#/components/schemas/Document-Class"
+              }
+            }
+          },
+          {
+            "$ref": "#/components/schemas/Document-Information"
+          }
+        ]
       },
       "individuals_entity_document_response": {
         "type": "object",
@@ -14803,6 +15628,11 @@
         ],
         "properties": {
           "entity": {
+            "$ref": "#/components/schemas/Entity-ID",
+            "description": "This field is deprecated and will be removed in the future version. Please use entityId instead.",
+            "deprecated": true
+          },
+          "entityId": {
             "$ref": "#/components/schemas/Entity-ID"
           },
           "document": {
@@ -15136,6 +15966,41 @@
           }
         }
       },
+      "IDV-HostedUrl-Request-Document": {
+        "description": "The document to be requested from the customer for this onesdk session",
+        "type": "object",
+        "properties": {
+          "documentType": {
+            "type": "string",
+            "description": "The type of document"
+          },
+          "subType": {
+            "type": "string",
+            "description": "The sub type of document"
+          }
+        }
+      },
+      "IDV-HostedUrl-Request-Partial-Document": {
+        "description": "The partial document to be requested from the customer for this onesdk session",
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "The title of document"
+          },
+          "minimumRequirement": {
+            "type": "integer",
+            "description": "The minimum requirement of document"
+          },
+          "documents": {
+            "type": "array",
+            "description": "List of documents that are partial to issue the JWT Token",
+            "items": {
+              "$ref": "#/components/schemas/IDV-HostedUrl-Request-Document"
+            }
+          }
+        }
+      },
       "IDV-HostedUrl-Request": {
         "type": "object",
         "description": "Hosted OneSDK URL Request, used to request a hosted OneSDK URL with entity specific token for a customer to use a hosted OneSDK session to do an action. Examples of actions that may be done is to complete their onboarding process or to re-attempt IDV checks.  If sendSMS is true and a phone number is supplied, an SMS will be sent to the phone number with the generated URL.",
@@ -15191,6 +16056,27 @@
           },
           "comment": {
             "$ref": "#/components/schemas/Comment"
+          },
+          "requestedDocuments": {
+            "description": "List of documents that are requested from customer for onesdk session",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IDV-HostedUrl-Request-Document"
+            }
+          },
+          "optionalDocuments": {
+            "description": "List of documents that are optional from customer for onesdk session",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IDV-HostedUrl-Request-Document"
+            }
+          },
+          "partialDocuments": {
+            "description": "List of documents that are partial from customer for onesdk session",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IDV-HostedUrl-Request-Partial-Document"
+            }
           }
         }
       },
