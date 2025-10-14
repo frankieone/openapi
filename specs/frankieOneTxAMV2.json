@@ -1,0 +1,4887 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Transaction and Activity Monitoring API",
+    "version": "2.0",
+    "description": "This is the MVP for Phase 1 APIs for V2.0 Transaction and Activity Monitoring. Currently in development, changes to the structure can occur",
+    "contact": {
+      "name": "FrankieOne",
+      "url": "https://www.frankieone.com/",
+      "email": "help@frankieone.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.uat.frankie.one",
+      "description": "UAT Environment API Base URL"
+    },
+    {
+      "url": "https://api.frankie.one",
+      "description": "Production API Base URL"
+    }
+  ],
+  "security": [
+    {
+      "Api-Key": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Activities",
+      "description": "APIs to verify activities which will range from platform level activities such as login and registration\nto financial transactions such as deposits, withdrawals, etc.\n"
+    },
+    {
+      "name": "Individual Activities",
+      "description": "APIs to verify activities for an individual.\n"
+    },
+    {
+      "name": "Individual Results",
+      "description": "APIs to manage results for an individual.\n"
+    },
+    {
+      "name": "Sessions",
+      "description": "APIs to manage sessions for an individual.\n"
+    }
+  ],
+  "paths": {
+    "/v2/activities": {
+      "post": {
+        "summary": "Evaluate an activity",
+        "description": "Evaluate an activity. This may be verification of a financial transaction such as a\ndeposit, withdrawal, etc or evaluating a platform level login or registration activities for example.\n\nAn entity must exist in the frankie system to tie the activity to.\n\nThis will return the immediate result of the activity, and then asynchronously the\nactivity will be processed in the Frankie platform.\n",
+        "operationId": "evaluateActivity",
+        "tags": [
+          "Activities"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Api-Key"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-CustomerID"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-CustomerChildID"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-Channel"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-Username"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Evaluate-Activity-Req"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Evaluate-Activity-Res"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "Invalid authentication": {
+                    "value": {
+                      "errorCode": "AUTH-0002,",
+                      "errorMsg": "Unauthorized",
+                      "details": [
+                        {
+                          "issue": "Invalid Authentication provided. Access denied.",
+                          "issueLocation": "request"
+                        }
+                      ],
+                      "requestId": "00000000S6MNG7624K2TDXT1E3"
+                    }
+                  },
+                  "No Api-Key": {
+                    "value": {
+                      "errorCode": "AUTH-0401",
+                      "errorMsg": "Unauthorized",
+                      "details": [
+                        {
+                          "issue": "No api key provided. Access denied.",
+                          "issueLocation": "request"
+                        }
+                      ],
+                      "requestId": "00000001S6MNG7624K2TDXT1E3"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "Internal Server Error": {
+                    "value": {
+                      "errorCode": "SYS-1063,",
+                      "errorMsg": "Failed to generate KYC report",
+                      "requestId": "01HM5EM2QNNSC9K0PX9VC06HX3"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/individuals/{entityId}/activities": {
+      "get": {
+        "description": "Get a list of activities for an individual.",
+        "summary": "Get Individual Activities",
+        "operationId": "getIndividualActivities",
+        "tags": [
+          "Individual Activities"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/query_activity_types"
+          },
+          {
+            "$ref": "#/components/parameters/query_activity_result_classes"
+          },
+          {
+            "$ref": "#/components/parameters/query_sort_field"
+          },
+          {
+            "$ref": "#/components/parameters/query_sort"
+          },
+          {
+            "$ref": "#/components/parameters/query_limit"
+          },
+          {
+            "$ref": "#/components/parameters/query_page"
+          },
+          {
+            "$ref": "#/components/parameters/query_manual_status"
+          },
+          {
+            "$ref": "#/components/parameters/query_after_activity_at"
+          },
+          {
+            "$ref": "#/components/parameters/query_before_activity_at"
+          },
+          {
+            "$ref": "#/components/parameters/Api-Key"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-CustomerID"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-CustomerChildID"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-Channel"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-Username"
+          },
+          {
+            "$ref": "#/components/parameters/path_entity_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Get-Activities-Res"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/individuals/{entityId}/results/activity": {
+      "patch": {
+        "description": "Update the status of activity process results.",
+        "summary": "Update Results",
+        "operationId": "updateActivityProcessResults",
+        "tags": [
+          "Individual Results"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/path_entity_id"
+          },
+          {
+            "$ref": "#/components/parameters/Api-Key"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-CustomerID"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-CustomerChildID"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-Channel"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-Username"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Update-Results-Req"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Update-Results-Res"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/individuals/{entityId}/sessions": {
+      "post": {
+        "description": "Create a new session for an individual.",
+        "summary": "Create Individual Session",
+        "operationId": "createIndividualSession",
+        "tags": [
+          "Sessions"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Api-Key"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-CustomerID"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-CustomerChildID"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-Channel"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-Username"
+          },
+          {
+            "$ref": "#/components/parameters/path_entity_id"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Create-Session-Req"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Create-Session-Res"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "Api-Key": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "api_key",
+        "description": ""
+      },
+      "jwt": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "parameters": {
+      "Api-Key": {
+        "name": "api_key",
+        "in": "header",
+        "schema": {
+          "type": "string",
+          "example": "245c765b124a098d09ef8765...."
+        },
+        "description": "Your API key provided by FrankieOne",
+        "required": true
+      },
+      "X-Frankie-CustomerID": {
+        "name": "X-Frankie-CustomerID",
+        "in": "header",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "example": "12345678-1234-1234-1234-123456789012"
+        },
+        "description": "Your Customer ID provided by FrankieOne"
+      },
+      "X-Frankie-CustomerChildID": {
+        "name": "X-Frankie-CustomerChildID",
+        "in": "header",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "example": "87654321-4321-4321-4321-210987654321"
+        },
+        "description": "Your Customer Child ID provided by FrankieOne"
+      },
+      "X-Frankie-Channel": {
+        "name": "X-Frankie-Channel",
+        "in": "header",
+        "required": false,
+        "schema": {
+          "type": "string"
+        },
+        "description": "Open string that can be used to define the \"channel\" the request comes in from. It can potentially be used in routing and risk calculations upon request. Default values that can be used are:  api portal smartui Any alphanumeric string is supported though. Anything over 64 characters will be truncated."
+      },
+      "X-Frankie-Username": {
+        "name": "X-Frankie-Username",
+        "in": "header",
+        "description": "Username provided by API caller",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "example": "fred.flintstone@frankieone.com"
+        }
+      },
+      "query_activity_types": {
+        "name": "activityTypes",
+        "in": "query",
+        "description": "Query parameter to filter activities by types",
+        "required": false,
+        "schema": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/Activity-Type"
+          }
+        },
+        "style": "form",
+        "explode": false
+      },
+      "query_activity_result_classes": {
+        "name": "activityResultClasses",
+        "in": "query",
+        "description": "Query parameter to filter results by classes",
+        "required": false,
+        "schema": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/Activity-Result-Class"
+          }
+        },
+        "style": "form",
+        "explode": false
+      },
+      "query_sort_field": {
+        "name": "sortField",
+        "in": "query",
+        "required": false,
+        "description": "Query parameter to determine which fields specific field to sort by.\n",
+        "schema": {
+          "$ref": "#/components/schemas/Sort-Field-Enum"
+        }
+      },
+      "query_sort": {
+        "name": "sort",
+        "in": "query",
+        "required": false,
+        "description": "The order in which your results will display.\n\nThis is to be used in conjunction with `sortField`.\n\nIf there are multiple matches for the same value, the results will be sorted by the primary identifier (e.g. activityId).\n",
+        "schema": {
+          "$ref": "#/components/schemas/Sort-Enum"
+        }
+      },
+      "query_limit": {
+        "name": "limit",
+        "in": "query",
+        "description": "Query parameter to limit the number of records returned",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "default": 20,
+          "minimum": 1
+        }
+      },
+      "query_page": {
+        "name": "page",
+        "in": "query",
+        "description": "Query parameter to paginate through returned items",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "default": 1
+        }
+      },
+      "query_manual_status": {
+        "name": "status",
+        "in": "query",
+        "required": false,
+        "description": "Query parameter to filter activities and evaluations by manual status",
+        "schema": {
+          "$ref": "#/components/schemas/Activity-Result-Manual-Status-Query"
+        }
+      },
+      "query_after_activity_at": {
+        "name": "afterActivityAt",
+        "in": "query",
+        "required": false,
+        "description": "Query parameter to filter records after a specific activity timestamp.\nTimestamp values must be in UTC ISO8601 format.\n",
+        "schema": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "query_before_activity_at": {
+        "name": "beforeActivityAt",
+        "in": "query",
+        "required": false,
+        "description": "Query parameter to filter records that occurred before a specific activity timestamp.\nTimestamp values must be in UTC ISO8601 format.\n",
+        "schema": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "path_entity_id": {
+        "name": "entityId",
+        "in": "path",
+        "required": true,
+        "description": "Unique identifier for an entity",
+        "schema": {
+          "$ref": "#/components/schemas/Entity-ID"
+        }
+      }
+    },
+    "schemas": {
+      "Session": {
+        "type": "object",
+        "description": "Session details for an activity, this is always scoped to a singular entity.",
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "A token to identify the specific session for the activity"
+          }
+        }
+      },
+      "Entity-ID-Writeable": {
+        "type": "string",
+        "description": "Entities are assigned an auto-generated UUID to ensure global uniqueness, represented as entityId. The entityId allows for precise modification when required.\nTo modify an entity, set the entityId of the entity you wish to update in an update request.",
+        "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+      },
+      "Entity-Type-Writeable": {
+        "type": "string",
+        "enum": [
+          "INDIVIDUAL",
+          "ORGANIZATION",
+          "UNKNOWN"
+        ],
+        "description": "The type of entity within Frankie. This can be \"INDIVIDUAL\", \"ORGANIZATION\", or \"UNKNOWN\"."
+      },
+      "External-Reference-Information": {
+        "type": "object",
+        "x-examples": {
+          "Customer Reference": {
+            "name": "CUSTOMER-REFERENCE",
+            "value": "CUST-00001342",
+            "description": "This is the customer id in the core banking system"
+          }
+        },
+        "required": [
+          "name",
+          "value"
+        ],
+        "description": "Used to store references and identifying information about an entity that is external to FrankieOne. If you wish to filter or search on customer information relevant to your business, that information should be added as an external reference.",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name of the external reference.",
+            "example": "CUSTOMER-REFERENCE"
+          },
+          "value": {
+            "type": "string",
+            "description": "The value of the external reference.",
+            "example": "CUST-00001342"
+          },
+          "description": {
+            "type": "string",
+            "description": "A summary of what this external reference is and what it is used for.",
+            "example": "This is the customer ID in the core banking system."
+          }
+        }
+      },
+      "External-Reference": {
+        "type": "object",
+        "description": "Reference information used to identify the individual in systems external to FrankieOne.",
+        "allOf": [
+          {
+            "type": "object",
+            "properties": {
+              "referenceId": {
+                "type": "string",
+                "description": "As external references are added to an entity, they are assigned a unique identifier to assist with modification and reference.\nTo modify an external reference, include the referenceId in an update request for the individual.",
+                "example": "24de15f64-5717-4562-b3fc-2c963f66e23e",
+                "readOnly": true
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "SYSTEM",
+                  "CUSTOMER",
+                  "OTHER"
+                ],
+                "default": "CUSTOMER"
+              },
+              "sourceId": {
+                "type": "string",
+                "description": "The source from which specific information was sourced. This is a link to an informationSource object in the informationSources map.",
+                "example": "93da15f64-5717-4562-b3fc-2c963f6663fe",
+                "readOnly": true
+              }
+            }
+          },
+          {
+            "$ref": "#/components/schemas/External-Reference-Information"
+          }
+        ]
+      },
+      "Individual-Name": {
+        "type": "object",
+        "required": [
+          "familyName"
+        ],
+        "x-examples": {
+          "Example 1": {
+            "givenName": "John",
+            "middleName": "Jacob",
+            "familyName": "Smith"
+          }
+        },
+        "properties": {
+          "nameId": {
+            "type": "string",
+            "example": "87654321-4321-4321-4321-210987654321",
+            "description": "Include the nameId of an existing name for this individual to modify it",
+            "readOnly": true
+          },
+          "language": {
+            "type": "string",
+            "example": "eng",
+            "description": "The ISO-639-3 standard code that best represents the language and character set of the individual's name",
+            "default": "eng"
+          },
+          "givenName": {
+            "type": "string",
+            "example": "John",
+            "description": "First name or given name"
+          },
+          "middleName": {
+            "type": "string",
+            "example": "R",
+            "description": "Middle name(s) or middle initial(s)"
+          },
+          "familyName": {
+            "type": "string",
+            "example": "Doe",
+            "description": "Last name, family name, or surname."
+          },
+          "otherName": {
+            "type": "string",
+            "example": null,
+            "description": "Another name that this person may be known as, e.g., \"Bob\" as an alternative to \"Robert\"."
+          },
+          "prefix": {
+            "type": "string",
+            "example": "Dr.",
+            "description": "Letters or words that come before an individual's full name (e.g., title or honorific)."
+          },
+          "suffix": {
+            "type": "string",
+            "example": "Jr.",
+            "description": "Letters or words that come after an individual's full name (e.g., generational suffix)."
+          },
+          "sourceId": {
+            "type": "string",
+            "example": "87654321-4321-4321-4321-210987654322",
+            "description": "The source from where a specific information was sourced from. This is a link to an informationSource object in the informationSources map",
+            "readOnly": true
+          },
+          "displayName": {
+            "type": "string",
+            "example": "John Doe",
+            "description": "Long format of the individual's full name, including any prefix, suffix, middle, or other names. Best used when the proper structure of the individual's name is unknown."
+          }
+        }
+      },
+      "Date-Type": {
+        "type": "string",
+        "default": "GREGORIAN",
+        "enum": [
+          "BUDDHIST",
+          "DISCORDIAN",
+          "GREGORIAN",
+          "HEBREW",
+          "ISLAMIC",
+          "JULIAN",
+          "LUNAR",
+          "MESO_AMERICAN",
+          "PERSIAN",
+          "OTHER"
+        ],
+        "description": "The calendar system used for the date, e.g., BUDDHIST, DISCORDIAN, GREGORIAN, HEBREW, ISLAMIC, JULIAN, LUNAR, MESO_AMERICAN, PERSIAN, or OTHER."
+      },
+      "Date-Base": {
+        "type": "object",
+        "properties": {
+          "year": {
+            "type": "string",
+            "description": "Year in \"YYYY\" format.",
+            "example": "1990"
+          },
+          "month": {
+            "type": "string",
+            "description": "Month in \"MM\" format.",
+            "example": "03"
+          },
+          "day": {
+            "type": "string",
+            "description": "Day in \"DD\" format.",
+            "example": "27"
+          },
+          "unstructured": {
+            "type": "string",
+            "description": "Raw date format without normalization or standardization to the Gregorian calendar.\nThis can be used to provide non-Gregorian dates (e.g., Islamic dates).",
+            "example": "12 Rajab 1445 AH"
+          },
+          "type": {
+            "$ref": "#/components/schemas/Date-Type"
+          }
+        }
+      },
+      "Date": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Date-Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "normalized": {
+                "type": "string",
+                "format": "date",
+                "description": "Full date in ISO 8601 format (\"YYYY-MM-DD\"). This is a read-only field.",
+                "example": "1990-03-31",
+                "readOnly": true
+              }
+            }
+          }
+        ]
+      },
+      "Date-Of-Birth": {
+        "type": "object",
+        "allOf": [
+          {
+            "type": "object",
+            "properties": {
+              "dateOfBirthId": {
+                "type": "string",
+                "description": "As dates of birth are added to an entity, they are assigned a unique identifier to assist with modification and reference.\nTo modify a date of birth, include the dateOfBirthId in an update request for the individual.",
+                "readOnly": true
+              },
+              "sourceId": {
+                "type": "string",
+                "description": "The source from which specific information was sourced. This is a link to an informationSource object in the informationSources map.",
+                "readOnly": true
+              }
+            }
+          },
+          {
+            "$ref": "#/components/schemas/Date"
+          }
+        ]
+      },
+      "Party-Detail-Individual": {
+        "type": "object",
+        "description": "Party details for an individual\n",
+        "properties": {
+          "name": {
+            "$ref": "#/components/schemas/Individual-Name"
+          },
+          "dateOfBirth": {
+            "$ref": "#/components/schemas/Date-Of-Birth"
+          }
+        }
+      },
+      "Party-Detail-Organization": {
+        "type": "object",
+        "description": "Party details for an organization\n",
+        "properties": {
+          "sourceId": {
+            "type": "string",
+            "description": "The source from where a specific information was sourced from. This is a link to an informationSource object in the informationSources map."
+          },
+          "registeredName": {
+            "type": "string",
+            "description": "The registered name of the organization"
+          },
+          "registeredSubdivision": {
+            "description": "The subdivision that the organization was registered at",
+            "type": "string"
+          },
+          "registeredCountry": {
+            "description": "The country that the organization was registered at",
+            "type": "string"
+          },
+          "registrationNumber": {
+            "description": "The registration number of the organization in the registry",
+            "type": "string"
+          },
+          "registrationNumberType": {
+            "description": "The type of the registration number, e.g. ACN, ABN, etc",
+            "type": "string"
+          },
+          "registrationNumberDescription": {
+            "description": "The description of type of the registration number, e.g. Australian Company Number, Australian Business Number, etc",
+            "type": "string"
+          }
+        }
+      },
+      "Party-Detail-Summary": {
+        "type": "object",
+        "description": "A summary of the party details\n",
+        "properties": {
+          "entityId": {
+            "$ref": "#/components/schemas/Entity-ID-Writeable"
+          },
+          "entityType": {
+            "$ref": "#/components/schemas/Entity-Type-Writeable"
+          },
+          "externalReference": {
+            "$ref": "#/components/schemas/External-Reference"
+          },
+          "individual": {
+            "$ref": "#/components/schemas/Party-Detail-Individual"
+          },
+          "organization": {
+            "$ref": "#/components/schemas/Party-Detail-Organization"
+          },
+          "entityName": {
+            "type": "string",
+            "description": "The name of the entity, use this if the entity type is not clear"
+          },
+          "createdAt": {
+            "description": "When the entity was created",
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Address-TypeEnum": {
+        "type": "string",
+        "default": "OTHER",
+        "enum": [
+          "OTHER",
+          "RESIDENTIAL",
+          "BUSINESS",
+          "POSTAL",
+          "REGISTERED_OFFICE",
+          "PLACE_OF_BUSINESS",
+          "OFFICIAL_CORRESPONDANCE",
+          "PLACE_OF_BIRTH",
+          "OFFICE_LOCALITY"
+        ]
+      },
+      "Address-StatusEnum": {
+        "type": "string",
+        "default": "CURRENT",
+        "enum": [
+          "CURRENT",
+          "PREVIOUS",
+          "FUTURE"
+        ]
+      },
+      "Address-Base": {
+        "type": "object",
+        "required": [
+          "country"
+        ],
+        "description": "Address information in all available formats",
+        "properties": {
+          "addressId": {
+            "type": "string",
+            "description": "As addresses are added to an entity, they are assigned an ID to assist with tracking."
+          },
+          "sourceId": {
+            "type": "string",
+            "readOnly": true,
+            "description": "The source from which specific information was sourced. This is a link to an informationSource object in the informationSources map."
+          },
+          "type": {
+            "$ref": "#/components/schemas/Address-TypeEnum",
+            "description": "Used to indicate what sort of address this is, such as residential, business, postal, etc. Should be used in conjunction with the status field to indicate the current status of the address and provide more context."
+          },
+          "typeDescription": {
+            "type": "string",
+            "description": "Description for the type or the address type as fetched from an authoritative source like a company registry."
+          },
+          "validFrom": {
+            "$ref": "#/components/schemas/Date",
+            "description": "The date this address first became active. Used mostly with business addresses."
+          },
+          "validTo": {
+            "$ref": "#/components/schemas/Date",
+            "description": "The date this address was no longer used (if available). Used mostly with business addresses."
+          },
+          "longForm": {
+            "type": "string",
+            "description": "In some cases, the address will need to be supplied in \"long form\", such as when it is determined from a document scan, or is unparsable in some way.\nThe service will attempt to convert it to its constituent parts where possible.\nWARNING: Use of longForm is not guaranteed to produce perfect results, due to the variety of potential formats. You have been warned.\nFailure to break down or disambiguate the address will result in an error."
+          },
+          "unitNumber": {
+            "type": "string",
+            "description": "Unit/Apartment/Flat/Suite/etc. number"
+          },
+          "buildingName": {
+            "type": "string",
+            "description": "The name of the building, apartment block, condominium, etc."
+          },
+          "streetName": {
+            "type": "string",
+            "description": "The name of the street.\nThis field should ideally contain only the street name, without the street number or street type. In some cases, especially when auto-populated by external services (e.g., Google), it may include additional address components.\nFor best results, keep the street name separate from the street number and street type. See https://apidocs.frankiefinancial.com/docs/working-with-addresses for more details."
+          },
+          "streetNumber": {
+            "type": "string",
+            "description": "The number assigned to the property on the street. Typically a number, but can also be alphanumeric (e.g., 3A)."
+          },
+          "streetType": {
+            "type": "string",
+            "description": "The street type, such as Road, Street, Avenue, Circuit, etc."
+          },
+          "neighborhood": {
+            "type": "string",
+            "description": "The neighborhood or suburb within the town or city. Use this only if you require both a suburb and a locality/town/city; otherwise, use the \"locality\" parameter."
+          },
+          "locality": {
+            "type": "string",
+            "description": "The locality, town, village, suburb, or city."
+          },
+          "district": {
+            "type": "string",
+            "description": "The district, region, county, province, or cantonment."
+          },
+          "subdivision": {
+            "type": "string",
+            "description": "The administrative area, state, or sub-division. Use local abbreviations, such as VIC (Victoria) or TX (Texas)."
+          },
+          "country": {
+            "type": "string",
+            "description": "The ISO-3166-1 country code. You must use the alpha-3 country code (e.g., AUS, USA, IDR, KOR, etc). Conversion will be handled as needed.\nFor more details, refer to: https://en.wikipedia.org/wiki/ISO_3166-1"
+          },
+          "postalCode": {
+            "type": "string",
+            "description": "The postal code of the address."
+          },
+          "careOf": {
+            "type": "string",
+            "description": "The individual or business name at this address, if different from the name of the entity to which this address belongs."
+          },
+          "status": {
+            "$ref": "#/components/schemas/Address-StatusEnum",
+            "description": "The status of the address information, such as current, previous, or future. Should be used in conjunction with the `type` field to indicate the type of the address and provide more context."
+          }
+        }
+      },
+      "Address": {
+        "type": "object",
+        "description": "Address information in all available formats",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Address-Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "unstructuredLongForm": {
+                "type": "string",
+                "description": "Raw, unformatted address as provided by the source. Not normalized or standardized.",
+                "readOnly": true
+              }
+            }
+          }
+        ]
+      },
+      "Phone-Number-ID": {
+        "type": "string",
+        "description": "As phone numbers are added to an entity, they are assigned an ID to assist with tracking.\nIf you are adjusting phone numbers, you will need to include the ID to reference it correctly in the list.",
+        "example": "ad165f64-5717-4562-b3fc-2c963f66bfa9"
+      },
+      "Phone-Number": {
+        "type": "object",
+        "properties": {
+          "phoneNumberId": {
+            "$ref": "#/components/schemas/Phone-Number-ID"
+          },
+          "isPreferred": {
+            "type": "boolean",
+            "example": true,
+            "description": "Indicates whether this is the individual's preferred phone number."
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "OTHER",
+              "WORK",
+              "HOME",
+              "MOBILE",
+              "BUSINESS",
+              "FAX"
+            ],
+            "description": "The type of phone number.",
+            "example": "MOBILE"
+          },
+          "sourceId": {
+            "type": "string",
+            "description": "The source from which specific information was sourced. This is a link to an informationSource object in the informationSources map.",
+            "example": "14fd5f64-5717-4562-b3fc-2c963f66ba34",
+            "readOnly": true
+          },
+          "country": {
+            "type": "string",
+            "description": "ISO-3166-1 alpha-3 country code.",
+            "example": "AUS"
+          },
+          "number": {
+            "type": "string",
+            "description": "The phone number.",
+            "example": "0426192340"
+          },
+          "linkedAddresses": {
+            "type": "array",
+            "readOnly": true,
+            "description": "If the phone number is attached to one or more addresses, the address IDs of those addresses will be present.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "addressId": {
+                  "description": "The addressId of the linked address.",
+                  "type": "string",
+                  "example": "fa335f64-5717-4562-b3fc-2c963f66cf41"
+                }
+              }
+            }
+          },
+          "unstructuredLongForm": {
+            "type": "string",
+            "description": "Used to capture free-form phone numbers or to store numbers that could not be normalized."
+          }
+        }
+      },
+      "Email-Address-ID": {
+        "type": "string",
+        "description": "As email addresses are added to an entity, they are assigned a unique identifier to assist with modification and reference.\nTo modify an email, include the emailId in an update request.",
+        "example": "aa385f64-5717-4562-b3fc-2c963f66af21"
+      },
+      "Email": {
+        "type": "object",
+        "properties": {
+          "emailAddressId": {
+            "$ref": "#/components/schemas/Email-Address-ID"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "OTHER",
+              "WORK",
+              "PERSONAL",
+              "BUSINESS"
+            ],
+            "example": "WORK",
+            "description": "The type of email address, if known."
+          },
+          "sourceId": {
+            "type": "string",
+            "description": "The source from which specific information was sourced. This is a link to an informationSource object in the informationSources map.",
+            "example": "31dd15f64-5717-4562-b3fc-2c963f66234d",
+            "readOnly": true
+          },
+          "email": {
+            "type": "string",
+            "description": "The individual's email address. This email can be used to notify the individual of any verification requirements.",
+            "example": "leonardo_dc@outlook.com"
+          },
+          "isPreferred": {
+            "type": "boolean",
+            "description": "Indicates whether this email address is the individual's preferred email. The preferred email will be used to send notifications at the client's request.",
+            "default": true
+          },
+          "linkedAddresses": {
+            "type": "array",
+            "readOnly": true,
+            "description": "If the email is attached to one or more addresses, the address IDs of those addresses will be present.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "addressId": {
+                  "description": "The addressId of the linked address.",
+                  "type": "string",
+                  "example": "adc215f64-5717-4562-b3fc-2c963f66222a"
+                }
+              }
+            }
+          }
+        }
+      },
+      "Party-Detail-Contact": {
+        "type": "object",
+        "properties": {
+          "addresses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Address"
+            }
+          },
+          "phoneNumbers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Phone-Number"
+            }
+          },
+          "emailAddresses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Email"
+            }
+          }
+        }
+      },
+      "Party-Detail": {
+        "type": "object",
+        "description": "A party describes the details of one of the parties in a given transaction (natch). It can be used to \ndescribe any participant and is differentiated by the paymentRole fulfilled.\n\nYou can either provide the raw entity ID as a reference or fill in the details. If an entity ID is provided,\ndata provided here will not be used to enrich the entity and will be ignored in favour of the underlying entity details.\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Party-Detail-Summary"
+          },
+          {
+            "$ref": "#/components/schemas/Party-Detail-Contact"
+          }
+        ]
+      },
+      "Activity-Type": {
+        "type": "string",
+        "enum": [
+          "REGISTRATION",
+          "LOGIN",
+          "FIAT_WITHDRAWAL",
+          "FIAT_DEPOSIT",
+          "CRYPTO_WITHDRAWAL",
+          "CRYPTO_DEPOSIT"
+        ]
+      },
+      "Activity-Detail-Base": {
+        "type": "object",
+        "required": [
+          "activityType",
+          "activityAt"
+        ],
+        "properties": {
+          "activityType": {
+            "$ref": "#/components/schemas/Activity-Type"
+          },
+          "activityAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The timestamp that the activity occurred in UTC ISO8601 format"
+          }
+        }
+      },
+      "Activity-Registration": {
+        "type": "object",
+        "description": "An activity detailing a registration of a customer",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Activity-Detail-Base"
+          }
+        ]
+      },
+      "Activity-Login": {
+        "type": "object",
+        "description": "An activity detailing a login of a customer",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Activity-Detail-Base"
+          }
+        ]
+      },
+      "Currency": {
+        "type": "string",
+        "description": "3-digit ISO 4217 currency code or crypto symbol",
+        "example": [
+          "BTC",
+          "USD",
+          "ETH",
+          "AUD"
+        ]
+      },
+      "Transaction-Payment-Summary": {
+        "type": "object",
+        "required": [
+          "amount",
+          "currency"
+        ],
+        "description": "Payment detail summary",
+        "properties": {
+          "amount": {
+            "type": "number",
+            "format": "double",
+            "description": "The amount to be applied to the party"
+          },
+          "currency": {
+            "$ref": "#/components/schemas/Currency"
+          }
+        }
+      },
+      "Transaction-Payment-Role": {
+        "type": "string",
+        "enum": [
+          "TXN_ROLE_ORIGINATOR",
+          "TXN_ROLE_BENEFICIARY"
+        ]
+      },
+      "Transaction-Payment-Type": {
+        "type": "string",
+        "enum": [
+          "CARD",
+          "BANK",
+          "WIRE",
+          "CRYPTO",
+          "OTHER"
+        ]
+      },
+      "Transaction-Payment-Status": {
+        "type": "string",
+        "description": "Status of payment",
+        "enum": [
+          "ACCEPTED",
+          "DENIED_FRAUD",
+          "DENIED",
+          "PENDING"
+        ]
+      },
+      "Transaction-Payment": {
+        "type": "object",
+        "required": [
+          "role",
+          "type"
+        ],
+        "description": "Payment details",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Transaction-Payment-Summary"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "role": {
+                "$ref": "#/components/schemas/Transaction-Payment-Role"
+              },
+              "type": {
+                "$ref": "#/components/schemas/Transaction-Payment-Type"
+              },
+              "description": {
+                "type": "string",
+                "description": "Short description of the payment from the perspective of the\nparty, or any attached reference details.\n",
+                "maxLength": 240
+              },
+              "status": {
+                "$ref": "#/components/schemas/Transaction-Payment-Status"
+              }
+            }
+          }
+        ]
+      },
+      "Transaction-Account-Type": {
+        "type": "string",
+        "description": "The type of the account that was used in the financial transaction.",
+        "enum": [
+          "CHECKING",
+          "SAVINGS",
+          "CRYPTO_WALLET",
+          "OTHER"
+        ]
+      },
+      "Transaction-Account-Summary": {
+        "type": "object",
+        "description": "Account details",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/Transaction-Account-Type"
+          },
+          "pan": {
+            "type": "string",
+            "description": "The primary account number (PAN) / crypto wallet of the party at the source service"
+          }
+        }
+      },
+      "Transaction-Account-Class": {
+        "type": "string",
+        "description": "The class of the account",
+        "enum": [
+          "PERSONAL",
+          "BUSINESS",
+          "OTHER"
+        ]
+      },
+      "Transaction-Account-ExternalId-Type": {
+        "type": "string",
+        "description": "An Account External ID type, usually associated with a PayID type.",
+        "enum": [
+          "EXTERNAL_ID_NUMBER",
+          "EXTERNAL_MOBILE",
+          "EXTERNAL_EMAIL",
+          "EXTERNAL_REGISTRATION_NUMBER"
+        ]
+      },
+      "Transaction-Account": {
+        "type": "object",
+        "required": [
+          "pan"
+        ],
+        "description": "Account details",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Transaction-Account-Summary"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "hashedPan": {
+                "type": "string",
+                "description": "The Sha-256 hash of card number (PAN) of the party at the source service"
+              },
+              "maskedPan": {
+                "type": "string",
+                "description": "The masked card number (PAN) of the party at the source service"
+              },
+              "route": {
+                "type": "string",
+                "description": "The branch/BIN/BSB identifier to go with the pan"
+              },
+              "iban": {
+                "type": "string",
+                "description": "The IBAN identifier to go with the pan"
+              },
+              "swiftCode": {
+                "type": "string",
+                "description": "The Swift code identifier (or BIC - Bank Identifier Code) to go with the pan"
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the account/card",
+                "maxLength": 64
+              },
+              "class": {
+                "$ref": "#/components/schemas/Transaction-Account-Class"
+              },
+              "externalIdentifier": {
+                "type": "string",
+                "description": "If there is an external identifier associated with this account (e.g. PayID for an NPP transaction), then include that here",
+                "maxLength": 100
+              },
+              "externalIdentifierType": {
+                "$ref": "#/components/schemas/Transaction-Account-ExternalId-Type"
+              }
+            }
+          }
+        ]
+      },
+      "Transaction-Type": {
+        "type": "string",
+        "description": "Indicates the type of transaction",
+        "enum": [
+          "BUY",
+          "SELL",
+          "DEPOSIT",
+          "WITHDRAW",
+          "REFUND",
+          "PAYMENT",
+          "TOPUP"
+        ]
+      },
+      "Transaction-Disbursement-Type": {
+        "type": "string",
+        "description": "Type of a payment paid out of business",
+        "enum": [
+          "BILL_PAY",
+          "DELIVERY",
+          "DEPOSIT",
+          "PICKUP",
+          "RELOAD"
+        ]
+      },
+      "Transaction-Transfer-Type": {
+        "type": "string",
+        "description": "The type of the transfer that was used in the transaction.",
+        "enum": [
+          "ACH",
+          "ECHECK",
+          "DOMESTIC_WIRE"
+        ]
+      },
+      "Transaction-Merchant-Industry-Code": {
+        "type": "object",
+        "description": "A merchant industry code and description pair. (e.g. MCC, ANZSIC)",
+        "properties": {
+          "code": {
+            "description": "Short standard code or normalized representation of the information",
+            "type": "string"
+          },
+          "description": {
+            "description": "The information relevant to the code, could be a more descriptive information",
+            "type": "string"
+          },
+          "type": {
+            "description": "Determines the type of the industry code.",
+            "type": "string"
+          }
+        }
+      },
+      "Transaction-Merchant-Details": {
+        "type": "object",
+        "description": "A merchant reflects details of the merchant owner.",
+        "properties": {
+          "merchantIdentifier": {
+            "type": "string",
+            "description": "The merchant identifier of the merchant owner."
+          },
+          "industryCodes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Transaction-Merchant-Industry-Code"
+            }
+          }
+        }
+      },
+      "Transaction-Order-Details": {
+        "type": "object",
+        "description": "An order describes the details of an order that a customer made.",
+        "properties": {
+          "previousOrderCount": {
+            "type": "integer",
+            "description": "The number of orders the customer made in the past. (excluding sent order)"
+          },
+          "lastOrderDate": {
+            "type": "string",
+            "format": "YYYY-MM-DD",
+            "description": "Last order date",
+            "example": "1983-04-22"
+          },
+          "orderChannel": {
+            "type": "string"
+          },
+          "previousUnpaidOrderCount": {
+            "type": "integer",
+            "description": "The number of orders for which the account still owes money."
+          }
+        }
+      },
+      "Transaction": {
+        "type": "object",
+        "description": "A transaction represents the details of a deposit or withdrawal of a customer.",
+        "required": [
+          "payment",
+          "account"
+        ],
+        "properties": {
+          "payment": {
+            "$ref": "#/components/schemas/Transaction-Payment"
+          },
+          "account": {
+            "$ref": "#/components/schemas/Transaction-Account"
+          },
+          "type": {
+            "$ref": "#/components/schemas/Transaction-Type"
+          },
+          "disbursementType": {
+            "$ref": "#/components/schemas/Transaction-Disbursement-Type"
+          },
+          "transferType": {
+            "$ref": "#/components/schemas/Transaction-Transfer-Type"
+          },
+          "merchant": {
+            "$ref": "#/components/schemas/Transaction-Merchant-Details"
+          },
+          "order": {
+            "$ref": "#/components/schemas/Transaction-Order-Details"
+          },
+          "transactedAt": {
+            "description": "when the transaction took place",
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Transaction-Details": {
+        "type": "object",
+        "description": "Transaction details",
+        "required": [
+          "transactionIdentifier"
+        ],
+        "properties": {
+          "originatorTransaction": {
+            "$ref": "#/components/schemas/Transaction"
+          },
+          "counterParty": {
+            "$ref": "#/components/schemas/Party-Detail"
+          },
+          "counterPartyTransaction": {
+            "$ref": "#/components/schemas/Transaction"
+          },
+          "transactionIdentifier": {
+            "type": "string",
+            "description": "A payment identifier supplied by an external party / source to associate with this party in the transaction.\nThis should be a unique reference for the customer to tie their transaction records to Frankie data."
+          }
+        }
+      },
+      "Activity-Fiat-Withdrawal": {
+        "type": "object",
+        "description": "An activity detailing a fiat withdrawal",
+        "required": [
+          "transaction"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Activity-Detail-Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "transaction": {
+                "$ref": "#/components/schemas/Transaction-Details"
+              }
+            }
+          }
+        ]
+      },
+      "Activity-Fiat-Deposit": {
+        "type": "object",
+        "description": "An activity detailing a fiat deposit",
+        "required": [
+          "transaction"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Activity-Detail-Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "transaction": {
+                "$ref": "#/components/schemas/Transaction-Details"
+              }
+            }
+          }
+        ]
+      },
+      "Activity-Crypto-Withdrawal": {
+        "type": "object",
+        "description": "An activity detailing a crypto withdrawal",
+        "required": [
+          "transaction"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Activity-Detail-Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "transaction": {
+                "$ref": "#/components/schemas/Transaction-Details"
+              }
+            }
+          }
+        ]
+      },
+      "Activity-Crypto-Deposit": {
+        "type": "object",
+        "description": "An activity detailing a crypto deposit",
+        "required": [
+          "transaction"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Activity-Detail-Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "transaction": {
+                "$ref": "#/components/schemas/Transaction-Details"
+              }
+            }
+          }
+        ]
+      },
+      "Activity-Detail": {
+        "type": "object",
+        "description": "Details of the acitvity being checked",
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/Activity-Fiat-Deposit"
+          },
+          {
+            "$ref": "#/components/schemas/Activity-Fiat-Withdrawal"
+          },
+          {
+            "$ref": "#/components/schemas/Activity-Crypto-Deposit"
+          },
+          {
+            "$ref": "#/components/schemas/Activity-Crypto-Withdrawal"
+          },
+          {
+            "$ref": "#/components/schemas/Activity-Login"
+          },
+          {
+            "$ref": "#/components/schemas/Activity-Registration"
+          }
+        ],
+        "discriminator": {
+          "propertyName": "activityType",
+          "mapping": {
+            "REGISTRATION": "#/components/schemas/Activity-Registration",
+            "LOGIN": "#/components/schemas/Activity-Login",
+            "FIAT_WITHDRAWAL": "#/components/schemas/Activity-Fiat-Withdrawal",
+            "FIAT_DEPOSIT": "#/components/schemas/Activity-Fiat-Deposit",
+            "CRYPTO_WITHDRAWAL": "#/components/schemas/Activity-Crypto-Withdrawal",
+            "CRYPTO_DEPOSIT": "#/components/schemas/Activity-Crypto-Deposit"
+          }
+        }
+      },
+      "Activity-Evaluate-Req-Body": {
+        "type": "object",
+        "description": "Input data for activity evaluation",
+        "properties": {
+          "session": {
+            "$ref": "#/components/schemas/Session"
+          },
+          "originator": {
+            "$ref": "#/components/schemas/Party-Detail"
+          },
+          "detail": {
+            "$ref": "#/components/schemas/Activity-Detail"
+          }
+        }
+      },
+      "Evaluate-Activity-Req": {
+        "type": "object",
+        "required": [
+          "activity"
+        ],
+        "properties": {
+          "activity": {
+            "$ref": "#/components/schemas/Activity-Evaluate-Req-Body"
+          }
+        }
+      },
+      "Request-ID": {
+        "type": "string",
+        "example": "01HN9XHZN6MGXM9JXG50K59Q85",
+        "description": "The unique request identifier for the API call made."
+      },
+      "Activity-ID": {
+        "type": "string",
+        "readOnly": true,
+        "description": "Activity ID that identifies an activity within the Frankie platform",
+        "format": "ulid"
+      },
+      "Risk-Level": {
+        "type": "string",
+        "enum": [
+          "UNKNOWN",
+          "LOW",
+          "MEDIUM",
+          "HIGH",
+          "UNACCEPTABLE"
+        ],
+        "description": "The risk level classification:\n  - UNKNOWN: Risk level is not determined.\n  - LOW: Low risk.\n  - MEDIUM: Medium risk.\n  - HIGH: High risk.\n  - UNACCEPTABLE: Risk level is unacceptable.\n"
+      },
+      "Behavior-Biometrics": {
+        "type": "object",
+        "properties": {
+          "hesitationPercentileLongTermMemory": {
+            "type": "number",
+            "description": "The hesitation percentile for fields like address, name, etc which\nare associated with long term memory.\n"
+          },
+          "hesitationPercentileNonLongTermMemory": {
+            "type": "number",
+            "description": "The hesitation percentile for fields like amount fields which\nare not associated with long term memory.\n"
+          },
+          "numberDistractionEvents": {
+            "type": "integer"
+          }
+        }
+      },
+      "Likelihood": {
+        "type": "string",
+        "description": "Likelihood of a particular scenario\n",
+        "enum": [
+          "LOW",
+          "MEDIUM",
+          "HIGH",
+          "VERY_HIGH",
+          "UNKNOWN"
+        ]
+      },
+      "Device-Indicators": {
+        "type": "object",
+        "properties": {
+          "riskScore": {
+            "type": "integer",
+            "description": "Risk score as determine by the device checking service"
+          },
+          "riskLevel": {
+            "$ref": "#/components/schemas/Risk-Level"
+          },
+          "behaviorBiometrics": {
+            "$ref": "#/components/schemas/Behavior-Biometrics"
+          },
+          "isRat": {
+            "type": "boolean",
+            "description": "Was the device user determined to be a rat?"
+          },
+          "isSupported": {
+            "type": "boolean",
+            "description": "Was the device supported or not?"
+          },
+          "isEmulated": {
+            "type": "boolean",
+            "description": "Was the device determined to be real or emulated?"
+          },
+          "isRooted": {
+            "type": "boolean",
+            "description": "Was the device determined to be rooted?"
+          },
+          "reputation": {
+            "type": "string",
+            "description": "The reputation of the device"
+          },
+          "vpnLikelihood": {
+            "$ref": "#/components/schemas/Likelihood"
+          },
+          "proxyLikelihood": {
+            "$ref": "#/components/schemas/Likelihood"
+          },
+          "botLikelihood": {
+            "$ref": "#/components/schemas/Likelihood"
+          }
+        }
+      },
+      "Device-ID": {
+        "type": "string",
+        "description": "ID of the device",
+        "readOnly": true,
+        "format": "ulid"
+      },
+      "Device-Properties": {
+        "type": "object",
+        "description": "Device properties",
+        "properties": {
+          "deviceId": {
+            "$ref": "#/components/schemas/Device-ID"
+          },
+          "sourceId": {
+            "type": "string",
+            "description": "The source from where a specific information was sourced from. This is a link to an informationSource object in the informationSources map."
+          },
+          "providerName": {
+            "type": "string",
+            "description": "The name of the provider"
+          },
+          "externalIdentifiers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/External-Reference-Information"
+            }
+          },
+          "os": {
+            "type": "string",
+            "description": "the device operating system"
+          },
+          "trueOs": {
+            "type": "string",
+            "description": "the true OS of the device"
+          },
+          "firstSeenAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "the first time the device was seen in the provider network"
+          },
+          "browser": {
+            "type": "string",
+            "description": "the device browser (if relevant)"
+          },
+          "platform": {
+            "type": "string",
+            "description": "the device platform"
+          },
+          "model": {
+            "type": "string",
+            "description": "the device model"
+          },
+          "fingerprint": {
+            "type": "string",
+            "description": "the device fingerprint"
+          },
+          "fingerprintConfidence": {
+            "type": "number",
+            "description": "the confidence of the fingerprint"
+          }
+        }
+      },
+      "Device-Detail": {
+        "type": "object",
+        "description": "Device details",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Device-Indicators"
+          },
+          {
+            "$ref": "#/components/schemas/Device-Properties"
+          }
+        ]
+      },
+      "Geolocation": {
+        "type": "object",
+        "description": "Geolocation details if it can be determined, typically related to a device during an activity",
+        "properties": {
+          "city": {
+            "type": "string",
+            "description": "The city",
+            "example": [
+              "Melbourne",
+              "San Francisco"
+            ]
+          },
+          "country": {
+            "type": "string",
+            "description": "The country in alpha 3 ISO-3166-1 standard",
+            "example": [
+              "AUS",
+              "USA"
+            ]
+          },
+          "subdivision": {
+            "type": "string",
+            "description": "The subdivision",
+            "example": [
+              "Victoria",
+              "California"
+            ]
+          },
+          "latitude": {
+            "type": "number",
+            "format": "double",
+            "description": "The latitude"
+          },
+          "longitude": {
+            "type": "number",
+            "format": "double",
+            "description": "The longitude"
+          }
+        }
+      },
+      "IP-Information": {
+        "type": "object",
+        "description": "IP information, typically in relation to a device",
+        "properties": {
+          "v4Address": {
+            "type": "string",
+            "description": "The IPv4 address",
+            "format": "ipv4"
+          },
+          "v6Address": {
+            "type": "string",
+            "description": "The IPv6 address",
+            "format": "ipv6"
+          },
+          "trueAddress": {
+            "type": "string",
+            "description": "The true IP address"
+          },
+          "asn": {
+            "type": "string",
+            "description": "The ASN of the IP address"
+          },
+          "connectionType": {
+            "type": "string",
+            "description": "The type of IP connection (if available)",
+            "example": [
+              "Fixed Line ISP"
+            ]
+          },
+          "location": {
+            "$ref": "#/components/schemas/Geolocation"
+          }
+        }
+      },
+      "Device": {
+        "type": "object",
+        "description": "Device information associated with an activity, used for submitting device checks using an external service.\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Device-Detail"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "geolocation": {
+                "$ref": "#/components/schemas/Geolocation"
+              },
+              "ipAddressInformation": {
+                "$ref": "#/components/schemas/IP-Information"
+              },
+              "createdAt": {
+                "type": "string",
+                "description": "the time the device was created in UTC ISO8601 format",
+                "format": "date-time",
+                "readOnly": true
+              }
+            }
+          }
+        ]
+      },
+      "Activity-Base": {
+        "type": "object",
+        "description": "Activity details",
+        "properties": {
+          "activityId": {
+            "$ref": "#/components/schemas/Activity-ID"
+          },
+          "session": {
+            "$ref": "#/components/schemas/Session"
+          },
+          "originator": {
+            "$ref": "#/components/schemas/Party-Detail"
+          },
+          "detail": {
+            "$ref": "#/components/schemas/Activity-Detail"
+          },
+          "device": {
+            "$ref": "#/components/schemas/Device"
+          },
+          "activityRequestId": {
+            "type": "string",
+            "format": "ulid",
+            "description": "The request ID associated to the activity being submitted"
+          }
+        }
+      },
+      "Schema-Version": {
+        "type": "integer",
+        "example": 2,
+        "description": "Version of the Frankie schema."
+      },
+      "Evaluation-ID": {
+        "type": "string",
+        "description": "The ID of the evaluation",
+        "readOnly": true,
+        "format": "ulid"
+      },
+      "Activity-Result-ID": {
+        "type": "string",
+        "readOnly": true,
+        "description": "Activity Result ID that identifies a result from an evaluation of an activity",
+        "format": "ulid"
+      },
+      "Process-Result-ID": {
+        "type": "string",
+        "description": "When a process result object is first created, it is assigned an ID. When updating the process result object, set the processResultID to the ID of the process result object you are referring to.",
+        "readOnly": true
+      },
+      "Activity-Result-Class": {
+        "type": "string",
+        "description": "The class of the activity result (AML, FRAUD, EVENT)",
+        "enum": [
+          "AML",
+          "FRAUD",
+          "EVENT"
+        ]
+      },
+      "Activity-Result-Manual-Status": {
+        "type": "string",
+        "enum": [
+          "FALSE_POSITIVE",
+          "TRUE_POSITIVE_ACCEPT",
+          "TRUE_POSITIVE_REJECT",
+          "UNKNOWN"
+        ],
+        "description": "The status of the result.\n- FALSE_POSITIVE: When the result is determined to be false positive and the activity is within the risk profile to continue.\n- TRUE_POSITIVE_ACCEPT: When the result is determined to be true positive and the activity is within the risk profile to continue.\n- TRUE_POSITIVE_REJECT: When the result is determined to be true positive and the activity is NOT within the risk profile to continue.\n- UNKNOWN: When the outcome for the activity is unknown but you do not necessarily want to resolve it.\n"
+      },
+      "Indicator-ID": {
+        "type": "string",
+        "readOnly": true,
+        "format": "ulid",
+        "description": "Indicator ID that identifies an indicator from a check on an activity"
+      },
+      "Rule-ID": {
+        "type": "string",
+        "readOnly": true,
+        "format": "ulid",
+        "description": "Rule ID that identifies an instance of a rule within the Frankie platform"
+      },
+      "Rule": {
+        "type": "object",
+        "properties": {
+          "ruleId": {
+            "$ref": "#/components/schemas/Rule-ID"
+          },
+          "reference": {
+            "type": "string",
+            "description": "The reference for the rule",
+            "example": "Rule-12345"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the rule"
+          },
+          "description": {
+            "type": "string",
+            "description": "The description of the rule"
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "Whether the rule is active"
+          }
+        }
+      },
+      "Indicator": {
+        "type": "object",
+        "properties": {
+          "indicatorId": {
+            "$ref": "#/components/schemas/Indicator-ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the indicator"
+          },
+          "value": {
+            "type": "string",
+            "description": "The value of the indicator"
+          },
+          "score": {
+            "type": "string",
+            "description": "The score of the indicator"
+          },
+          "rules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Rule"
+            }
+          }
+        }
+      },
+      "Result-Reference-Type": {
+        "type": "string",
+        "description": "The type of the reference (e.g. url)",
+        "enum": [
+          "URL",
+          "REFERENCE"
+        ]
+      },
+      "Result-Reference": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The source of the result (e.g. sardine)"
+          },
+          "type": {
+            "$ref": "#/components/schemas/Result-Reference-Type"
+          },
+          "reference": {
+            "type": "string",
+            "description": "A link or reference to the source of the result. \nThe format will depend on the source and the reference type.\n"
+          }
+        }
+      },
+      "Activity-Result": {
+        "type": "object",
+        "properties": {
+          "activityResultId": {
+            "$ref": "#/components/schemas/Activity-Result-ID"
+          },
+          "processResultId": {
+            "$ref": "#/components/schemas/Process-Result-ID"
+          },
+          "class": {
+            "$ref": "#/components/schemas/Activity-Result-Class"
+          },
+          "riskLevel": {
+            "$ref": "#/components/schemas/Risk-Level"
+          },
+          "manualStatus": {
+            "$ref": "#/components/schemas/Activity-Result-Manual-Status"
+          },
+          "indicators": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Indicator"
+            }
+          },
+          "reference": {
+            "$ref": "#/components/schemas/Result-Reference"
+          },
+          "serviceProvider": {
+            "type": "string"
+          }
+        }
+      },
+      "Evaluation": {
+        "type": "object",
+        "properties": {
+          "lastUpdatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The timestamp that the evaluation record (or sub resource) was last updated"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The timestamp that the evaluation record was created"
+          },
+          "evaluatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The timestamp that the evaluation was done at the provider"
+          },
+          "evaluationId": {
+            "$ref": "#/components/schemas/Evaluation-ID"
+          },
+          "activityResults": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Activity-Result"
+            }
+          }
+        }
+      },
+      "Activity": {
+        "type": "object",
+        "description": "Activity details",
+        "required": [
+          "originator",
+          "detail"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Activity-Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "schemaVersion": {
+                "$ref": "#/components/schemas/Schema-Version"
+              },
+              "evaluation": {
+                "$ref": "#/components/schemas/Evaluation"
+              }
+            }
+          }
+        ]
+      },
+      "Evaluate-Activity-Res": {
+        "type": "object",
+        "required": [
+          "requestId",
+          "activity"
+        ],
+        "properties": {
+          "requestId": {
+            "$ref": "#/components/schemas/Request-ID"
+          },
+          "activity": {
+            "$ref": "#/components/schemas/Activity"
+          }
+        }
+      },
+      "Issue": {
+        "type": "object",
+        "properties": {
+          "issue": {
+            "type": "string",
+            "description": "Description of the issue."
+          },
+          "issueLocation": {
+            "type": "string",
+            "description": "The location or context where the issue was identified."
+          },
+          "issueType": {
+            "type": "string",
+            "description": "The type or category of the issue."
+          }
+        }
+      },
+      "Error-Base": {
+        "type": "object",
+        "properties": {
+          "errorCode": {
+            "type": "string"
+          },
+          "errorMsg": {
+            "type": "string"
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Issue"
+            }
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "x-examples": {
+          "400": {
+            "requestId": "0123456789ABCDEFGHIJKLMNOP",
+            "errorCode": "API-0400",
+            "errorMsg": "Parsing credentials from \"<invalid>\" failed, because invalid.",
+            "httpStatusCode": 400
+          },
+          "401": {
+            "requestId": "0123456789ABCDEFGHIJKLMNOP",
+            "errorCode": "API-0401",
+            "errorMsg": "Unauthenticated due to invalid credentials.",
+            "httpStatusCode": 401
+          },
+          "409": {
+            "requestId": "0123456789ABCDEFGHIJKLMNOP",
+            "errorCode": "API-0409",
+            "errorMsg": "Conflict.",
+            "httpStatusCode": 409
+          }
+        },
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Error-Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "requestId": {
+                "$ref": "#/components/schemas/Request-ID"
+              }
+            }
+          }
+        ]
+      },
+      "Sort-Field-Enum": {
+        "type": "string",
+        "default": "ACTIVITY_AT",
+        "enum": [
+          "ACTIVITY_AT",
+          "RISK"
+        ]
+      },
+      "Sort-Enum": {
+        "type": "string",
+        "description": "Sort records by a specific field in a specific direction. \nThis is to be used in conjunction with `sortBy`.\n\n- DESC: Descending order (default)\n- ASC: Ascending order \n",
+        "default": "DESC",
+        "enum": [
+          "ASC",
+          "DESC"
+        ]
+      },
+      "Activity-Result-Manual-Status-Query": {
+        "type": "string",
+        "enum": [
+          "FALSE_POSITIVE",
+          "TRUE_POSITIVE_ACCEPT",
+          "TRUE_POSITIVE_REJECT",
+          "UNKNOWN",
+          "UNSET"
+        ],
+        "description": "The status of the result.\n- FALSE_POSITIVE: When the result is determined to be false positive and the activity is within the risk profile to continue.\n- TRUE_POSITIVE_ACCEPT: When the result is determined to be true positive and the activity is within the risk profile to continue.\n- TRUE_POSITIVE_REJECT: When the result is determined to be true positive and the activity is NOT within the risk profile to continue.\n- UNKNOWN: When the outcome for the activity is unknown but you do not necessarily want to resolve it.\n- UNSET: When the manual status is not set, but a process result exists for the activity. (e.g. it has been alerted but not yet actioned in any capacity)\n"
+      },
+      "Entity-ID": {
+        "type": "string",
+        "description": "Entities are assigned an auto-generated UUID to ensure global uniqueness, represented as entityId. The entityId allows for precise modification when required.\nTo modify an entity, set the entityId of the entity you wish to update in an update request.",
+        "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        "readOnly": true
+      },
+      "Query-Meta": {
+        "type": "object",
+        "description": "Meta information about the request and response",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "description": "The current page of the request"
+          },
+          "total": {
+            "type": "integer",
+            "description": "The total number of items that have been found for the search criteria"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "The current limit applied for this response"
+          },
+          "count": {
+            "type": "integer",
+            "description": "The number of items that were returned in this response"
+          }
+        }
+      },
+      "Get-Activities-Res": {
+        "type": "object",
+        "description": "Response object for getting summary and overview of activities",
+        "required": [
+          "requestId",
+          "activities",
+          "meta"
+        ],
+        "properties": {
+          "activities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Activity"
+            }
+          },
+          "requestId": {
+            "$ref": "#/components/schemas/Request-ID"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Query-Meta"
+          }
+        }
+      },
+      "Process-Result-Manual-StatusEnum-Activity": {
+        "type": "string",
+        "enum": [
+          "FALSE_POSITIVE",
+          "TRUE_POSITIVE_ACCEPT",
+          "TRUE_POSITIVE",
+          "TRUE_POSITIVE_REJECT",
+          "UNKNOWN",
+          "UNKNOWN_ACCEPT",
+          "UNKNOWN_REJECT"
+        ],
+        "description": "The manual status that the activity process result should be set to.\n- FALSE_POSITIVE: The result is determined to be a false positive, but you do not necessarily want to resolve it.\n- TRUE_POSITIVE_ACCEPT: The result is determined to be a true positive and you want to resolve it. \"Accept\" infers you want to accept the activity.\n- TRUE_POSITIVE: The result is determined to be a true positive, but you do not necessarily want to resolve it.\n- TRUE_POSITIVE_REJECT: The result is determined to be a true positive and you want to resolve it. \"Reject\" infers you want to reject the activity.\n- UNKNOWN: The result is determined to be unknown, but you do not necessarily want to resolve it.\n- UNKNOWN_ACCEPT: The result is determined to be unknown and you want to resolve it. \"Accept\" infers you want to accept the activity.\n- UNKNOWN_REJECT: The result is determined to be unknown and you want to resolve it. \"Reject\" infers you want to reject the activity.\n"
+      },
+      "Comment": {
+        "type": "object",
+        "properties": {
+          "commentId": {
+            "type": "string",
+            "description": "Unique identifier for the comment.",
+            "example": "55fc5d54-46f7-49c8-bf78-e07ec79cd6e7",
+            "readOnly": true
+          },
+          "text": {
+            "type": "string",
+            "description": "The text content of the comment.",
+            "example": "Update after speaking to customer over the phone directly."
+          },
+          "entityId": {
+            "$ref": "#/components/schemas/Entity-ID-Writeable"
+          },
+          "entityType": {
+            "$ref": "#/components/schemas/Entity-Type-Writeable"
+          }
+        }
+      },
+      "Update-Results-Req": {
+        "type": "object",
+        "required": [
+          "processResults",
+          "manualStatus"
+        ],
+        "properties": {
+          "processResults": {
+            "description": "The process result IDs to update. These are the results created when activities have been flagged for review.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Process-Result-ID"
+            }
+          },
+          "manualStatus": {
+            "$ref": "#/components/schemas/Process-Result-Manual-StatusEnum-Activity"
+          },
+          "comment": {
+            "$ref": "#/components/schemas/Comment"
+          }
+        }
+      },
+      "FuzzinessLevel": {
+        "type": "object",
+        "properties": {
+          "normalized": {
+            "description": "The normalized fuzziness level, if set.\nNote: This is a normalized value, NOT the one used by the service provider (see the \"actual\" field).\nAssumes a scale of 0.0 (exact match) to 100.0 (match anything).\n",
+            "type": "number",
+            "format": "float",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "actual": {
+            "description": "The actual fuzziness level as provided by the service provider, if set.\nNote: This is not a normalized value, but the original value from the provider.\n",
+            "type": "string"
+          }
+        }
+      },
+      "ConfidenceLevel": {
+        "type": "object",
+        "properties": {
+          "normalized": {
+            "description": "The normalized confidence level, if set.\nNote: This is a normalized value, NOT the one used by the service provider (see the \"actual\" field).\nAssumes a scale of 0.0 (exact match) to 100.0 (match anything).\n",
+            "type": "number",
+            "format": "float",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "actual": {
+            "description": "The actual confidence level as provided by the service provider, if set.\nNote: This is not a normalized value, but the original value from the provider.\n",
+            "type": "string"
+          }
+        }
+      },
+      "Provider-Result": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "sourceNormalized": {
+            "type": "string"
+          },
+          "reference": {
+            "type": "string"
+          },
+          "fuzziness": {
+            "$ref": "#/components/schemas/FuzzinessLevel"
+          },
+          "confidence": {
+            "$ref": "#/components/schemas/ConfidenceLevel"
+          },
+          "riskScore": {
+            "type": "number",
+            "format": "double"
+          },
+          "errorCode": {
+            "type": "string"
+          },
+          "errorMessage": {
+            "type": "string"
+          }
+        },
+        "readOnly": true
+      },
+      "Process-ResultEnum": {
+        "type": "string",
+        "enum": [
+          "MATCH",
+          "PARTIAL_MATCH",
+          "INVALID_MATCH",
+          "NO_MATCH",
+          "CLEAR",
+          "HIT",
+          "BAD_DATA",
+          "CREATED",
+          "UPDATED",
+          "DELETED",
+          "FAIL",
+          "NOT_APPLICABLE",
+          "SUSPECTED",
+          "REJECTED",
+          "MANUAL",
+          "CLEAR_AUTO",
+          "OVERRIDE"
+        ],
+        "readOnly": true,
+        "description": "The actual pass/fail result of the element check\n- MATCH: The element check matched the expected criteria.\n- PARTIAL_MATCH: The element check partially matched the expected criteria.\n- INVALID_MATCH: The element check matched but was invalid.\n- NO_MATCH: The element check did not match the expected criteria.\n- CLEAR: The element check was cleared.\n- HIT: The element check hit a specific condition or threshold.\n- BAD_DATA: The element check encountered bad data.\n- CREATED: The element check resulted in the creation of a new record.\n- UPDATED: The element check resulted in the update of an existing record.\n- DELETED: The element check resulted in the deletion of a record.\n- FAIL: The element check failed.\n- NOT_APPLICABLE: The element check was not applicable in the given context.\n- SUSPECTED: The element check raised a suspicion but did not confirm it.\n- REJECTED: The element check was rejected.\n- MANUAL: The element check was manually reviewed or processed.\n- CLEAR_AUTO: The element check was cleared automatically.\n- OVERRIDE: The element check was overridden by a manual action or system rule.\n"
+      },
+      "Process-Result-ClassEnum": {
+        "type": "string",
+        "description": "Provides additional clarity for the result class, especially for more generic element types like 'person'.",
+        "enum": [
+          "KYC",
+          "ID",
+          "IDV",
+          "AML",
+          "FRAUDLIST",
+          "FRAUDCHECK",
+          "FRAUD",
+          "DEVICE",
+          "MOBILE",
+          "EMAIL",
+          "LOOKUP",
+          "CREATE",
+          "UPDATE",
+          "DELETE",
+          "KYB",
+          "DUPLICATE",
+          "BLOCKLIST",
+          "SUPPORTING_DOC",
+          "MATCHLIST",
+          "VISA",
+          "ACTIVITY"
+        ],
+        "readOnly": true
+      },
+      "Supplementary-Data-Base": {
+        "type": "object",
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "The type of supplementary data. Possible values:\n  - AML\n  - KYC_ADDRESS\n  - KYC_DOB\n  - KYC_GENDER\n  - KYC_NAME\n  - ID\n  - VISA\n  - NAME_VALIDATION\n  - KYB_ORGANIZATION\n  - MATCHLIST\n  - DUPLICATE\n  - FRAUD_DEVICE\n  - FRAUD_EMAIL\n  - FRAUD_PHONE\n  - FRAUD_LOOKUP\n  - ACTIVITY_AML\n  - ACTIVITY_EVENT\n  - ACTIVITY_FRAUD\n",
+            "enum": [
+              "AML",
+              "KYC_ADDRESS",
+              "KYC_DOB",
+              "KYC_GENDER",
+              "KYC_NAME",
+              "ID",
+              "VISA",
+              "NAME_VALIDATION",
+              "KYB_ORGANIZATION",
+              "MATCHLIST",
+              "DUPLICATE",
+              "FRAUD_DEVICE",
+              "FRAUD_EMAIL_ADDRESS",
+              "FRAUD_PHONE_NUMBER",
+              "FRAUD_IP_ADDRESS",
+              "FRAUD_LOOKUP",
+              "ACTIVITY_AML",
+              "ACTIVITY_EVENT",
+              "ACTIVITY_FRAUD"
+            ]
+          }
+        }
+      },
+      "Supplementary-Data-AML-MatchData-Country": {
+        "type": "object",
+        "required": [
+          "code"
+        ],
+        "description": "Represents the country code and match type for an AML (Anti-Money Laundering) country match.\n",
+        "properties": {
+          "code": {
+            "type": "string",
+            "maxLength": 3,
+            "description": "The ISO 3166-1 alpha-3 country code where a match was identified.\n"
+          },
+          "matchType": {
+            "type": "string",
+            "description": "The type of match associated with this country. Possible values include:\n  - CITIZENSHIP\n  - RESIDENCE\n  - BIRTH\n  - NATIONALITY\n  - INCORPORATION (for organizations)\n  - OPERATION\n"
+          }
+        }
+      },
+      "Supplementary-Data-AML-MatchData-NationalId": {
+        "type": "object",
+        "description": "Provides details of a matched identification document, if supplied.\n",
+        "properties": {
+          "idNumber": {
+            "type": "string",
+            "description": "The matched identification number."
+          },
+          "idType": {
+            "type": "string",
+            "description": "The type of identification matched (e.g., National ID, passport)."
+          },
+          "idExpiry": {
+            "type": "string",
+            "description": "The expiry date of the identification document (if known), using the format provided by the service provider."
+          },
+          "issuingCountryCode": {
+            "type": "string",
+            "description": "The ISO 3166-1 alpha-3 country code of the issuing country."
+          },
+          "documentId": {
+            "type": "string",
+            "description": "The document ID if this was matched to a FrankieOne document record."
+          }
+        }
+      },
+      "Supplementary-Data-AML-MatchData": {
+        "type": "object",
+        "required": [
+          "spReferenceId",
+          "name"
+        ],
+        "description": "Contains information about this specific matched entity.\n",
+        "properties": {
+          "strength": {
+            "type": "number",
+            "format": "float",
+            "description": "The match strength as determined by the service provider."
+          },
+          "spReferenceId": {
+            "type": "string",
+            "description": "The internal identifier assigned by the service provider for the matched individual or business.\n"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name matched by the service provider.\n"
+          },
+          "givenName": {
+            "type": "string",
+            "description": "The given name matched by the service provider (optional).\n"
+          },
+          "otherName": {
+            "type": "string",
+            "description": "The middle or other name(s) matched by the service provider (optional).\n"
+          },
+          "familyName": {
+            "type": "string",
+            "description": "The family name matched by the service provider (optional).\n"
+          },
+          "date": {
+            "type": "string",
+            "description": "The date matched in the system, formatted as provided by the service provider. May be only a year.\n"
+          },
+          "address": {
+            "type": "string",
+            "description": "The address matched by the service provider (optional).\n"
+          },
+          "countries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Supplementary-Data-AML-MatchData-Country"
+            }
+          },
+          "nationalId": {
+            "$ref": "#/components/schemas/Supplementary-Data-AML-MatchData-NationalId"
+          },
+          "imageUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "A URL to a displayable image of the matched individual or company logo."
+          },
+          "isDeceased": {
+            "type": "boolean",
+            "description": "Indicates if this match is to a deceased individual."
+          },
+          "isAlias": {
+            "type": "boolean",
+            "description": "Indicates if this match is an alias of the searched individual or organization."
+          },
+          "isRelated": {
+            "type": "boolean",
+            "description": "Indicates if this match is a related party of the searched individual or organization."
+          }
+        }
+      },
+      "Supplementary-Data-AML-RelatedParties": {
+        "type": "object",
+        "description": "Defines the name and relationship of individuals or organizations related to the matched entity.\n",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name of the related individual or organization."
+          },
+          "relationship": {
+            "type": "string",
+            "description": "The nature of the relationship to the matched entity.\nFor example: \"Sibling\", \"Director\", \"Known associate\".\n"
+          }
+        }
+      },
+      "Supplementary-Data-AML-ReferenceDocs": {
+        "type": "object",
+        "description": "Captures references to source documents or websites, including the URL and, where available, a description of the original source.\n",
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL of any external reference document related to this matched entity."
+          },
+          "description": {
+            "type": "string",
+            "description": "If a description of the document is provided, it will be included here."
+          }
+        }
+      },
+      "Attribute": {
+        "type": "object",
+        "required": [
+          "type",
+          "value"
+        ],
+        "properties": {
+          "type": {
+            "description": "The attribute type.",
+            "type": "string",
+            "maxLength": 64
+          },
+          "value": {
+            "description": "The value assigned to the attribute.",
+            "type": "string"
+          }
+        }
+      },
+      "Custom-Attributes": {
+        "type": "object",
+        "additionalProperties": {
+          "$ref": "#/components/schemas/Attribute"
+        }
+      },
+      "Supplementary-Data-AML-AdditionalData": {
+        "type": "object",
+        "description": "Represents a simple key-value pair for AML data to capture any additional information not included in the main object.\n",
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "The key name, formatted in snake_case (e.g., key_in_snake_case), which can be converted to spaced title case for display.\n"
+          },
+          "value": {
+            "type": "string",
+            "description": "The value associated with the key, provided as a string for display purposes.\n"
+          }
+        }
+      },
+      "Supplementary-Data-AML-PEPData": {
+        "type": "object",
+        "description": "Contains Politically Exposed Person (PEP) information about a specific matched entity.\n",
+        "properties": {
+          "countryCode": {
+            "type": "string",
+            "description": "The ISO 3166-1 alpha-3 country code where the PEP entry was recorded.\n"
+          },
+          "countryName": {
+            "type": "string",
+            "description": "The ISO 3166 country name where the PEP entry was recorded.\n"
+          },
+          "sourceName": {
+            "type": "string",
+            "description": "The source of the PEP entry data.\n"
+          },
+          "level": {
+            "type": "string",
+            "description": "The PEP \"level\", generally represented by a number from 1 (heads of state, military, civil service, etc.) to 4 (local government, minor public servants, etc.).\n"
+          },
+          "sourceUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "The URL where the original PEP information can be found.\n"
+          },
+          "sourcePosition": {
+            "deprecated": true,
+            "type": "string",
+            "description": "(Deprecated) The position held that created the PEP entry.\n"
+          },
+          "position": {
+            "type": "string",
+            "description": "The position held that created the PEP entry.\n"
+          },
+          "positionDescription": {
+            "type": "string",
+            "description": "A description of the position held that created the PEP entry.\n"
+          },
+          "status": {
+            "type": "string",
+            "description": "The current PEP status.\n"
+          },
+          "listingStart": {
+            "type": "string",
+            "description": "The date when the listing started. Will attempt to use ISO 8601 date format; otherwise, the format supplied by the source.\n"
+          },
+          "listingEnd": {
+            "type": "string",
+            "description": "The date when the listing ended (if available or known). Will attempt to use ISO 8601 date format; otherwise, the format supplied by the source.\n"
+          },
+          "imageUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "Optional URL of an image of the person associated with their role.\n"
+          },
+          "referenceDocs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Supplementary-Data-AML-ReferenceDocs"
+            }
+          },
+          "additionalData": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Supplementary-Data-AML-AdditionalData"
+            }
+          }
+        }
+      },
+      "Supplementary-Data-AML-SanctionsData": {
+        "type": "object",
+        "description": "Contains sanction information about a specific matched entity.\n",
+        "properties": {
+          "countryCode": {
+            "type": "string",
+            "description": "The ISO 3166-1 alpha-3 country code where the sanction entry was recorded.\n"
+          },
+          "countryName": {
+            "type": "string",
+            "description": "The ISO 3166 country name where the sanction entry was recorded.\n"
+          },
+          "sourceName": {
+            "type": "string",
+            "description": "The source of the sanction entry data.\n"
+          },
+          "sourceUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "The URL where the original sanction information can be found.\n"
+          },
+          "sourceReason": {
+            "type": "string",
+            "description": "The reason provided for sanctioning the individual or organization.\n"
+          },
+          "listingStart": {
+            "type": "string",
+            "description": "The date when the listing started. Will attempt to use ISO 8601 date format; otherwise, the format supplied by the source.\n"
+          },
+          "listingEnd": {
+            "type": "string",
+            "description": "The date when the listing ended (if available or known). Will attempt to use ISO 8601 date format; otherwise, the format supplied by the source.\n"
+          },
+          "imageUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "Optional URL of an image of the person or company logo of the sanctioned entity.\n"
+          },
+          "referenceDocs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Supplementary-Data-AML-ReferenceDocs"
+            }
+          },
+          "additionalData": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Supplementary-Data-AML-AdditionalData"
+            }
+          }
+        }
+      },
+      "Supplementary-Data-AML-WatchlistData": {
+        "type": "object",
+        "description": "Contains non-PEP/non-sanction watchlist and other source information about a specific matched entity.\n",
+        "properties": {
+          "countryCode": {
+            "type": "string",
+            "description": "The ISO 3166-1 alpha-3 country code where the watchlist entry was recorded.\n"
+          },
+          "countryName": {
+            "type": "string",
+            "description": "The ISO 3166 country name where the watchlist entry was recorded.\n"
+          },
+          "sourceName": {
+            "type": "string",
+            "description": "The source of the watchlist entry data.\n"
+          },
+          "sourceUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "The URL where the original watchlist information can be found.\n"
+          },
+          "sourceReason": {
+            "type": "string",
+            "description": "The reason provided for adding the individual or organization to the watchlist.\n"
+          },
+          "listingStart": {
+            "type": "string",
+            "description": "The date when the listing started. Will attempt to use ISO 8601 date format; otherwise, the format supplied by the source.\n"
+          },
+          "listingEnd": {
+            "type": "string",
+            "description": "The date when the listing ended (if available or known). Will attempt to use ISO 8601 date format; otherwise, the format supplied by the source.\n"
+          },
+          "imageUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "Optional URL of an image of the person or company logo of the entity on this list.\n"
+          },
+          "referenceDocs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Supplementary-Data-AML-ReferenceDocs"
+            }
+          },
+          "additionalData": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Supplementary-Data-AML-AdditionalData"
+            }
+          }
+        }
+      },
+      "Supplementary-Data-AML-MediaData": {
+        "type": "object",
+        "required": [
+          "title",
+          "source"
+        ],
+        "description": "Contains adverse media information about a specific matched entity.\n",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "The title of the article or media source.\n"
+          },
+          "snippet": {
+            "type": "string",
+            "description": "A short excerpt or snippet from the article.\n"
+          },
+          "source": {
+            "type": "string",
+            "description": "The source or publisher of the article or media.\n"
+          },
+          "sourceDate": {
+            "type": "string",
+            "description": "The publication date, as referenced and formatted by the source.\n"
+          },
+          "sourceCountry": {
+            "type": "string",
+            "description": "The country of origin for the article, if available.\n"
+          },
+          "url": {
+            "type": "string",
+            "description": "The URL to the original full article, if available.\n"
+          },
+          "isCurrent": {
+            "type": "boolean",
+            "default": true,
+            "description": "Indicates whether this article is still considered current.\n"
+          }
+        }
+      },
+      "Supplementary-Data-AML": {
+        "type": "object",
+        "required": [
+          "serviceProvider"
+        ],
+        "description": "Each AML match/hit generates a PRO, and this object describes the details of the matched individual or business.\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "serviceProvider": {
+                "type": "string",
+                "description": "The name of the service provider from which this matched record was retrieved.\n"
+              },
+              "searchId": {
+                "type": "string",
+                "description": "The service provider's search reference number, usually used to refer to an ongoing search.\n"
+              },
+              "caseId": {
+                "type": "string",
+                "description": "If the service provider has case management facilities, this is their case identifier. May be the same as the search ID.\n"
+              },
+              "referenceId": {
+                "type": "string",
+                "description": "An additional reference number provided by the service provider, or our own reference number.\n"
+              },
+              "originalStepSearchLevel": {
+                "type": "string",
+                "description": "Indicates if this was a simple PEP or PEP media check that found this match. Used to determine if more information is needed when re-using existing results.\n"
+              },
+              "groupingId": {
+                "type": "string",
+                "description": "Some matches can be grouped together as part of a collection of searches. This can be the searchId or a reference ID.\n"
+              },
+              "reportUrl": {
+                "type": "string",
+                "format": "uri",
+                "description": "If the service provider supplies a pre-packaged report that can be downloaded independently, this is the URL to retrieve it.\n"
+              },
+              "fuzziness": {
+                "$ref": "#/components/schemas/FuzzinessLevel"
+              },
+              "matchData": {
+                "$ref": "#/components/schemas/Supplementary-Data-AML-MatchData"
+              },
+              "aliases": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Alternative names, aliases, \"AKA\"s, or names as spelled in other languages, etc."
+                }
+              },
+              "relatedParties": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Supplementary-Data-AML-RelatedParties"
+                }
+              },
+              "referenceDocs": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Supplementary-Data-AML-ReferenceDocs"
+                }
+              },
+              "notes": {
+                "$ref": "#/components/schemas/Custom-Attributes"
+              },
+              "pepData": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Supplementary-Data-AML-PEPData"
+                }
+              },
+              "sanctionData": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Supplementary-Data-AML-SanctionsData"
+                }
+              },
+              "watchlistData": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Supplementary-Data-AML-WatchlistData"
+                }
+              },
+              "mediaData": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Supplementary-Data-AML-MediaData"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Supplementary-Data-KYC-Address-MatchStrengths": {
+        "type": "object",
+        "properties": {
+          "fullAddress": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "streetNumber": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "streetName": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "streetType": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "streetAll": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "locality": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "district": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "subdivision": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "postalCode": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "country": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "maximum": 100
+          }
+        }
+      },
+      "Supplementary-Data-KYC-Address": {
+        "type": "object",
+        "description": "Defines the matching levels for each address element, where available.\nProvides a match strength score ranging from 0 (no match) to 100 (full match).\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "matchStrengths": {
+                "$ref": "#/components/schemas/Supplementary-Data-KYC-Address-MatchStrengths"
+              },
+              "fuzziness": {
+                "$ref": "#/components/schemas/FuzzinessLevel"
+              },
+              "wasNameMatchStrongEnough": {
+                "description": "Indicates whether there was a sufficiently strong name match at the time this was checked, even if the address was a perfect match.\nThis is only an indicator at the time the PRO was created. Subsequent checks that reuse this result may interpret this differently.\n",
+                "type": "boolean"
+              }
+            }
+          }
+        ]
+      },
+      "Supplementary-Data-KYC-DoB-MatchStrengths": {
+        "type": "object",
+        "properties": {
+          "fullDateOfBirth": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "year": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "month": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "day": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "maximum": 100
+          }
+        }
+      },
+      "Supplementary-Data-KYC-DoB": {
+        "type": "object",
+        "description": "Defines the matching levels for each date of birth element, where available.\nProvides a match strength score ranging from 0 (no match) to 100 (full match).\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "matchStrengths": {
+                "$ref": "#/components/schemas/Supplementary-Data-KYC-DoB-MatchStrengths"
+              },
+              "fuzziness": {
+                "$ref": "#/components/schemas/FuzzinessLevel"
+              },
+              "wasNameMatchStrongEnough": {
+                "description": "Indicates whether there was a sufficiently strong name match at the time this was checked, even if the date of birth was a perfect match.\nThis is only an indicator at the time the PRO was created. Subsequent checks that reuse this result may interpret this differently.\n",
+                "type": "boolean"
+              }
+            }
+          }
+        ]
+      },
+      "Supplementary-Data-KYC-Gender-MatchStrengths": {
+        "type": "object",
+        "properties": {
+          "gender": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "maximum": 100
+          }
+        }
+      },
+      "Supplementary-Data-KYC-Gender": {
+        "type": "object",
+        "description": "Defines the matching results for a gender check. This is rarely used.\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "matchStrengths": {
+                "$ref": "#/components/schemas/Supplementary-Data-KYC-Gender-MatchStrengths"
+              },
+              "fuzziness": {
+                "$ref": "#/components/schemas/FuzzinessLevel"
+              },
+              "wasNameMatchStrongEnough": {
+                "description": "Indicates whether there was a sufficiently strong name match at the time this was checked, even if the gender was a perfect match.\nThis is only an indicator at the time the PRO was created. Subsequent checks that reuse this result may interpret this differently.\n",
+                "type": "boolean"
+              }
+            }
+          }
+        ]
+      },
+      "Supplementary-Data-KYC-Name-MatchStrengths": {
+        "type": "object",
+        "properties": {
+          "fullName": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "familyName": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "givenName": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "otherNames": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "firstInitialFamilyName": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "maximum": 100
+          }
+        }
+      },
+      "Supplementary-Data-KYC-Name": {
+        "type": "object",
+        "description": "Defines the matching levels for each name element, where available.\nProvides a match strength score ranging from 0 (no match) to 100 (full match).\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "matchStrengths": {
+                "$ref": "#/components/schemas/Supplementary-Data-KYC-Name-MatchStrengths"
+              },
+              "fuzziness": {
+                "$ref": "#/components/schemas/FuzzinessLevel"
+              }
+            }
+          }
+        ]
+      },
+      "Supplementary-Data-ID-MatchStrengths": {
+        "type": "object",
+        "properties": {
+          "primaryIdentifier": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "secondaryIdentifier": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "name": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "If the name verification result is known, record it here.\n\nNOTE: This should not be used as a KYC result; informational only.\nPlease use a separate PRO for an actual KYC result if required.\n"
+          },
+          "dateOfBirth": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "If the date of birth verification result is known, record it here.\n\nNOTE: This should not be used as a KYC result; informational only.\nPlease use a separate PRO for an actual KYC result if required.\n"
+          },
+          "expiryDate": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "isValid": {
+            "type": "boolean",
+            "description": "Indicates if the ID is valid (if known)."
+          },
+          "isExpired": {
+            "type": "boolean",
+            "description": "Indicates if the ID has expired (if known)."
+          },
+          "isBlocked": {
+            "type": "boolean",
+            "description": "Indicates if the ID has been blocked at the source."
+          },
+          "blockingCode": {
+            "type": "string",
+            "description": "If the service provider returns a blocking code or reason, it will be recorded here."
+          },
+          "attachmentId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "If a photo was sent to the service provider, the FrankieOne scanId is added for reference."
+          },
+          "photoId": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "If a photo was supplied and checked, the match score is recorded here."
+          },
+          "photoIssue": {
+            "type": "string",
+            "description": "If there was an issue checking the photo, any error details can be found here."
+          }
+        }
+      },
+      "Supplementary-Data-ID": {
+        "type": "object",
+        "description": "Provides the matching levels found for each ID element, where available.\nMatch strength is scaled from 0 (no match) to 100 (full match).\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "matchStrengths": {
+                "$ref": "#/components/schemas/Supplementary-Data-ID-MatchStrengths"
+              },
+              "fuzziness": {
+                "$ref": "#/components/schemas/FuzzinessLevel"
+              }
+            }
+          }
+        ]
+      },
+      "Supplementary-Data-Visa": {
+        "type": "object",
+        "description": "Defines the Visa details returned from VEVO.\nClass and subclass values can be found on the VEVO website.\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "country": {
+                "type": "string",
+                "description": "Country of origin (ISO-3166-alpha3 code)."
+              },
+              "class": {
+                "type": "string",
+                "description": "Visa class."
+              },
+              "subClass": {
+                "type": "string",
+                "description": "Visa subclass."
+              },
+              "entitlementStatus": {
+                "type": "string",
+                "description": "Status of the visa entitlement."
+              },
+              "grantDate": {
+                "type": "string",
+                "format": "date",
+                "description": "Date the visa was granted."
+              },
+              "expiryDate": {
+                "type": "string",
+                "format": "date",
+                "description": "Date the visa expires."
+              },
+              "hasExpired": {
+                "type": "boolean",
+                "description": "Indicates if the visa has expired (sometimes expiry date is not returned)."
+              },
+              "noExpiry": {
+                "type": "boolean",
+                "description": "Indicates if this visa has no expiry."
+              },
+              "entitlementConditionCode": {
+                "type": "string",
+                "description": "Code for the entitlement condition."
+              },
+              "entitlementConditionDescription": {
+                "type": "string",
+                "description": "Description of the entitlement condition."
+              },
+              "holderType": {
+                "type": "string",
+                "enum": [
+                  "PRIMARY",
+                  "SECONDARY"
+                ],
+                "description": "Indicates if this is the primary visa holder or a secondary holder (usually a spouse/partner or other family member).\nValues:\n  - PRIMARY\n  - SECONDARY\n"
+              },
+              "lookupErrorCode": {
+                "type": "string",
+                "description": "If there was an error during the lookup, this is the code returned from VEVO."
+              },
+              "fuzziness": {
+                "$ref": "#/components/schemas/FuzzinessLevel"
+              }
+            }
+          }
+        ]
+      },
+      "Supplementary-Data-NameValidation": {
+        "type": "object",
+        "description": "Details on how the native language name was verified against a dictionary of anglicized translations.\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "langCode": {
+                "type": "string",
+                "description": "Language code used for translation."
+              },
+              "nameMatchOrder": {
+                "type": "string",
+                "description": "Depending on the name to be translated and how it is presented, the native language and anglicized version ordering might be mixed up. The service will try various orderings to find a match.\nThe order codes represent the actual order that matched.\nEach letter combination represents *F*amily, *G*iven, and *O*ther names.\nFor example, FGO means that Family, Given, and Other names matched in that order.\n",
+                "enum": [
+                  "FGO",
+                  "OFG",
+                  "GOF",
+                  "FOG",
+                  "GFO",
+                  "OGF",
+                  "FG",
+                  "FO",
+                  "GF",
+                  "OF"
+                ]
+              },
+              "fuzziness": {
+                "$ref": "#/components/schemas/FuzzinessLevel"
+              }
+            }
+          }
+        ]
+      },
+      "Entity-Type": {
+        "type": "string",
+        "enum": [
+          "INDIVIDUAL",
+          "ORGANIZATION",
+          "UNKNOWN"
+        ],
+        "description": "The type of entity within Frankie. This can be \"INDIVIDUAL\", \"ORGANIZATION\", or \"UNKNOWN\".",
+        "readOnly": true
+      },
+      "Supplementary-Data-KYB-Organization": {
+        "type": "object",
+        "description": "Defines OQRO (Ownership Query Result Object) at various stages in the KYB (Know Your Business) flow.\nThe 'oqro' property temporarily stores the V1 OQRO and will be used until the V2 OQRO is defined.\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "organization": {
+                "description": "V2 OQRO; to be defined in the future.\n",
+                "properties": {
+                  "entityId": {
+                    "$ref": "#/components/schemas/Entity-ID"
+                  },
+                  "entityType": {
+                    "$ref": "#/components/schemas/Entity-Type"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Object-Type": {
+        "description": "The type of object being annotated.",
+        "type": "string",
+        "enum": [
+          "ADDRESS",
+          "NAME",
+          "PHONE_NUMBER",
+          "EMAIL",
+          "DATE_OF_BIRTH",
+          "WEBSITE",
+          "SHAREHOLDER",
+          "OFFICIAL",
+          "UBO",
+          "REGISTRATION",
+          "SHAREHOLDING",
+          "SHARECAPITAL",
+          "DOCUMENT",
+          "DOCUMENT_ATTACHMENT",
+          "RESULT_PROCESS",
+          "RESULT_STEP",
+          "RESULT_WORKFLOW",
+          "SERVICE_PROFILE",
+          "AUDIT_EVENT",
+          "EXTERNAL_REFERENCE",
+          "RISK_ASSESSMENT",
+          "MATCHLIST"
+        ]
+      },
+      "Supplementary-Data-Base-MatchStrength": {
+        "type": "integer",
+        "description": "Represents the standard match strength, scaled from 0 (no match) to 100 (exact match).\nIn some cases, a value of 50 may be interpreted as a \"partial\" match.\n",
+        "format": "int32",
+        "minimum": 0,
+        "maximum": 100
+      },
+      "Supplementary-Data-Duplicate-MatchField": {
+        "type": "object",
+        "description": "Provides details of a match between entities, the objects they represent, and the match strength.\n",
+        "properties": {
+          "objectType": {
+            "$ref": "#/components/schemas/Object-Type"
+          },
+          "duplicateObjectId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The ID of the object that was found to be a duplicate."
+          },
+          "objectId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The ID of the object that originated the match."
+          },
+          "matchStrength": {
+            "$ref": "#/components/schemas/Supplementary-Data-Base-MatchStrength"
+          }
+        }
+      },
+      "Supplementary-Data-Duplicate-MatchedRule": {
+        "type": "object",
+        "description": "Provides details about the rule that was matched to classify the object as a duplicate.\n",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name of the matched rule."
+          },
+          "strength": {
+            "type": "string",
+            "description": "The strength of the match. This is free-form, but it is recommended to use standard values for clarity, such as:\n  - \"VERY_LOW\"\n  - \"LOW\"\n  - \"MEDIUM\"\n  - \"HIGH\"\n  - \"VERY_HIGH\"\n"
+          }
+        }
+      },
+      "Supplementary-Data-Duplicate": {
+        "type": "object",
+        "description": "Provides details of a single duplicate match, including the matching entity ID and a list of matched elements.\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "duplicateEntityId": {
+                "$ref": "#/components/schemas/Entity-ID",
+                "description": "The entity ID of the entity that was matched by the matched fields."
+              },
+              "matchedFields": {
+                "type": "array",
+                "description": "The list of fields that determined this is a duplicate of another entity.",
+                "items": {
+                  "$ref": "#/components/schemas/Supplementary-Data-Duplicate-MatchField"
+                }
+              },
+              "matchedRules": {
+                "type": "array",
+                "description": "The list of rules that were matched to determine this is a duplicate of another entity.",
+                "items": {
+                  "$ref": "#/components/schemas/Supplementary-Data-Duplicate-MatchedRule"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Supplementary-Data-IDV-Data": {
+        "type": "object",
+        "description": "Contains information about a specific matched IDV element.\n",
+        "properties": {
+          "originalName": {
+            "type": "string",
+            "description": "The name of the element as returned by the provider, before normalization (e.g., 'face', 'dob', 'name')."
+          },
+          "confidence": {
+            "type": "number",
+            "format": "float",
+            "description": "Service provider's confidence in this value."
+          },
+          "confidenceThreshold": {
+            "type": "number",
+            "format": "float",
+            "description": "Configured confidence threshold for this value to be considered valid."
+          },
+          "originalData": {
+            "type": "string",
+            "description": "The raw data returned by the provider."
+          },
+          "reviewedData": {
+            "type": "string",
+            "description": "If the applicant was given a chance to correct the data, this is the reviewed data with any changes."
+          },
+          "resultNormalized": {
+            "type": "string",
+            "description": "The final result after applying confidence and normalization (e.g., clear, suspected, rejected)."
+          },
+          "description": {
+            "type": "string",
+            "description": "A description of the data element returned in the rawData field."
+          }
+        }
+      },
+      "Supplementary-Data-IDV-ElementMap": {
+        "type": "object",
+        "description": "A map of IDV report elements obtained from the requested IDV service provider.\n\nThe map keys are arbitrary strings, but where possible, should use a value from the predefined IDV Data Enums.\nService provider connections should map supplied values to existing enums where possible.\nIf there is no relevant existing match, it is acceptable to use the original service provider value as the key.\n",
+        "additionalProperties": {
+          "$ref": "#/components/schemas/Supplementary-Data-IDV-Data"
+        }
+      },
+      "Supplementary-Data-IDV-Base": {
+        "type": "object",
+        "description": "A report from an IDV provider based on a photographic or video biometrics process.\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "outcomeRaw": {
+                "type": "string",
+                "description": "The original outcome of the IDV process, as reported by the service provider."
+              },
+              "resultMap": {
+                "$ref": "#/components/schemas/Supplementary-Data-IDV-ElementMap"
+              },
+              "requiredElements": {
+                "type": "array",
+                "description": "List of elements required to have passed, as per the step configuration.",
+                "items": {
+                  "type": "string",
+                  "description": "The IDV report element name, e.g., 'face', 'dob', 'name'."
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Document-Type": {
+        "type": "string",
+        "enum": [
+          "OTHER",
+          "DRIVERS_LICENSE",
+          "PASSPORT",
+          "VISA",
+          "IMMIGRATION",
+          "NATIONAL_ID",
+          "TAX_ID",
+          "NATIONAL_HEALTH_ID",
+          "CONCESSION",
+          "HEALTH_CONCESSION",
+          "PENSION",
+          "MILITARY_ID",
+          "BIRTH_CERT",
+          "CITIZENSHIP",
+          "MARRIAGE_CERT",
+          "DEATH_CERT",
+          "NAME_CHANGE",
+          "UTILITY_BILL",
+          "BANK_STATEMENT",
+          "BANK_ACCOUNT",
+          "INTENT_PROOF",
+          "ATTESTATION",
+          "SELF_IMAGE",
+          "DEVICE",
+          "VEHICLE_REGISTRATION",
+          "PROOF_OF_ADDRESS",
+          "HOUSE_REGISTRATION",
+          "YELLOW_HOUSE_REGISTRATION",
+          "WORK_PERMIT",
+          "EMPLOYMENT_CERTIFICATE",
+          "NOTARY_PUBLIC_ID",
+          "EXTERNAL_ADMIN",
+          "CHARGES",
+          "PRE_ASIC",
+          "ANNUAL_RETURN",
+          "REPORT",
+          "TRUST_DEED",
+          "PARTNERSHIP_AGREEMENT",
+          "ADMIN_CHANGE",
+          "COMPANY_REPORT",
+          "CHECK_RESULTS",
+          "AVIATION_SECURITY_ID",
+          "MARITIME_SECURITY_ID"
+        ],
+        "description": "Valid document ID types.\n\n  - \"OTHER\": Generic document type. Unspecified.\n  - \"DRIVERS_LICENSE\": Driver's license.\n  - \"PASSPORT\": Passport.\n  - \"VISA\": Visa document (not Visa payment card).\n  - \"IMMIGRATION\": Immigration card.\n  - \"NATIONAL_ID\": Any national ID card.\n  - \"TAX_ID\": Any national tax identifier.\n  - \"NATIONAL_HEALTH_ID\": Any national health program ID card (e.g., Medicare, NHS).\n  - \"CONCESSION\": State-issued concession card.\n  - \"HEALTH_CONCESSION\": State-issued health-specific concession card.\n  - \"PENSION\": State-issued pension ID.\n  - \"MILITARY_ID\": Military ID.\n  - \"BIRTH_CERT\": Birth certificate.\n  - \"CITIZENSHIP\": Citizenship certificate.\n  - \"MARRIAGE_CERT\": Marriage certificate.\n  - \"DEATH_CERT\": Death certificate.\n  - \"NAME_CHANGE\": Name change confirmation.\n  - \"UTILITY_BILL\": Regulated utility bill, such as electricity, gas, etc.\n  - \"BANK_STATEMENT\": Bank/card statement.\n  - \"BANK_ACCOUNT\": Bank account.\n  - \"INTENT_PROOF\": Proof of intent, generally a photo/video or a scanned letter.\n  - \"ATTESTATION\": Document of attestation (e.g., Statutory Declaration).\n\n  NOTE: These cannot be used as a supporting document:\n  - \"SELF_IMAGE\": A \"selfie\" used for comparisons.\n  - \"DEVICE\": Device ID.\n  - \"VEHICLE_REGISTRATION\": Vehicle registration number.\n  - \"PROOF_OF_ADDRESS\": Any document that provides proof of address.\n  - \"HOUSE_REGISTRATION\": House registration document.\n  - \"YELLOW_HOUSE_REGISTRATION\": Yellow House Registration Thor Ror 13.\n  - \"WORK_PERMIT\": Work permit.\n  - \"EMPLOYMENT_CERTIFICATE\": Certificate of employment.\n  - \"NOTARY_PUBLIC_ID\": Notary Public Identification.\n\n  Business-related documentation:\n\n  - \"EXTERNAL_ADMIN\": Details of appointed administrator.\n  - \"CHARGES\": Details of any charges laid against a company or director.\n  - \"PRE_ASIC\": Any documents that are Pre-ASIC.\n  - \"ANNUAL_RETURN\": Details of a company's annual return.\n  - \"REPORT\": Frankie-generated report.\n  - \"TRUST_DEED\": Corporate trust deed.\n  - \"PARTNERSHIP_AGREEMENT\": Partnership agreement documents.\n  - \"ADMIN_CHANGE\": Change of administrator.\n  - \"COMPANY_REPORT\": Registry-filed company reports.\n\n  Special document types:\n\n  - \"CHECK_RESULTS\": Special document type for specifying results of checks completed other than through Frankie.\n  - \"AVIATION_SECURITY_ID\": Aviation Security Identification Card.\n  - \"MARITIME_SECURITY_ID\": Maritime Security Identification Card."
+      },
+      "Supplementary-Data-IDV-Document": {
+        "type": "object",
+        "description": "Result of a document check, indicating how likely or accurate the presented document is a valid ID document.\n\nFor resultMap keys, use the keys found in the enum: SupplementaryDataIDVEnumDataDocument.\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-IDV-Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "attachmentIds": {
+                "type": "object",
+                "description": "The IDs of the document images that were analyzed.",
+                "properties": {
+                  "front": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "The ID of the front image of the document."
+                  },
+                  "back": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "The ID of the back image of the document."
+                  }
+                }
+              },
+              "detectedDocumentType": {
+                "$ref": "#/components/schemas/Document-Type"
+              },
+              "detectedDocumentCountry": {
+                "type": "string",
+                "description": "The ISO-3166-alpha3 country code of the document as detected.",
+                "example": "AUS"
+              }
+            }
+          }
+        ]
+      },
+      "Supplementary-Data-IDV-Facial-Comparison": {
+        "type": "object",
+        "description": "Result of a facial comparison check, indicating how likely or accurate the presented face matches the ID document.\n\nFor resultMap keys, use the keys found in the enum: SupplementaryDataIDVEnumDataFacialComparison.\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-IDV-Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "comparedDocumentId": {
+                "type": "string",
+                "format": "uuid",
+                "description": "The document ID of the ID document that was compared."
+              },
+              "comparedDocumentAttachmentId": {
+                "type": "string",
+                "format": "uuid",
+                "description": "The attachment ID of the ID document that was compared."
+              },
+              "comparedSelfieId": {
+                "type": "string",
+                "format": "uuid",
+                "description": "The document ID of the selfie that was compared."
+              },
+              "comparedSelfieAttachmentId": {
+                "type": "string",
+                "format": "uuid",
+                "description": "The attachment ID of the selfie that was compared."
+              }
+            }
+          }
+        ]
+      },
+      "Supplementary-Data-IDV-Facial-Liveness": {
+        "type": "object",
+        "description": "Result of a facial liveness check, indicating how likely the facial photo or video is of a live person.\n\nFor resultMap keys, use the keys found in the enum: SupplementaryDataIDVEnumDataFacialLiveness.\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-IDV-Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "comparedSelfieId": {
+                "type": "string",
+                "format": "uuid",
+                "description": "The document ID of the selfie that was compared."
+              },
+              "comparedSelfieAttachmentId": {
+                "type": "string",
+                "format": "uuid",
+                "description": "The attachment ID of the selfie that was compared."
+              }
+            }
+          }
+        ]
+      },
+      "Supplementary-Data-IDV-OCR": {
+        "type": "object",
+        "description": "Result of a document OCR comparison. This object represents the comparison between scanned data (via OCR) and updated or alternately supplied results.\n\nFor the resultMap keys, use the keys defined in the enum: SupplementaryDataIDVEnumDataOCR.\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-IDV-Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "scannedDocumentId": {
+                "type": "string",
+                "format": "uuid",
+                "description": "The documentId of the ID document on which OCR extraction was performed.\n"
+              },
+              "scannedAttachmentFrontId": {
+                "type": "string",
+                "format": "uuid",
+                "description": "The attachmentId of the front image of the ID document used for OCR extraction.\n"
+              },
+              "scannedAttachmentBackId": {
+                "type": "string",
+                "format": "uuid",
+                "description": "The attachmentId of the back image of the ID document used for OCR extraction, if a back image was provided.\n"
+              }
+            }
+          }
+        ]
+      },
+      "Supplementary-Data-IDV-OCR-Comparison-Enum-Comparison-Source": {
+        "type": "string",
+        "description": "Indicates the source of the data used for comparison with the OCR scan results.\nThe source can be either the original entity data or the updated data extracted from the OCR scan.\n",
+        "enum": [
+          "ENTITY",
+          "OCR_UPDATE"
+        ]
+      },
+      "Supplementary-Data-IDV-OCR-Comparison": {
+        "type": "object",
+        "description": "Result of an OCR and updated data comparison. This object represents the comparison between scanned data (via OCR) and updated or alternately supplied results.\n\nWhen selecting data for comparison, preference is given to the entity details that have been or will be sent to service providers for verification, rather than the updated data provided in the OCR scan.\n\nFor the resultMap and mismatchMap keys, use the keys defined in the enum: SupplementaryDataIDVEnumDataOCRComparison.\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-IDV-Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "ocrResultId": {
+                "type": "string",
+                "format": "uuid",
+                "description": "The proId of the OCR data PRO used for this comparison.\n"
+              },
+              "comparisonSource": {
+                "$ref": "#/components/schemas/Supplementary-Data-IDV-OCR-Comparison-Enum-Comparison-Source"
+              },
+              "mismatchMap": {
+                "$ref": "#/components/schemas/Supplementary-Data-IDV-ElementMap",
+                "description": "Map of OCR mismatches between previously entered or expected values and the OCR result.\n\nActual matches should be recorded in resultMap.\n"
+              },
+              "nameId": {
+                "type": "string",
+                "format": "uuid",
+                "description": "The nameId of the name object used in the comparison.\n"
+              },
+              "dobId": {
+                "type": "string",
+                "format": "uuid",
+                "description": "The dobId of the date of birth object used in the comparison.\n"
+              }
+            }
+          }
+        ]
+      },
+      "Matchlist-Entry-Reason-Code": {
+        "type": "string",
+        "description": "The reason code for the matchlist entry. This code will be translated to a configured description string. Supported codes are 1 to 24 characters long, consisting only of uppercase letters (A-Z), digits (0-9), underscores (_), or hyphens (-), with no spaces or special characters.",
+        "pattern": "^[A-Z0-9_-]{1,24}$"
+      },
+      "Matchlist-Entry-Base": {
+        "type": "object",
+        "description": "Basic details about a matchlist entry, excluding metadata.",
+        "properties": {
+          "entryId": {
+            "type": "string",
+            "format": "uuid",
+            "readOnly": true,
+            "description": "Unique identifier for the matchlist entry."
+          },
+          "entityId": {
+            "type": "string",
+            "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+            "description": "The entity ID from which the attributes of this entry are derived. This is optional and can be used to link the matchlist entry to an entity."
+          },
+          "entityType": {
+            "$ref": "#/components/schemas/Entity-Type",
+            "description": "The type of entity from which the attributes of this entry are derived. This is optional and can be used to link the matchlist entry to an entity."
+          },
+          "reference": {
+            "type": "string",
+            "description": "Optional reference describing the context of this entry.",
+            "example": "CERT-BAD-ACTOR-1234-5678"
+          },
+          "reasons": {
+            "description": "The reasons for the matchlist entry. These codes will be translated to configured description strings.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Matchlist-Entry-Reason-Code"
+            }
+          }
+        }
+      },
+      "Matchlist-Action": {
+        "type": "string",
+        "description": "Default action recommended for a match. The action can be one of the following:\n  - `BLOCK`: Recommended action is to block the entity.\n  - `ALERT`: Recommended action is to create an alert for the entity.\n  - `ALLOW`: Recommended action is to allow the entity.\n  - `REVIEW`: Recommended action is to review the entity.\n  - `NONE`: No action; only use the `riskFactor` if any.",
+        "enum": [
+          "BLOCK",
+          "ALERT",
+          "ALLOW",
+          "REVIEW",
+          "NONE"
+        ]
+      },
+      "Search-Confidence": {
+        "type": "number",
+        "format": "float",
+        "minimum": 0,
+        "maximum": 1,
+        "description": "Confidence level of the search result, represented as a number between 0 and 1.\nA higher value indicates greater confidence in the accuracy of the search result.\n"
+      },
+      "Matchlist-Entry-Attribute-Type": {
+        "type": "string",
+        "description": "Entity attributes eligible for screening.\n\nA matchlist entry may not contain both `ORG_*` and `IND_*` attributes, and they must match the `ENTITY_TYPE` if it is provided.",
+        "enum": [
+          "ENTITY_TYPE",
+          "EMAIL_ADDRESS",
+          "EMAIL_DOMAIN",
+          "PHONE_NUMBER",
+          "ADDR_STREET_NUMBER",
+          "ADDR_STREET_NAME",
+          "ADDR_STREET_TYPE",
+          "ADDR_NEIGHBORHOOD",
+          "ADDR_LOCALITY",
+          "ADDR_DISTRICT",
+          "ADDR_SUBDIVISION",
+          "ADDR_COUNTRY",
+          "ADDR_POSTAL_CODE",
+          "ADDR_UNSTRUCTURED_LONG_FORM",
+          "DOC_CLASS",
+          "DOC_TYPE",
+          "DOC_SUBTYPE",
+          "DOC_PRIMARY_IDENTIFIER",
+          "DOC_SECONDARY_IDENTIFIER",
+          "IND_DISPLAY_NAME",
+          "IND_GIVEN_NAME",
+          "IND_FAMILY_NAME",
+          "IND_MIDDLE_NAME",
+          "IND_DATE_OF_BIRTH",
+          "IND_NATIONALITY",
+          "ORG_REGISTERED_SUBDIVISION",
+          "ORG_REGISTERED_COUNTRY",
+          "ORG_REGISTRATION_NUMBER",
+          "ORG_REGISTRATION_NUMBER_TYPE",
+          "ORG_NAME"
+        ]
+      },
+      "Supplementary-Data-Matchlist-Attribute": {
+        "type": "object",
+        "description": "Information about a matched attribute within a matched field.\n",
+        "required": [
+          "type",
+          "confidence"
+        ],
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/Matchlist-Entry-Attribute-Type"
+          },
+          "confidence": {
+            "$ref": "#/components/schemas/Search-Confidence",
+            "description": "Confidence score for the attribute match.\n"
+          }
+        }
+      },
+      "Supplementary-Data-Matchlist-Field": {
+        "type": "object",
+        "description": "Entity data that resulted in a match at the time of execution.\n",
+        "required": [
+          "objectId",
+          "objectType"
+        ],
+        "properties": {
+          "objectId": {
+            "type": "string",
+            "description": "Unique identifier of the matched object."
+          },
+          "objectType": {
+            "$ref": "#/components/schemas/Object-Type"
+          },
+          "matchedAttributes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Supplementary-Data-Matchlist-Attribute"
+            }
+          }
+        }
+      },
+      "Supplementary-Data-Matchlist": {
+        "type": "object",
+        "description": "Each match against a matchlist entry generates a PRO (Process Result Object), and this object describes the details of the matched entry.\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Base"
+          },
+          {
+            "$ref": "#/components/schemas/Matchlist-Entry-Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "matchlistId": {
+                "type": "string",
+                "format": "uuid",
+                "description": "Unique identifier for the matchlist."
+              },
+              "matchlistName": {
+                "type": "string",
+                "description": "Unique name of the matchlist."
+              },
+              "matchlistAction": {
+                "$ref": "#/components/schemas/Matchlist-Action"
+              },
+              "confidence": {
+                "$ref": "#/components/schemas/Search-Confidence"
+              },
+              "matchedFields": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Supplementary-Data-Matchlist-Field"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Supplementary-Data-Activity-Result-Detail-Rule": {
+        "type": "object",
+        "properties": {
+          "ruleId": {
+            "$ref": "#/components/schemas/Rule-ID"
+          },
+          "reference": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Supplementary-Data-Activity-Result-Detail-Indicator": {
+        "type": "object",
+        "properties": {
+          "indicatorId": {
+            "$ref": "#/components/schemas/Indicator-ID"
+          },
+          "name": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          },
+          "score": {
+            "type": "string"
+          },
+          "rules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Supplementary-Data-Activity-Result-Detail-Rule"
+            }
+          }
+        }
+      },
+      "Supplementary-Data-Activity-Result-Detail": {
+        "type": "object",
+        "properties": {
+          "riskLevel": {
+            "$ref": "#/components/schemas/Risk-Level"
+          },
+          "evaluationId": {
+            "$ref": "#/components/schemas/Evaluation-ID"
+          },
+          "activityResultId": {
+            "$ref": "#/components/schemas/Activity-Result-ID"
+          },
+          "reference": {
+            "$ref": "#/components/schemas/Result-Reference"
+          },
+          "indicators": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Supplementary-Data-Activity-Result-Detail-Indicator"
+            }
+          }
+        }
+      },
+      "Supplementary-Data-Activity-AML": {
+        "type": "object",
+        "description": "Provides details of an activity Anti-Money Laundering (AML) result.\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "activity": {
+                "$ref": "#/components/schemas/Activity-Base"
+              },
+              "result": {
+                "$ref": "#/components/schemas/Supplementary-Data-Activity-Result-Detail"
+              }
+            }
+          }
+        ]
+      },
+      "Supplementary-Data-Activity-Fraud": {
+        "type": "object",
+        "description": "Defines the details of an activity fraud result.\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "activity": {
+                "$ref": "#/components/schemas/Activity-Base"
+              },
+              "result": {
+                "$ref": "#/components/schemas/Supplementary-Data-Activity-Result-Detail"
+              }
+            }
+          }
+        ]
+      },
+      "Supplementary-Data-Activity-Event": {
+        "type": "object",
+        "description": "Defines the details of an activity device result.\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "activity": {
+                "$ref": "#/components/schemas/Activity-Base"
+              },
+              "result": {
+                "$ref": "#/components/schemas/Supplementary-Data-Activity-Result-Detail"
+              }
+            }
+          }
+        ]
+      },
+      "Session-Data": {
+        "type": "object",
+        "description": "Session data for an activity, this is always scoped to a singular entity.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Session"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "sessionId": {
+                "type": "string",
+                "description": "A Frankie ID for the session",
+                "format": "ulid",
+                "readOnly": true
+              },
+              "providerName": {
+                "type": "string"
+              },
+              "entityId": {
+                "$ref": "#/components/schemas/Entity-ID"
+              },
+              "createdAt": {
+                "type": "string",
+                "description": "the time the session was created in UTC ISO8601 format",
+                "format": "date-time",
+                "readOnly": true
+              },
+              "expiresAt": {
+                "type": "string",
+                "description": "the time the session expires in UTC ISO8601 format",
+                "format": "date-time",
+                "readOnly": true
+              }
+            }
+          }
+        ]
+      },
+      "Supplementary-Data-Fraud-Device-Data": {
+        "type": "object",
+        "description": "Provides details of a single fraud check for device and related device data.\n",
+        "properties": {
+          "device": {
+            "$ref": "#/components/schemas/Device"
+          },
+          "session": {
+            "$ref": "#/components/schemas/Session-Data"
+          },
+          "indicators": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Supplementary-Data-Activity-Result-Detail-Indicator"
+            }
+          },
+          "riskLevel": {
+            "$ref": "#/components/schemas/Risk-Level"
+          },
+          "reference": {
+            "$ref": "#/components/schemas/Result-Reference"
+          }
+        }
+      },
+      "Supplementary-Data-Fraud-Device": {
+        "type": "object",
+        "description": "Provides details of a single device fraud check.\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Base"
+          },
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Fraud-Device-Data"
+          }
+        ]
+      },
+      "Supplementary-Data-Fraud-Email-Address": {
+        "type": "object",
+        "description": "Defines the details of a single email fraud check.\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "emailAddressId": {
+                "$ref": "#/components/schemas/Email-Address-ID"
+              },
+              "riskLevel": {
+                "$ref": "#/components/schemas/Risk-Level"
+              },
+              "reference": {
+                "$ref": "#/components/schemas/Result-Reference"
+              },
+              "indicators": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Supplementary-Data-Activity-Result-Detail-Indicator"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Supplementary-Data-Fraud-IP-Address-Data": {
+        "type": "object",
+        "description": "Defines the details of a single fraud check for IP address related data.\n",
+        "properties": {
+          "deviceId": {
+            "$ref": "#/components/schemas/Device-ID"
+          },
+          "ipAddressInformation": {
+            "$ref": "#/components/schemas/IP-Information"
+          },
+          "session": {
+            "$ref": "#/components/schemas/Session-Data"
+          },
+          "indicators": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Supplementary-Data-Activity-Result-Detail-Indicator"
+            }
+          },
+          "riskLevel": {
+            "$ref": "#/components/schemas/Risk-Level"
+          },
+          "reference": {
+            "$ref": "#/components/schemas/Result-Reference"
+          }
+        }
+      },
+      "Supplementary-Data-Fraud-IP-Address": {
+        "type": "object",
+        "description": "Defines the details of a single IP address fraud check.\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Base"
+          },
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Fraud-IP-Address-Data"
+          }
+        ]
+      },
+      "Supplementary-Data-Fraud-Phone-Number": {
+        "type": "object",
+        "description": "Defines the details of a single phone number fraud check.\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "phoneNumberId": {
+                "$ref": "#/components/schemas/Phone-Number-ID"
+              },
+              "riskLevel": {
+                "$ref": "#/components/schemas/Risk-Level"
+              },
+              "reference": {
+                "$ref": "#/components/schemas/Result-Reference"
+              },
+              "indicators": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Supplementary-Data-Activity-Result-Detail-Indicator"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Supplementary-Data": {
+        "type": "object",
+        "readOnly": true,
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-AML"
+          },
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-KYC-Address"
+          },
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-KYC-DoB"
+          },
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-KYC-Gender"
+          },
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-KYC-Name"
+          },
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-ID"
+          },
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Visa"
+          },
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-NameValidation"
+          },
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-KYB-Organization"
+          },
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Duplicate"
+          },
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-IDV-Document"
+          },
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-IDV-Facial-Comparison"
+          },
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-IDV-Facial-Liveness"
+          },
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-IDV-OCR"
+          },
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-IDV-OCR-Comparison"
+          },
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Matchlist"
+          },
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Activity-AML"
+          },
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Activity-Fraud"
+          },
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Activity-Event"
+          },
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Fraud-Device"
+          },
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Fraud-Email-Address"
+          },
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Fraud-IP-Address"
+          },
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Fraud-Phone-Number"
+          }
+        ],
+        "discriminator": {
+          "propertyName": "type",
+          "mapping": {
+            "AML": "#/components/schemas/Supplementary-Data-AML",
+            "KYC_ADDRESS": "#/components/schemas/Supplementary-Data-KYC-Address",
+            "KYC_DOB": "#/components/schemas/Supplementary-Data-KYC-DoB",
+            "KYC_GENDER": "#/components/schemas/Supplementary-Data-KYC-Gender",
+            "KYC_NAME": "#/components/schemas/Supplementary-Data-KYC-Name",
+            "ID": "#/components/schemas/Supplementary-Data-ID",
+            "VISA": "#/components/schemas/Supplementary-Data-Visa",
+            "NAME_VALIDATION": "#/components/schemas/Supplementary-Data-NameValidation",
+            "KYB_ORGANIZATION": "#/components/schemas/Supplementary-Data-KYB-Organization",
+            "DUPLICATE": "#/components/schemas/Supplementary-Data-Duplicate",
+            "IDV_DOCUMENT": "#/components/schemas/Supplementary-Data-IDV-Document",
+            "IDV_FACIAL_COMPARISON": "#/components/schemas/Supplementary-Data-IDV-Facial-Comparison",
+            "IDV_FACIAL_LIVENESS": "#/components/schemas/Supplementary-Data-IDV-Facial-Liveness",
+            "IDV_OCR": "#/components/schemas/Supplementary-Data-IDV-OCR",
+            "IDV_OCR_COMPARISON": "#/components/schemas/Supplementary-Data-IDV-OCR-Comparison",
+            "MATCHLIST": "#/components/schemas/Supplementary-Data-Matchlist",
+            "ACTIVITY_AML": "#/components/schemas/Supplementary-Data-Activity-AML",
+            "ACTIVITY_FRAUD": "#/components/schemas/Supplementary-Data-Activity-Fraud",
+            "ACTIVITY_EVENT": "#/components/schemas/Supplementary-Data-Activity-Event",
+            "FRAUD_DEVICE": "#/components/schemas/Supplementary-Data-Fraud-Device",
+            "FRAUD_EMAIL_ADDRESS": "#/components/schemas/Supplementary-Data-Fraud-Email-Address",
+            "FRAUD_IP_ADDRESS": "#/components/schemas/Supplementary-Data-Fraud-IP-Address",
+            "FRAUD_PHONE_NUMBER": "#/components/schemas/Supplementary-Data-Fraud-Phone-Number"
+          }
+        }
+      },
+      "Process-Result-Error": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "The error code associated with the process result."
+          },
+          "description": {
+            "type": "string",
+            "description": "A description of the error."
+          },
+          "location": {
+            "type": "string",
+            "description": "The location or context where the error occurred."
+          }
+        }
+      },
+      "Process-Result-System-StatusEnum": {
+        "type": "string",
+        "description": "If there has been an additional system status applied to the process.\n- VALID: The process result is valid and has not been marked for any special handling.\n- EXPIRED: The process result has expired and is no longer valid.\n- STALE: The process result is considered stale, meaning it may be outdated but not necessarily invalid.\n- MARKED_INVALID: The process result has been explicitly marked as invalid.\n- MARKED_IGNORE: The process result has been marked to be ignored, meaning it should not be considered in further processing.\n",
+        "enum": [
+          "VALID",
+          "EXPIRED",
+          "STALE",
+          "MARKED_INVALID",
+          "MARKED_IGNORE"
+        ],
+        "default": "VALID",
+        "readOnly": true
+      },
+      "Process-Result-Manual-StatusEnum-AML": {
+        "type": "string",
+        "enum": [
+          "TRUE_POSITIVE",
+          "FALSE_POSITIVE",
+          "TRUE_POSITIVE_ACCEPT",
+          "TRUE_POSITIVE_REJECT",
+          "UNKNOWN",
+          "UNKNOWN_ACCEPT",
+          "UNKNOWN_REJECT"
+        ],
+        "description": "The manual status that the AML process result should be set to after the results have been reviewed.\n- FALSE_POSITIVE: The result is determined to be a false positive, but you do not necessarily want to resolve it.\n- TRUE_POSITIVE_ACCEPT: The result is determined to be a true positive and you want to resolve it. \"Accept\" infers you want to accept the activity.\n- TRUE_POSITIVE: The result is determined to be a true positive, but you do not necessarily want to resolve it.\n- TRUE_POSITIVE_REJECT: The result is determined to be a true positive and you want to resolve it. \"Reject\" infers you want to reject the activity.\n- UNKNOWN: The result is determined to be unknown, but you do not necessarily want to resolve it.\n- UNKNOWN_ACCEPT: The result is determined to be unknown and you want to resolve it. \"Accept\" infers you want to accept the activity.\n- UNKNOWN_REJECT: The result is determined to be unknown and you want to resolve it. \"Reject\" infers you want to reject the activity.\n"
+      },
+      "Process-Result-Manual-StatusEnum-KYC": {
+        "type": "string",
+        "enum": [
+          "PASS",
+          "FAIL"
+        ],
+        "description": "Any manual status set after the results have been reviewed.\n- PASS: When the result is determined to be a pass and no further action is needed.\n- FAIL: When the result is determined to be a fail and no further action is needed.\n"
+      },
+      "Process-Result-Manual-StatusEnum-IDV": {
+        "type": "string",
+        "enum": [
+          "CLEAR",
+          "REJECTED"
+        ],
+        "description": "Any manual status set after the results have been reviewed.\n- CLEAR: When the result is determined to be clear and no further action is needed.\n- REJECTED: When the result is determined to be rejected and no further action is needed.\n"
+      },
+      "Process-Result-Manual-StatusEnum-Duplicate": {
+        "type": "string",
+        "enum": [
+          "FALSE_POSITIVE",
+          "TRUE_POSITIVE_ACCEPT",
+          "TRUE_POSITIVE_REJECT"
+        ],
+        "description": "Manual review status options for duplicate entity resolution. Used to indicate the outcome of a manual duplicate check between an existing entity (A) and an incoming entity (B):\n- FALSE_POSITIVE: Entities are not duplicates. Both Entity A and Entity B are distinct and should be retained as separate records.\n- TRUE_POSITIVE_ACCEPT: Entities are duplicates. Keep the incoming entity (Entity B) as the primary record and mark the existing entity (Entity A) as the duplicate. Use when the incoming record is more accurate or complete.\n- TRUE_POSITIVE_REJECT: Entities are duplicates. Keep the existing entity (Entity A) as the primary record and mark the incoming entity (Entity B) as the duplicate. Use when the existing record is more trusted or complete.\n"
+      },
+      "Process-Result-Manual-StatusEnum-Matchlist": {
+        "type": "string",
+        "enum": [
+          "FALSE_POSITIVE",
+          "TRUE_POSITIVE_REJECT"
+        ],
+        "description": "Any manual status set after the results have been reviewed.\n- FALSE_POSITIVE: The result is determined to be a false positive, but you do not necessarily want to resolve it.\n- TRUE_POSITIVE_REJECT: The result is determined to be a true positive and you want to resolve it. \"Reject\" infers you want to reject the activity.\n"
+      },
+      "Process-Result-Manual-StatusEnum": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Process-Result-Manual-StatusEnum-AML"
+          },
+          {
+            "$ref": "#/components/schemas/Process-Result-Manual-StatusEnum-KYC"
+          },
+          {
+            "$ref": "#/components/schemas/Process-Result-Manual-StatusEnum-IDV"
+          },
+          {
+            "$ref": "#/components/schemas/Process-Result-Manual-StatusEnum-Duplicate"
+          },
+          {
+            "$ref": "#/components/schemas/Process-Result-Manual-StatusEnum-Matchlist"
+          }
+        ]
+      },
+      "Process-Result-StateEnum": {
+        "type": "string",
+        "readOnly": true,
+        "description": "Denotes the final disposition of this element's check result",
+        "enum": [
+          "IN_PROGRESS",
+          "COMPLETED",
+          "TIMEOUT",
+          "ERROR"
+        ]
+      },
+      "Process-Risk-Factor-Value": {
+        "type": "object",
+        "description": "Risk Factor Value",
+        "required": [
+          "factor",
+          "value"
+        ],
+        "properties": {
+          "factor": {
+            "type": "string",
+            "description": "Name of the risk factor."
+          },
+          "value": {
+            "type": "string",
+            "description": "Supplier/service provided value that Frankie will plug into the risk engine to determine a score."
+          }
+        }
+      },
+      "Process-Result-Object": {
+        "type": "object",
+        "properties": {
+          "processResultId": {
+            "$ref": "#/components/schemas/Process-Result-ID"
+          },
+          "schemaVersion": {
+            "type": "integer",
+            "readOnly": true
+          },
+          "entityId": {
+            "type": "string",
+            "readOnly": true
+          },
+          "requestId": {
+            "$ref": "#/components/schemas/Request-ID",
+            "readOnly": true
+          },
+          "stepName": {
+            "type": "string",
+            "readOnly": true
+          },
+          "stepType": {
+            "type": "string",
+            "readOnly": true
+          },
+          "objectType": {
+            "type": "string",
+            "readOnly": true
+          },
+          "objectId": {
+            "type": "string",
+            "readOnly": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "groupId": {
+            "type": "string",
+            "readOnly": true
+          },
+          "providerResult": {
+            "$ref": "#/components/schemas/Provider-Result"
+          },
+          "result": {
+            "$ref": "#/components/schemas/Process-ResultEnum"
+          },
+          "class": {
+            "$ref": "#/components/schemas/Process-Result-ClassEnum"
+          },
+          "supplementaryData": {
+            "$ref": "#/components/schemas/Supplementary-Data"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Process-Result-Error"
+            },
+            "readOnly": true
+          },
+          "notes": {
+            "readOnly": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Custom-Attributes"
+              }
+            ]
+          },
+          "systemStatus": {
+            "$ref": "#/components/schemas/Process-Result-System-StatusEnum"
+          },
+          "manualStatus": {
+            "$ref": "#/components/schemas/Process-Result-Manual-StatusEnum"
+          },
+          "state": {
+            "$ref": "#/components/schemas/Process-Result-StateEnum"
+          },
+          "riskFactors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Process-Risk-Factor-Value"
+            },
+            "readOnly": true
+          },
+          "updatedBy": {
+            "type": "string",
+            "readOnly": true
+          }
+        }
+      },
+      "Update-Results-Res": {
+        "type": "object",
+        "required": [
+          "requestId"
+        ],
+        "properties": {
+          "requestId": {
+            "$ref": "#/components/schemas/Request-ID"
+          },
+          "processResults": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Process-Result-Object"
+            }
+          }
+        }
+      },
+      "Create-Session-Input": {
+        "type": "object",
+        "properties": {
+          "providerName": {
+            "type": "string",
+            "description": "The name of the provider that the session is associated with.\n"
+          }
+        }
+      },
+      "Create-Session-Req": {
+        "type": "object",
+        "required": [
+          "session"
+        ],
+        "properties": {
+          "session": {
+            "$ref": "#/components/schemas/Create-Session-Input"
+          }
+        }
+      },
+      "Create-Session-Res": {
+        "type": "object",
+        "required": [
+          "requestId",
+          "session"
+        ],
+        "properties": {
+          "requestId": {
+            "$ref": "#/components/schemas/Request-ID"
+          },
+          "session": {
+            "$ref": "#/components/schemas/Session-Data"
+          }
+        }
+      }
+    }
+  }
+}
