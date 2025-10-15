@@ -2389,7 +2389,8 @@
             "description": "The process result IDs to update. These are the results created when activities have been flagged for review.",
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/Process-Result-ID"
+              "type": "string",
+              "format": "UUID"
             }
           },
           "manualStatus": {
