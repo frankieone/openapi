@@ -47,7 +47,7 @@
     "/v2/activities": {
       "post": {
         "summary": "Evaluate an activity",
-        "description": "Evaluate an activity. This may be verification of a financial transaction such as a\ndeposit, withdrawal, etc or evaluating a platform level login or registration activities for example.\n\nAn entity must exist in the frankie system to tie the activity to.\n\nThis will return the immediate result of the activity, and then asynchronously the\nactivity will be processed in the Frankie platform.\n",
+        "description": "Evaluate an activity. This may be verification of a financial transaction such as a\ndeposit, withdrawal, etc or evaluating a platform level login or registration activities for example.\n\nAn entity must exist in the frankie system to tie the activity to.\n\nThis will return the immediate result of the activity, and then asynchronously the\nactivity will be processed in the FrankieOne platform.\n",
         "operationId": "evaluateActivity",
         "tags": [
           "Activities"
@@ -385,6 +385,16 @@
               }
             }
           },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
           "500": {
             "description": "Internal Server Error",
             "content": {
@@ -697,7 +707,7 @@
       },
       "Entity-ID-Writeable": {
         "type": "string",
-        "description": "Entities are assigned an auto-generated UUID to ensure global uniqueness, represented as entityId. The entityId allows for precise modification when required.\nTo modify an entity, set the entityId of the entity you wish to update in an update request.",
+        "description": "Entities are assigned a FrankieOne auto-generated UUID to ensure global uniqueness, represented as entityId. The entityId allows for precise modification when required.\nTo modify an entity, set the entityId of the entity you wish to update in an update request.",
         "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
       },
       "Entity-Type-Writeable": {
@@ -1079,7 +1089,7 @@
           },
           "streetName": {
             "type": "string",
-            "description": "The name of the street.\nThis field should ideally contain only the street name, without the street number or street type. In some cases, especially when auto-populated by external services (e.g., Google), it may include additional address components.\nFor best results, keep the street name separate from the street number and street type. See https://apidocs.frankiefinancial.com/docs/working-with-addresses for more details."
+            "description": "The name of the street.\nThis field should ideally contain only the street name, without the street number or street type. In some cases, especially when auto-populated by external services (e.g., Google), it may include additional address components.\nFor best results, keep the street name separate from the street number and street type. See https://docs.frankieone.com/docs/working-with-addresses for more details."
           },
           "streetNumber": {
             "type": "string",
@@ -1288,7 +1298,7 @@
       },
       "Party-Detail": {
         "type": "object",
-        "description": "A party describes the details of one of the parties in a given transaction (natch). It can be used to \ndescribe any participant and is differentiated by the paymentRole fulfilled.\n\nYou can either provide the raw entity ID as a reference or fill in the details. If an entity ID is provided,\nthe data will be extracted from the entity in the Frankie system. Data provided here will take precedence \nover the entity data but will not enrich the entity details in the Frankie system.\n",
+        "description": "A party describes the details of one of the parties in a given transaction. It can be used to \ndescribe any participant.\n\nA party can only either be an individual or an organization.\n\nTo evaluate a party, you need to provide the details about the party involved by:\n* Using an existing entity data: Include the entityId in the party object. The data will be extracted from the entity in the FrankieOne system.\n* Filling in the details: Include the specific details within the party object. Data provided here will take precedence over the entity data but will not enrich the entity details in the FrankieOne system.\n",
         "allOf": [
           {
             "$ref": "#/components/schemas/Party-Detail-Summary"
@@ -1306,6 +1316,42 @@
           "EVENT"
         ]
       },
+      "Activity-Custom-Attribute-Type": {
+        "type": "string",
+        "enum": [
+          "STRING",
+          "NUMBER",
+          "BOOLEAN"
+        ]
+      },
+      "Activity-Custom-Attribute": {
+        "type": "object",
+        "required": [
+          "type",
+          "value"
+        ],
+        "x-examples": {
+          "Example 1": {
+            "type": "STRING",
+            "value": "premium-credit-card"
+          }
+        },
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/Activity-Custom-Attribute-Type"
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "Activity-Custom-Attributes": {
+        "type": "object",
+        "description": "A set of key value pairs with a type provided. Do not store PII data in this field.\nValidation:\n- minLength: 1\n- maxLength: 64\n- pattern: '^[a-zA-Z][a-zA-Z0-9-]*$'\n",
+        "additionalProperties": {
+          "$ref": "#/components/schemas/Activity-Custom-Attribute"
+        }
+      },
       "Activity-Detail-Base": {
         "type": "object",
         "required": [
@@ -1314,6 +1360,9 @@
         "properties": {
           "activityType": {
             "$ref": "#/components/schemas/Activity-Type"
+          },
+          "customAttributes": {
+            "$ref": "#/components/schemas/Activity-Custom-Attributes"
           },
           "activityAt": {
             "type": "string",
@@ -1353,7 +1402,7 @@
       },
       "Activity-Event": {
         "type": "object",
-        "description": "An activity detailing an event",
+        "description": "An activity detailing an event, use for non-transactional activities or user behavior monitoring. \n\nExamples: User registration, login, profile updates, password resets.\n",
         "allOf": [
           {
             "$ref": "#/components/schemas/Activity-Detail-Base"
@@ -1590,13 +1639,13 @@
           },
           "transactionIdentifier": {
             "type": "string",
-            "description": "A payment identifier supplied by an external party / source to associate with this party in the transaction.\nThis should be a unique reference for the customer to tie their transaction records to Frankie data."
+            "description": "A payment identifier supplied by an external party / source to associate with this party in the transaction.\nThis should be a unique reference for the customer to tie their transaction records to FrankieOne data."
           }
         }
       },
       "Counter-Party-Detail": {
         "type": "object",
-        "description": "A party describes the details of one of the parties in a given transaction (natch). It can be used to \ndescribe any participant and is differentiated by the paymentRole fulfilled.\n\nYou can either provide the raw entity ID as a reference or fill in the details. If an entity ID is provided,\nthe data will be extracted from the entity in the Frankie system. Data provided here will take precedence \nover the entity data but will not enrich the entity details in the Frankie system.\n",
+        "description": "A party describes the details of one of the parties in a given transaction (natch). It can be used to \ndescribe any participant and is differentiated by the paymentRole fulfilled.\n\nYou can either provide the raw entity ID as a reference or fill in the details. If an entity ID is provided,\nthe data will be extracted from the entity in the FrankieOne system. Data provided here will take precedence \nover the entity data but will not enrich the entity details in the FrankieOne system.\n",
         "allOf": [
           {
             "$ref": "#/components/schemas/Party-Detail"
@@ -1628,7 +1677,7 @@
       },
       "Activity-Transaction": {
         "type": "object",
-        "description": "An activity detailing a transaction",
+        "description": "An activity detailing a transaction, use for financial activities and asset movements.\n\nExamples: Deposits, withdrawals (fiat or crypto), payments, fund transfers.\n",
         "allOf": [
           {
             "$ref": "#/components/schemas/Activity-Detail-Base"
@@ -1659,7 +1708,7 @@
       },
       "Activity-Evaluate-Req-Body": {
         "type": "object",
-        "description": "Input data for activity evaluation",
+        "description": "Input data for activity evaluation.\n\nA session token is an identifier that will link together activities done in the same end user session to identify the grouping of activities that belong together. It is represented in FrankieOne as a ULID but can differ if not FrankieOne generated.\n\nThe session token may  be provided to tie in the activity to a longer running overall session. There are a few options for session tokens:\n* A session token may not be provided. It is optional to provide but there must be configuration in your account to allow this - FrankieOne will generate a session token on your behalf to identify the overarching session, you may then use this for further calls for the extent of the service. This is not recommended when device signals are important to your use case.\n* A session token generated on the client side and not registered with FrankieOne. The client can generate some sort of unique ID to identify the session and provide that at the time of call and manage the session token for the duration of the session. This can be used when device signals are required.\n* A session token can be generated in a seperate API within FrankieOne - Refer to the `Create Individual Session` API. This will register the session in FrankieOne and tie it to the individual of interest. There is configuration in your account which can enforce session ownership to avoid clients modifying the session token, adding another layer of security. This can be used when device signals are required.\n",
         "required": [
           "party",
           "detail"
@@ -1695,7 +1744,7 @@
       "Activity-ID": {
         "type": "string",
         "readOnly": true,
-        "description": "Activity ID that identifies an activity within the Frankie platform",
+        "description": "Activity ID that identifies an activity within the FrankieOne platform",
         "format": "ulid"
       },
       "Risk-Level": {
@@ -2034,7 +2083,7 @@
         "type": "string",
         "readOnly": true,
         "format": "ulid",
-        "description": "Rule ID that identifies an instance of a rule within the Frankie platform"
+        "description": "Rule ID that identifies an instance of a rule within the FrankieOne platform"
       },
       "Rule": {
         "type": "object",
@@ -2295,7 +2344,7 @@
       },
       "Entity-ID": {
         "type": "string",
-        "description": "Entities are assigned an auto-generated UUID to ensure global uniqueness, represented as entityId. The entityId allows for precise modification when required.\nTo modify an entity, set the entityId of the entity you wish to update in an update request.",
+        "description": "Entities are assigned a FrankieOne auto-generated UUID to ensure global uniqueness, represented as entityId. The entityId allows for precise modification when required.\nTo modify an entity, set the entityId of the entity you wish to update in an update request.",
         "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
         "readOnly": true
       },
@@ -2617,7 +2666,7 @@
           "strength": {
             "type": "number",
             "format": "float",
-            "description": "The match strength as determined by the service provider."
+            "description": "The confidence level of the match as determined by the service provider, expressed as a percentage from 0 to 100. Can be a decimal value (e.g., 85.7)."
           },
           "spReferenceId": {
             "type": "string",
@@ -4224,7 +4273,7 @@
             "properties": {
               "sessionId": {
                 "type": "string",
-                "description": "A Frankie ID for the session",
+                "description": "A FrankieOne ID for the session",
                 "format": "ulid",
                 "readOnly": true
               },
