@@ -2331,9 +2331,13 @@
         "name": "serviceName",
         "in": "query",
         "schema": {
-          "type": "string"
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         },
-        "description": "The unique name of the service profile"
+        "explode": false,
+        "description": "The unique name of the service profile (Supports multiple service names)"
       },
       "includeQuery": {
         "name": "include",
@@ -2612,7 +2616,7 @@
       },
       "Entity-ID": {
         "type": "string",
-        "description": "Entities are assigned an auto-generated UUID to ensure global uniqueness, represented as entityId. The entityId allows for precise modification when required.\nTo modify an entity, set the entityId of the entity you wish to update in an update request.",
+        "description": "Entities are assigned a FrankieOne auto-generated UUID to ensure global uniqueness, represented as entityId. The entityId allows for precise modification when required.\nTo modify an entity, set the entityId of the entity you wish to update in an update request.",
         "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
         "readOnly": true
       },
@@ -2669,7 +2673,7 @@
       },
       "Entity-ID-Writeable": {
         "type": "string",
-        "description": "Entities are assigned an auto-generated UUID to ensure global uniqueness, represented as entityId. The entityId allows for precise modification when required.\nTo modify an entity, set the entityId of the entity you wish to update in an update request.",
+        "description": "Entities are assigned a FrankieOne auto-generated UUID to ensure global uniqueness, represented as entityId. The entityId allows for precise modification when required.\nTo modify an entity, set the entityId of the entity you wish to update in an update request.",
         "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
       },
       "Entity-Type-Writeable": {
@@ -2809,6 +2813,24 @@
           }
         }
       },
+      "Workflow-Step-Risk-Result-Value": {
+        "type": "object",
+        "description": "Raw value and score from evaluated risk factor",
+        "required": [
+          "value",
+          "score"
+        ],
+        "properties": {
+          "value": {
+            "type": "string",
+            "description": "raw value from evaluated risk factor"
+          },
+          "score": {
+            "type": "integer",
+            "description": "score of the raw value from evaluated risk factor"
+          }
+        }
+      },
       "Workflow-Step-Risk-Result-Detail": {
         "type": "object",
         "description": "Details of a calculated risk result for a workflow step.\n",
@@ -2829,6 +2851,25 @@
           "value": {
             "type": "string",
             "description": "Value used for the score factor."
+          },
+          "aggregationMethod": {
+            "type": "string",
+            "description": "method used to aggregate score"
+          },
+          "matchedRule": {
+            "type": "string",
+            "description": "description of the specific rule or range that was matched"
+          },
+          "source": {
+            "type": "string",
+            "description": "JSON path to the specific field in the entity object that provided the data for the evaluation"
+          },
+          "inputsConsidered": {
+            "type": "array",
+            "description": "List of raw values and their individual scores",
+            "items": {
+              "$ref": "#/components/schemas/Workflow-Step-Risk-Result-Value"
+            }
           }
         }
       },
@@ -3995,7 +4036,7 @@
       "Activity-ID": {
         "type": "string",
         "readOnly": true,
-        "description": "Activity ID that identifies an activity within the Frankie platform",
+        "description": "Activity ID that identifies an activity within the FrankieOne platform",
         "format": "ulid"
       },
       "Supplementary-Data-AuditEvent-Activity-Detail": {
@@ -4682,7 +4723,7 @@
           "WATCHLIST",
           "ACTIVITY"
         ],
-        "description": "General category of issue found:\n  - AML: Anti-Money Laundering issues.\n  - BAD_DATA: Indicates that the data provided is invalid or incorrect.\n  - BIOMETRICS: Issues found during a biometrics check.\n  - BLOCKLISTED: The entity has a hit on a blocklist.\n  - DECEASED: Indicates that the entity is deceased.\n  - DEVICE: Issues found during device checks.\n  - DOCUMENT: Issues found during a document check.\n  - DUPLICATE: Indicates that the entity has duplicates.\n  - EXPIRY: Indicates that a process or document for the entity has expired.\n  - FRAUD: Possible fraud detected.\n  - IDV: Issues found during an Identity Verification (IDV) process.\n  - INFORMATIONAL: Informational messages that are not issues but are required to be returned.\n  - KYC: Issues found during a Know Your Customer (KYC) process.\n  - SYSTEM: System-level issues.\n  - VERIFY: Issues found during a verification process.\n  - VISA: Issues found during a visa check.\n  - WATCHLIST: Issues found during a watchlist check.\n  - ACTIVITY: Issues found during an activity process."
+        "description": "General category of issue found:\n  - AML: Anti-Money Laundering issues.\n  - BAD_DATA: Indicates that the data provided is invalid or incorrect.\n  - BIOMETRICS: Issues found during a biometrics check.\n  - BLOCKLISTED: The entity has a hit on a blocklist.\n  - DECEASED: Indicates that the entity is deceased.\n  - DEVICE: Issues found during device checks.\n  - DOCUMENT: Issues found during a document check.\n  - DUPLICATE: Indicates that the entity has duplicates.\n  - EXPIRY: Indicates that a process or document for the entity has expired.\n  - FRAUD: Possible fraud detected.\n  - IDV: Issues found during an Identity Verification (IDV) process.\n  - INFORMATIONAL: Informational messages that are not issues but are required to be returned.\n  - KYC: Issues found during a Know Your Customer (KYC) process.\n  - SYSTEM: System-level issues.\n  - VERIFY: Issues found during a verification process.\n  - VISA: Issues found during a visa check.\n  - WATCHLIST: Issues found during a watchlist check.\n  - ACTIVITY: Issues found during an activity process.\n  - SUPPORTING_DOC: Issues found during a supporting document check."
       },
       "Workflow-Issue-Severity": {
         "type": "string",
@@ -4754,11 +4795,10 @@
           "ACTIVITY_FRAUD",
           "ACTIVITY_EVENT",
           "ACTIVITY_DEVICE",
-          "SUPPORT_DOCUMENT_MISSING",
-          "SUPPORT_DOCUMENT_REJECTED",
-          "SUPPORT_DOCUMENT_UNREVIEWED"
+          "DOCUMENT_MISSING",
+          "DOCUMENTS_NOT_APPROVED"
         ],
-        "description": "For each category, this provides the specific issue type.\n\nAML:\n  - PEP: The entity has Politically Exposed Person (PEP) hits.\n  - SANCTION: The entity has sanction hits.\n  - MEDIA: The entity has adverse media hits.\n  - WATCHLIST: The entity has watchlist hits.\n\nBAD_DATA:\n  - BAD_DATA_NAME: Name is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_DOB: Date of Birth is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_ADDRESS: Address is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_ID: ID is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_EMAIL: Email is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_MOBILE: Mobile is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_DEVICE: Device is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_IP_ADDRESS: IP Address is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_EMAIL_ADDRESS: Email Address is required for verification but is missing or unusable due to data quality issues.\n\nBLOCKLISTED:\n  - MATCHED_INTERNAL: The entity matched an internal blocklist.\n  - MATCHED_SHARED: The entity matched a shared blocklist.\n  - MATCHED_EXTERNAL: The entity matched an external blocklist.\n\nDECEASED:\n  - DECEASED: The person whose data is being verified is deceased.\n\nDEVICE:\n  - DEVICE_FRAUD_MATCH: Fraud detected on the device.\n  - DEVICE_INVALID: The device is invalid.\n\nDUPLICATE:\n  - DUPLICATE: The entity is a duplicate of another entity.\n\nEXPIRY:\n  - REQUIRES_KYC: KYC process needs to be re-initiated.\n  - REQUIRES_IDV: IDV process needs to be re-initiated.\n  - REQUIRES_AML: AML process needs to be re-initiated.\n  - REQUIRES_VISA: Visa process needs to be re-initiated.\n\nFRAUD:\n  - FRAUD_LIST: The entity is on a fraud list.\n  - FRAUD_CHECK: Fraud detected during checks.\n  - FRAUD_DEVICE: Device fraud detected.\n  - FRAUD_IP_ADDRESS: IP address fraud detected.\n  - FRAUD_EMAIL_ADDRESS: Email address fraud detected.\n  - FRAUD_PHONE_NUMBER: Phone number fraud detected.\n\nIDV:\n  - DATA_COMPARISON: Data comparison issue.\n  - DATA_VALIDATION: Data validation issue.\n  - DATA_CONSISTENCY: Data consistency issue.\n  - VISUAL_AUTHENTICITY: Visual authenticity issue.\n  - IMAGE_INTEGRITY: Image integrity issue.\n  - COMPROMISED_DOCUMENT: Document is compromised.\n  - LIVENESS_DETECTION: Liveness detection failed.\n  - DOCUMENT_COMPARISON: Document comparison issue.\n\nINFORMATIONAL:\n  - CREDIT_HEADER: Credit header information was returned as part of a credit agency check.\n\nKYC:\n  - PARTIAL: The KYC check was only partially successful.\n  - NOT_FOUND: No match was found for the given data.\n\nOCR:\n  - OCR: The OCR data does not match what was entered by the user.\n\nSYSTEM:\n  - SERVICE_TIMEOUT: All providers have timed out.\n  - SERVICE_ERROR: All providers have returned an error or an internal error has occurred.\n\nVISA:\n  - DENY_LIST: The entity matched a visa deny list.\n  - VISA_FAILED: Visa check failed from the provider.\n\nWATCHLIST:\n  - INTERNAL_MATCH: The entity matched an internal watchlist.\n\nACTIVITY:\n  - ACTIVITY_AML: The entity has had an activity that is flagged for AML\n  - ACTIVITY_FRAUD: The entity has had an activity that is flagged for fraud\n  - ACTIVITY_EVENT: The entity has had an activity that is deemed as suspicious, but not exactly classified as either fraud or AML"
+        "description": "For each category, this provides the specific issue type.\n\nAML:\n  - PEP: The entity has Politically Exposed Person (PEP) hits.\n  - SANCTION: The entity has sanction hits.\n  - MEDIA: The entity has adverse media hits.\n  - WATCHLIST: The entity has watchlist hits.\n\nBAD_DATA:\n  - BAD_DATA_NAME: Name is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_DOB: Date of Birth is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_ADDRESS: Address is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_ID: ID is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_EMAIL: Email is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_MOBILE: Mobile is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_DEVICE: Device is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_IP_ADDRESS: IP Address is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_EMAIL_ADDRESS: Email Address is required for verification but is missing or unusable due to data quality issues.\n\nBLOCKLISTED:\n  - MATCHED_INTERNAL: The entity matched an internal blocklist.\n  - MATCHED_SHARED: The entity matched a shared blocklist.\n  - MATCHED_EXTERNAL: The entity matched an external blocklist.\n\nDECEASED:\n  - DECEASED: The person whose data is being verified is deceased.\n\nDEVICE:\n  - DEVICE_FRAUD_MATCH: Fraud detected on the device.\n  - DEVICE_INVALID: The device is invalid.\n\nDUPLICATE:\n  - DUPLICATE: The entity is a duplicate of another entity.\n\nEXPIRY:\n  - REQUIRES_KYC: KYC process needs to be re-initiated.\n  - REQUIRES_IDV: IDV process needs to be re-initiated.\n  - REQUIRES_AML: AML process needs to be re-initiated.\n  - REQUIRES_VISA: Visa process needs to be re-initiated.\n\nFRAUD:\n  - FRAUD_LIST: The entity is on a fraud list.\n  - FRAUD_CHECK: Fraud detected during checks.\n  - FRAUD_DEVICE: Device fraud detected.\n  - FRAUD_IP_ADDRESS: IP address fraud detected.\n  - FRAUD_EMAIL_ADDRESS: Email address fraud detected.\n  - FRAUD_PHONE_NUMBER: Phone number fraud detected.\n\nIDV:\n  - DATA_COMPARISON: Data comparison issue.\n  - DATA_VALIDATION: Data validation issue.\n  - DATA_CONSISTENCY: Data consistency issue.\n  - VISUAL_AUTHENTICITY: Visual authenticity issue.\n  - IMAGE_INTEGRITY: Image integrity issue.\n  - COMPROMISED_DOCUMENT: Document is compromised.\n  - LIVENESS_DETECTION: Liveness detection failed.\n  - DOCUMENT_COMPARISON: Document comparison issue.\n\nINFORMATIONAL:\n  - CREDIT_HEADER: Credit header information was returned as part of a credit agency check.\n\nKYC:\n  - PARTIAL: The KYC check was only partially successful.\n  - NOT_FOUND: No match was found for the given data.\n\nOCR:\n  - OCR: The OCR data does not match what was entered by the user.\n\nSYSTEM:\n  - SERVICE_TIMEOUT: All providers have timed out.\n  - SERVICE_ERROR: All providers have returned an error or an internal error has occurred.\n\nVISA:\n  - DENY_LIST: The entity matched a visa deny list.\n  - VISA_FAILED: Visa check failed from the provider.\n\nWATCHLIST:\n  - INTERNAL_MATCH: The entity matched an internal watchlist.\n\nACTIVITY:\n  - ACTIVITY_AML: The entity has had an activity that is flagged for AML\n  - ACTIVITY_FRAUD: The entity has had an activity that is flagged for fraud\n  - ACTIVITY_EVENT: The entity has had an activity that is deemed as suspicious, but not exactly classified as either fraud or AML\n\nSUPPORTING_DOC:\n  - DOCUMENT_MISSING: The document is not provided\n  - DOCUMENTS_NOT_APPROVED: The document is not approved"
       },
       "Workflow-Execution-ScopeEnum": {
         "type": "string",
