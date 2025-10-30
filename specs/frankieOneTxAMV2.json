@@ -2399,10 +2399,9 @@
           "FALSE_POSITIVE",
           "TRUE_POSITIVE_ACCEPT",
           "TRUE_POSITIVE_REJECT",
-          "IN_REVIEW",
-          "NEEDS_ATTENTION"
+          "IN_REVIEW"
         ],
-        "description": "The status of the result.\n- FALSE_POSITIVE: When the result is determined to be false positive and the activity is within the risk profile to continue.\n- TRUE_POSITIVE_ACCEPT: When the result is determined to be true positive and the activity is within the risk profile to continue.\n- TRUE_POSITIVE_REJECT: When the result is determined to be true positive and the activity is NOT within the risk profile to continue.\n- IN_REVIEW: When the activity has been picked up for review.\n- NEEDS_ATTENTION: When the activity has is yet to be picked up for review.\n"
+        "description": "The status of the result.\n- FALSE_POSITIVE: When the result is determined to be false positive and the activity is within the risk profile to continue.\n- TRUE_POSITIVE_ACCEPT: When the result is determined to be true positive and the activity is within the risk profile to continue.\n- TRUE_POSITIVE_REJECT: When the result is determined to be true positive and the activity is NOT within the risk profile to continue.\n- IN_REVIEW: When the activity has been picked up for review.\n"
       },
       "Comment": {
         "type": "object",

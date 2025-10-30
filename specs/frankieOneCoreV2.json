@@ -2798,7 +2798,8 @@
               "VISA",
               "ACTIVITY",
               "FRAUD",
-              "DOCUMENT_REVIEW"
+              "DOCUMENT_REVIEW",
+              "DOCUMENT"
             ]
           },
           "origin": {
