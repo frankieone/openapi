@@ -11682,42 +11682,51 @@
           }
         }
       },
-      "Workflow-Step-Summary-Activity-Counts": {
+      "Workflow-Step-Summary-Activity-Monitor": {
         "type": "object",
-        "properties": {
-          "fraud": {
-            "type": "integer",
-            "format": "int32",
-            "minimum": 0
-          },
-          "aml": {
-            "type": "integer",
-            "format": "int32",
-            "minimum": 0
-          },
-          "event": {
-            "type": "integer",
-            "format": "int32",
-            "minimum": 0
-          }
-        }
-      },
-      "Workflow-Step-Summary-Activity": {
-        "type": "object",
-        "description": "Provides details of the overall activity step results.\n",
+        "description": "Provides details of the overall activity monitoring step results\n",
         "required": [
           "stepName"
         ],
         "properties": {
-          "totalResolved": {
-            "$ref": "#/components/schemas/Workflow-Step-Summary-Activity-Counts"
-          },
-          "totalUnresolved": {
-            "$ref": "#/components/schemas/Workflow-Step-Summary-Activity-Counts"
-          },
           "stepName": {
-            "type": "string",
-            "description": "Name of the activity step."
+            "type": "string"
+          },
+          "amlActivityCount": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "description": "Count of AML activity alerts. Includes all AML alerts with status IN_REVIEW or NULL.\nExcludes false positives and true positives.\n"
+          },
+          "amlActivityTruePositiveCount": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "description": "Count of true positive AML activity alerts.\n"
+          },
+          "fraudActivityCount": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "description": "Count of Fraud activity alerts. Includes all Fraud alerts with status IN_REVIEW or NULL.\nExcludes false positives and true positives.\n"
+          },
+          "fraudActivityTruePositiveCount": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "description": "Count of true positive Fraud activity alerts.\n"
+          },
+          "eventActivityCount": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "description": "Count of Behaviour activity alerts. Includes all Event alerts with status IN_REVIEW or NULL.\nExcludes false positives and true positives.\n"
+          },
+          "eventActivityTruePositiveCount": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "description": "Count of true positive Behaviour activity alerts.\n"
           }
         }
       },
@@ -11845,7 +11854,7 @@
             "$ref": "#/components/schemas/Workflow-Step-Summary-Duplicate"
           },
           {
-            "$ref": "#/components/schemas/Workflow-Step-Summary-Activity"
+            "$ref": "#/components/schemas/Workflow-Step-Summary-Activity-Monitor"
           },
           {
             "$ref": "#/components/schemas/Workflow-Step-Summary-Fraud"
@@ -11867,9 +11876,9 @@
             "DECISION": "#/components/schemas/Workflow-Step-Summary-Decision",
             "MATCHLIST": "#/components/schemas/Workflow-Step-Summary-Matchlist",
             "DUPLICATE": "#/components/schemas/Workflow-Step-Summary-Duplicate",
-            "ACTIVITY": "#/components/schemas/Workflow-Step-Summary-Activity",
+            "ACTIVITY_MONITOR": "#/components/schemas/Workflow-Step-Summary-Activity-Monitor",
             "FRAUD": "#/components/schemas/Workflow-Step-Summary-Fraud",
-            "SUPPORT_DOC": "#/components/schemas/Workflow-Step-Summary-SupportDoc"
+            "SUPPORT_DOCUMENTS_CHECK": "#/components/schemas/Workflow-Step-Summary-SupportDoc"
           }
         }
       },
