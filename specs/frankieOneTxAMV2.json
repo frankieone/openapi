@@ -138,6 +138,36 @@
               }
             }
           },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
           "500": {
             "description": "Internal Server Error",
             "content": {
@@ -194,6 +224,9 @@
           },
           {
             "$ref": "#/components/parameters/query_activity_result_classes"
+          },
+          {
+            "$ref": "#/components/parameters/query_activity_ids"
           },
           {
             "$ref": "#/components/parameters/query_sort_field"
@@ -623,6 +656,25 @@
         "style": "form",
         "explode": false
       },
+      "query_activity_ids": {
+        "name": "activityIds",
+        "in": "query",
+        "description": "Activity IDs to filter activities by",
+        "required": false,
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "description": "Activity ID to filter activities"
+          }
+        },
+        "style": "form",
+        "explode": false,
+        "example": [
+          "01KB4E05PVMS5Y6TXBCPTMWJZK",
+          "01KB4E05PVMS5Y6TXBCPTMWJZL"
+        ]
+      },
       "query_sort_field": {
         "name": "sortField",
         "in": "query",
@@ -737,17 +789,26 @@
           "name": {
             "type": "string",
             "description": "The name of the external reference.",
-            "example": "CUSTOMER-REFERENCE"
+            "example": "CUSTOMER-REFERENCE",
+            "x-oapi-codegen-extra-tags": {
+              "audit": "keep"
+            }
           },
           "value": {
             "type": "string",
             "description": "The value of the external reference.",
-            "example": "CUST-00001342"
+            "example": "CUST-00001342",
+            "x-oapi-codegen-extra-tags": {
+              "audit": "keep"
+            }
           },
           "description": {
             "type": "string",
             "description": "A summary of what this external reference is and what it is used for.",
-            "example": "This is the customer ID in the core banking system."
+            "example": "This is the customer ID in the core banking system.",
+            "x-oapi-codegen-extra-tags": {
+              "audit": "keep"
+            }
           }
         }
       },
@@ -762,7 +823,10 @@
                 "type": "string",
                 "description": "As external references are added to an entity, they are assigned a unique identifier to assist with modification and reference.\nTo modify an external reference, include the referenceId in an update request for the individual.",
                 "example": "24de15f64-5717-4562-b3fc-2c963f66e23e",
-                "readOnly": true
+                "readOnly": true,
+                "x-oapi-codegen-extra-tags": {
+                  "audit": "keep"
+                }
               },
               "type": {
                 "type": "string",
@@ -771,13 +835,19 @@
                   "CUSTOMER",
                   "OTHER"
                 ],
-                "default": "CUSTOMER"
+                "default": "CUSTOMER",
+                "x-oapi-codegen-extra-tags": {
+                  "audit": "keep"
+                }
               },
               "sourceId": {
                 "type": "string",
                 "description": "The source from which specific information was sourced. This is a link to an informationSource object in the informationSources map.",
                 "example": "93da15f64-5717-4562-b3fc-2c963f6663fe",
-                "readOnly": true
+                "readOnly": true,
+                "x-oapi-codegen-extra-tags": {
+                  "audit": "keep"
+                }
               }
             }
           },
@@ -803,54 +873,84 @@
             "type": "string",
             "example": "87654321-4321-4321-4321-210987654321",
             "description": "Include the nameId of an existing name for this individual to modify it",
-            "readOnly": true
+            "readOnly": true,
+            "x-oapi-codegen-extra-tags": {
+              "audit": "keep"
+            }
           },
           "language": {
             "type": "string",
             "example": "eng",
             "description": "The ISO-639-3 standard code that best represents the language and character set of the individual's name",
-            "default": "eng"
+            "default": "eng",
+            "x-oapi-codegen-extra-tags": {
+              "audit": "keep"
+            }
           },
           "givenName": {
             "type": "string",
             "example": "John",
-            "description": "First name or given name"
+            "description": "First name or given name",
+            "x-oapi-codegen-extra-tags": {
+              "audit": "mask"
+            }
           },
           "middleName": {
             "type": "string",
             "example": "R",
-            "description": "Middle name(s) or middle initial(s)"
+            "description": "Middle name(s) or middle initial(s)",
+            "x-oapi-codegen-extra-tags": {
+              "audit": "mask"
+            }
           },
           "familyName": {
             "type": "string",
             "example": "Doe",
-            "description": "Last name, family name, or surname."
+            "description": "Last name, family name, or surname.",
+            "x-oapi-codegen-extra-tags": {
+              "audit": "mask"
+            }
           },
           "otherName": {
             "type": "string",
             "example": null,
-            "description": "Another name that this person may be known as, e.g., \"Bob\" as an alternative to \"Robert\"."
+            "description": "Another name that this person may be known as, e.g., \"Bob\" as an alternative to \"Robert\".",
+            "x-oapi-codegen-extra-tags": {
+              "audit": "mask"
+            }
           },
           "prefix": {
             "type": "string",
             "example": "Dr.",
-            "description": "Letters or words that come before an individual's full name (e.g., title or honorific)."
+            "description": "Letters or words that come before an individual's full name (e.g., title or honorific).",
+            "x-oapi-codegen-extra-tags": {
+              "audit": "mask"
+            }
           },
           "suffix": {
             "type": "string",
             "example": "Jr.",
-            "description": "Letters or words that come after an individual's full name (e.g., generational suffix)."
+            "description": "Letters or words that come after an individual's full name (e.g., generational suffix).",
+            "x-oapi-codegen-extra-tags": {
+              "audit": "mask"
+            }
           },
           "sourceId": {
             "type": "string",
             "example": "87654321-4321-4321-4321-210987654322",
             "description": "The source from where a specific information was sourced from. This is a link to an informationSource object in the informationSources map",
-            "readOnly": true
+            "readOnly": true,
+            "x-oapi-codegen-extra-tags": {
+              "audit": "keep"
+            }
           },
           "displayName": {
             "type": "string",
             "example": "John Doe",
-            "description": "Long format of the individual's full name, including any prefix, suffix, middle, or other names. Best used when the proper structure of the individual's name is unknown."
+            "description": "Long format of the individual's full name, including any prefix, suffix, middle, or other names. Best used when the proper structure of the individual's name is unknown.",
+            "x-oapi-codegen-extra-tags": {
+              "audit": "mask"
+            }
           }
         }
       },
@@ -869,7 +969,10 @@
           "PERSIAN",
           "OTHER"
         ],
-        "description": "The calendar system used for the date, e.g., BUDDHIST, DISCORDIAN, GREGORIAN, HEBREW, ISLAMIC, JULIAN, LUNAR, MESO_AMERICAN, PERSIAN, or OTHER."
+        "description": "The calendar system used for the date, e.g., BUDDHIST, DISCORDIAN, GREGORIAN, HEBREW, ISLAMIC, JULIAN, LUNAR, MESO_AMERICAN, PERSIAN, or OTHER.",
+        "x-oapi-codegen-extra-tags": {
+          "audit": "keep"
+        }
       },
       "Date-Base": {
         "type": "object",
@@ -877,22 +980,34 @@
           "year": {
             "type": "string",
             "description": "Year in \"YYYY\" format.",
-            "example": "1990"
+            "example": "1990",
+            "x-oapi-codegen-extra-tags": {
+              "audit": "mask"
+            }
           },
           "month": {
             "type": "string",
             "description": "Month in \"MM\" format.",
-            "example": "03"
+            "example": "03",
+            "x-oapi-codegen-extra-tags": {
+              "audit": "mask"
+            }
           },
           "day": {
             "type": "string",
             "description": "Day in \"DD\" format.",
-            "example": "27"
+            "example": "27",
+            "x-oapi-codegen-extra-tags": {
+              "audit": "mask"
+            }
           },
           "unstructured": {
             "type": "string",
             "description": "Raw date format without normalization or standardization to the Gregorian calendar.\nThis can be used to provide non-Gregorian dates (e.g., Islamic dates).",
-            "example": "12 Rajab 1445 AH"
+            "example": "12 Rajab 1445 AH",
+            "x-oapi-codegen-extra-tags": {
+              "audit": "mask"
+            }
           },
           "type": {
             "$ref": "#/components/schemas/Date-Type"
@@ -913,7 +1028,10 @@
                 "format": "date",
                 "description": "Full date in ISO 8601 format (\"YYYY-MM-DD\"). This is a read-only field.",
                 "example": "1990-03-31",
-                "readOnly": true
+                "readOnly": true,
+                "x-oapi-codegen-extra-tags": {
+                  "audit": "mask"
+                }
               }
             }
           }
@@ -928,12 +1046,18 @@
               "dateOfBirthId": {
                 "type": "string",
                 "description": "As dates of birth are added to an entity, they are assigned a unique identifier to assist with modification and reference.\nTo modify a date of birth, include the dateOfBirthId in an update request for the individual.",
-                "readOnly": true
+                "readOnly": true,
+                "x-oapi-codegen-extra-tags": {
+                  "audit": "keep"
+                }
               },
               "sourceId": {
                 "type": "string",
                 "description": "The source from which specific information was sourced. This is a link to an informationSource object in the informationSources map.",
-                "readOnly": true
+                "readOnly": true,
+                "x-oapi-codegen-extra-tags": {
+                  "audit": "keep"
+                }
               }
             }
           },
@@ -1032,7 +1156,10 @@
           "PLACE_OF_BIRTH",
           "OFFICE_LOCALITY",
           "AUTHORITATIVE_RESIDENTIAL"
-        ]
+        ],
+        "x-oapi-codegen-extra-tags": {
+          "audit": "keep"
+        }
       },
       "Address-StatusEnum": {
         "type": "string",
@@ -1041,7 +1168,10 @@
           "CURRENT",
           "PREVIOUS",
           "FUTURE"
-        ]
+        ],
+        "x-oapi-codegen-extra-tags": {
+          "audit": "keep"
+        }
       },
       "Address-Base": {
         "type": "object",
@@ -1052,12 +1182,18 @@
         "properties": {
           "addressId": {
             "type": "string",
-            "description": "As addresses are added to an entity, they are assigned an ID to assist with tracking."
+            "description": "As addresses are added to an entity, they are assigned an ID to assist with tracking.",
+            "x-oapi-codegen-extra-tags": {
+              "audit": "keep"
+            }
           },
           "sourceId": {
             "type": "string",
             "readOnly": true,
-            "description": "The source from which specific information was sourced. This is a link to an informationSource object in the informationSources map."
+            "description": "The source from which specific information was sourced. This is a link to an informationSource object in the informationSources map.",
+            "x-oapi-codegen-extra-tags": {
+              "audit": "keep"
+            }
           },
           "type": {
             "$ref": "#/components/schemas/Address-TypeEnum",
@@ -1065,7 +1201,10 @@
           },
           "typeDescription": {
             "type": "string",
-            "description": "Description for the type or the address type as fetched from an authoritative source like a company registry."
+            "description": "Description for the type or the address type as fetched from an authoritative source like a company registry.",
+            "x-oapi-codegen-extra-tags": {
+              "audit": "keep"
+            }
           },
           "validFrom": {
             "$ref": "#/components/schemas/Date",
@@ -1077,55 +1216,94 @@
           },
           "longForm": {
             "type": "string",
-            "description": "In some cases, the address will need to be supplied in \"long form\", such as when it is determined from a document scan, or is unparsable in some way.\nThe service will attempt to convert it to its constituent parts where possible.\nWARNING: Use of longForm is not guaranteed to produce perfect results, due to the variety of potential formats. You have been warned.\nFailure to break down or disambiguate the address will result in an error."
+            "description": "In some cases, the address will need to be supplied in \"long form\", such as when it is determined from a document scan, or is unparsable in some way.\nThe service will attempt to convert it to its constituent parts where possible.\nWARNING: Use of longForm is not guaranteed to produce perfect results, due to the variety of potential formats. You have been warned.\nFailure to break down or disambiguate the address will result in an error.",
+            "x-oapi-codegen-extra-tags": {
+              "audit": "mask"
+            }
           },
           "unitNumber": {
             "type": "string",
-            "description": "Unit/Apartment/Flat/Suite/etc. number"
+            "description": "Unit/Apartment/Flat/Suite/etc. number",
+            "x-oapi-codegen-extra-tags": {
+              "audit": "mask"
+            }
           },
           "buildingName": {
             "type": "string",
-            "description": "The name of the building, apartment block, condominium, etc."
+            "description": "The name of the building, apartment block, condominium, etc.",
+            "x-oapi-codegen-extra-tags": {
+              "audit": "mask"
+            }
           },
           "streetName": {
             "type": "string",
-            "description": "The name of the street.\nThis field should ideally contain only the street name, without the street number or street type. In some cases, especially when auto-populated by external services (e.g., Google), it may include additional address components.\nFor best results, keep the street name separate from the street number and street type. See https://docs.frankieone.com/docs/working-with-addresses for more details."
+            "description": "The name of the street.\nThis field should ideally contain only the street name, without the street number or street type. In some cases, especially when auto-populated by external services (e.g., Google), it may include additional address components.\nFor best results, keep the street name separate from the street number and street type. See https://docs.frankieone.com/docs/working-with-addresses for more details.",
+            "x-oapi-codegen-extra-tags": {
+              "audit": "mask"
+            }
           },
           "streetNumber": {
             "type": "string",
-            "description": "The number assigned to the property on the street. Typically a number, but can also be alphanumeric (e.g., 3A)."
+            "description": "The number assigned to the property on the street. Typically a number, but can also be alphanumeric (e.g., 3A).",
+            "x-oapi-codegen-extra-tags": {
+              "audit": "mask"
+            }
           },
           "streetType": {
             "type": "string",
-            "description": "The street type, such as Road, Street, Avenue, Circuit, etc."
+            "description": "The street type, such as Road, Street, Avenue, Circuit, etc.",
+            "x-oapi-codegen-extra-tags": {
+              "audit": "mask"
+            }
           },
           "neighborhood": {
             "type": "string",
-            "description": "The neighborhood or suburb within the town or city. Use this only if you require both a suburb and a locality/town/city; otherwise, use the \"locality\" parameter."
+            "description": "The neighborhood or suburb within the town or city. Use this only if you require both a suburb and a locality/town/city; otherwise, use the \"locality\" parameter.",
+            "x-oapi-codegen-extra-tags": {
+              "audit": "keep"
+            }
           },
           "locality": {
             "type": "string",
-            "description": "The locality, town, village, suburb, or city."
+            "description": "The locality, town, village, suburb, or city.",
+            "x-oapi-codegen-extra-tags": {
+              "audit": "keep"
+            }
           },
           "district": {
             "type": "string",
-            "description": "The district, region, county, province, or cantonment."
+            "description": "The district, region, county, province, or cantonment.",
+            "x-oapi-codegen-extra-tags": {
+              "audit": "keep"
+            }
           },
           "subdivision": {
             "type": "string",
-            "description": "The administrative area, state, or sub-division. Use local abbreviations, such as VIC (Victoria) or TX (Texas)."
+            "description": "The administrative area, state, or sub-division. Use local abbreviations, such as VIC (Victoria) or TX (Texas).",
+            "x-oapi-codegen-extra-tags": {
+              "audit": "keep"
+            }
           },
           "country": {
             "type": "string",
-            "description": "The ISO-3166-1 country code. You must use the alpha-3 country code (e.g., AUS, USA, IDR, KOR, etc). Conversion will be handled as needed.\nFor more details, refer to: https://en.wikipedia.org/wiki/ISO_3166-1"
+            "description": "The ISO-3166-1 country code. You must use the alpha-3 country code (e.g., AUS, USA, IDR, KOR, etc). Conversion will be handled as needed.\nFor more details, refer to: https://en.wikipedia.org/wiki/ISO_3166-1",
+            "x-oapi-codegen-extra-tags": {
+              "audit": "keep"
+            }
           },
           "postalCode": {
             "type": "string",
-            "description": "The postal code of the address."
+            "description": "The postal code of the address.",
+            "x-oapi-codegen-extra-tags": {
+              "audit": "keep"
+            }
           },
           "careOf": {
             "type": "string",
-            "description": "The individual or business name at this address, if different from the name of the entity to which this address belongs."
+            "description": "The individual or business name at this address, if different from the name of the entity to which this address belongs.",
+            "x-oapi-codegen-extra-tags": {
+              "audit": "mask"
+            }
           },
           "status": {
             "$ref": "#/components/schemas/Address-StatusEnum",
@@ -1146,7 +1324,10 @@
               "unstructuredLongForm": {
                 "type": "string",
                 "description": "Raw, unformatted address as provided by the source. Not normalized or standardized.",
-                "readOnly": true
+                "readOnly": true,
+                "x-oapi-codegen-extra-tags": {
+                  "audit": "mask"
+                }
               }
             }
           }
@@ -1155,7 +1336,10 @@
       "Phone-Number-ID": {
         "type": "string",
         "description": "As phone numbers are added to an entity, they are assigned an ID to assist with tracking.\nIf you are adjusting phone numbers, you will need to include the ID to reference it correctly in the list.",
-        "example": "ad165f64-5717-4562-b3fc-2c963f66bfa9"
+        "example": "ad165f64-5717-4562-b3fc-2c963f66bfa9",
+        "x-oapi-codegen-extra-tags": {
+          "audit": "keep"
+        }
       },
       "Phone-Number": {
         "type": "object",
@@ -1166,7 +1350,10 @@
           "isPreferred": {
             "type": "boolean",
             "example": true,
-            "description": "Indicates whether this is the individual's preferred phone number."
+            "description": "Indicates whether this is the individual's preferred phone number.",
+            "x-oapi-codegen-extra-tags": {
+              "audit": "keep"
+            }
           },
           "type": {
             "type": "string",
@@ -1179,23 +1366,35 @@
               "FAX"
             ],
             "description": "The type of phone number.",
-            "example": "MOBILE"
+            "example": "MOBILE",
+            "x-oapi-codegen-extra-tags": {
+              "audit": "keep"
+            }
           },
           "sourceId": {
             "type": "string",
             "description": "The source from which specific information was sourced. This is a link to an informationSource object in the informationSources map.",
             "example": "14fd5f64-5717-4562-b3fc-2c963f66ba34",
-            "readOnly": true
+            "readOnly": true,
+            "x-oapi-codegen-extra-tags": {
+              "audit": "keep"
+            }
           },
           "country": {
             "type": "string",
             "description": "ISO-3166-1 alpha-3 country code.",
-            "example": "AUS"
+            "example": "AUS",
+            "x-oapi-codegen-extra-tags": {
+              "audit": "keep"
+            }
           },
           "number": {
             "type": "string",
             "description": "The phone number.",
-            "example": "0426192340"
+            "example": "0426192340",
+            "x-oapi-codegen-extra-tags": {
+              "audit": "mask"
+            }
           },
           "linkedAddresses": {
             "type": "array",
@@ -1214,14 +1413,20 @@
           },
           "unstructuredLongForm": {
             "type": "string",
-            "description": "Used to capture free-form phone numbers or to store numbers that could not be normalized."
+            "description": "Used to capture free-form phone numbers or to store numbers that could not be normalized.",
+            "x-oapi-codegen-extra-tags": {
+              "audit": "mask"
+            }
           }
         }
       },
       "Email-Address-ID": {
         "type": "string",
         "description": "As email addresses are added to an entity, they are assigned a unique identifier to assist with modification and reference.\nTo modify an email, include the emailId in an update request.",
-        "example": "aa385f64-5717-4562-b3fc-2c963f66af21"
+        "example": "aa385f64-5717-4562-b3fc-2c963f66af21",
+        "x-oapi-codegen-extra-tags": {
+          "audit": "keep"
+        }
       },
       "Email": {
         "type": "object",
@@ -1238,23 +1443,35 @@
               "BUSINESS"
             ],
             "example": "WORK",
-            "description": "The type of email address, if known."
+            "description": "The type of email address, if known.",
+            "x-oapi-codegen-extra-tags": {
+              "audit": "keep"
+            }
           },
           "sourceId": {
             "type": "string",
             "description": "The source from which specific information was sourced. This is a link to an informationSource object in the informationSources map.",
             "example": "31dd15f64-5717-4562-b3fc-2c963f66234d",
-            "readOnly": true
+            "readOnly": true,
+            "x-oapi-codegen-extra-tags": {
+              "audit": "keep"
+            }
           },
           "email": {
             "type": "string",
             "description": "The individual's email address. This email can be used to notify the individual of any verification requirements.",
-            "example": "leonardo_dc@outlook.com"
+            "example": "leonardo_dc@outlook.com",
+            "x-oapi-codegen-extra-tags": {
+              "audit": "mask"
+            }
           },
           "isPreferred": {
             "type": "boolean",
             "description": "Indicates whether this email address is the individual's preferred email. The preferred email will be used to send notifications at the client's request.",
-            "default": true
+            "default": true,
+            "x-oapi-codegen-extra-tags": {
+              "audit": "keep"
+            }
           },
           "linkedAddresses": {
             "type": "array",
@@ -1296,6 +1513,45 @@
           }
         }
       },
+      "Risk-Level": {
+        "type": "string",
+        "enum": [
+          "UNKNOWN",
+          "LOW",
+          "MEDIUM",
+          "HIGH",
+          "UNACCEPTABLE"
+        ],
+        "description": "The risk level classification:\n  - UNKNOWN: Risk level is not determined.\n  - LOW: Low risk.\n  - MEDIUM: Medium risk.\n  - HIGH: High risk.\n  - UNACCEPTABLE: Risk level is unacceptable.\n"
+      },
+      "Party-Risk-Signals": {
+        "type": "object",
+        "description": "Risk level signals for party attributes",
+        "readOnly": true,
+        "properties": {
+          "email": {
+            "$ref": "#/components/schemas/Risk-Level"
+          },
+          "emailDomain": {
+            "$ref": "#/components/schemas/Risk-Level"
+          },
+          "address": {
+            "$ref": "#/components/schemas/Risk-Level"
+          },
+          "phone": {
+            "$ref": "#/components/schemas/Risk-Level"
+          }
+        }
+      },
+      "Party-Detail-Risk-Signals": {
+        "type": "object",
+        "description": "Risk signals for party details",
+        "properties": {
+          "riskSignals": {
+            "$ref": "#/components/schemas/Party-Risk-Signals"
+          }
+        }
+      },
       "Party-Detail": {
         "type": "object",
         "description": "A party describes the details of one of the parties in a given transaction. It can be used to \ndescribe any participant.\n\nA party can only either be an individual or an organization.\n\nTo evaluate a party, you need to provide the details about the party involved by:\n* Using an existing entity data: Include the entityId in the party object. The data will be extracted from the entity in the FrankieOne system.\n* Filling in the details: Include the specific details within the party object. Data provided here will take precedence over the entity data but will not enrich the entity details in the FrankieOne system.\n",
@@ -1305,6 +1561,9 @@
           },
           {
             "$ref": "#/components/schemas/Party-Detail-Contact"
+          },
+          {
+            "$ref": "#/components/schemas/Party-Detail-Risk-Signals"
           }
         ]
       },
@@ -1385,7 +1644,14 @@
           "EMAIL_CHANGE",
           "ACCOUNT_UPDATE",
           "2FA_UPDATE",
-          "PAYMENT_METHOD_LINK"
+          "PAYMENT_METHOD_LINK",
+          "ACCOUNT_CREATE",
+          "LOGIN_FAIL",
+          "INSUFFICIENT_FUNDS",
+          "KYC_FAIL",
+          "KYC_PASS",
+          "CHALLENGE_FAIL",
+          "CHALLENGE_PASS"
         ]
       },
       "Event": {
@@ -1706,6 +1972,30 @@
           }
         }
       },
+      "IP-Addresses": {
+        "type": "object",
+        "properties": {
+          "v4Address": {
+            "type": "string",
+            "description": "The IPv4 address",
+            "format": "ipv4"
+          },
+          "v6Address": {
+            "type": "string",
+            "description": "The IPv6 address",
+            "format": "ipv6"
+          }
+        }
+      },
+      "Activity-Evaluate-Req-Device-Input": {
+        "type": "object",
+        "description": "The device information for the activity, you may only provide one IPv4 or IPv6 address.",
+        "properties": {
+          "ipAddressInformation": {
+            "$ref": "#/components/schemas/IP-Addresses"
+          }
+        }
+      },
       "Activity-Evaluate-Req-Body": {
         "type": "object",
         "description": "Input data for activity evaluation.\n\nA session token is an identifier that will link together activities done in the same end user session to identify the grouping of activities that belong together. It is represented in FrankieOne as a ULID but can differ if not FrankieOne generated.\n\nThe session token may  be provided to tie in the activity to a longer running overall session. There are a few options for session tokens:\n* A session token may not be provided. It is optional to provide but there must be configuration in your account to allow this - FrankieOne will generate a session token on your behalf to identify the overarching session, you may then use this for further calls for the extent of the service. This is not recommended when device signals are important to your use case.\n* A session token generated on the client side and not registered with FrankieOne. The client can generate some sort of unique ID to identify the session and provide that at the time of call and manage the session token for the duration of the session. This can be used when device signals are required.\n* A session token can be generated in a seperate API within FrankieOne - Refer to the `Create Individual Session` API. This will register the session in FrankieOne and tie it to the individual of interest. There is configuration in your account which can enforce session ownership to avoid clients modifying the session token, adding another layer of security. This can be used when device signals are required.\n",
@@ -1722,6 +2012,9 @@
           },
           "detail": {
             "$ref": "#/components/schemas/Activity-Detail"
+          },
+          "device": {
+            "$ref": "#/components/schemas/Activity-Evaluate-Req-Device-Input"
           }
         }
       },
@@ -1747,17 +2040,6 @@
         "description": "Activity ID that identifies an activity within the FrankieOne platform",
         "format": "ulid"
       },
-      "Risk-Level": {
-        "type": "string",
-        "enum": [
-          "UNKNOWN",
-          "LOW",
-          "MEDIUM",
-          "HIGH",
-          "UNACCEPTABLE"
-        ],
-        "description": "The risk level classification:\n  - UNKNOWN: Risk level is not determined.\n  - LOW: Low risk.\n  - MEDIUM: Medium risk.\n  - HIGH: High risk.\n  - UNACCEPTABLE: Risk level is unacceptable.\n"
-      },
       "Behavior-Biometrics": {
         "type": "object",
         "properties": {
@@ -1771,6 +2053,9 @@
           },
           "numberDistractionEvents": {
             "type": "integer"
+          },
+          "riskLevel": {
+            "$ref": "#/components/schemas/Risk-Level"
           }
         }
       },
@@ -1826,6 +2111,12 @@
           },
           "botLikelihood": {
             "$ref": "#/components/schemas/Likelihood"
+          },
+          "remoteSoftwareLikelihood": {
+            "$ref": "#/components/schemas/Likelihood"
+          },
+          "osAnomaly": {
+            "$ref": "#/components/schemas/Risk-Level"
           }
         }
       },
@@ -1945,36 +2236,34 @@
       "IP-Information": {
         "type": "object",
         "description": "IP information, typically in relation to a device",
-        "properties": {
-          "v4Address": {
-            "type": "string",
-            "description": "The IPv4 address",
-            "format": "ipv4"
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/IP-Addresses"
           },
-          "v6Address": {
-            "type": "string",
-            "description": "The IPv6 address",
-            "format": "ipv6"
-          },
-          "trueAddress": {
-            "type": "string",
-            "description": "The true IP address"
-          },
-          "asn": {
-            "type": "string",
-            "description": "The ASN of the IP address"
-          },
-          "connectionType": {
-            "type": "string",
-            "description": "The type of IP connection (if available)",
-            "example": [
-              "Fixed Line ISP"
-            ]
-          },
-          "location": {
-            "$ref": "#/components/schemas/Geolocation"
+          {
+            "type": "object",
+            "properties": {
+              "trueAddress": {
+                "type": "string",
+                "description": "The true IP address"
+              },
+              "asn": {
+                "type": "string",
+                "description": "The ASN of the IP address"
+              },
+              "connectionType": {
+                "type": "string",
+                "description": "The type of IP connection (if available)",
+                "example": [
+                  "Fixed Line ISP"
+                ]
+              },
+              "location": {
+                "$ref": "#/components/schemas/Geolocation"
+              }
+            }
           }
-        }
+        ]
       },
       "Device": {
         "type": "object",
@@ -2001,6 +2290,73 @@
             }
           }
         ]
+      },
+      "Process-Result-ID": {
+        "type": "string",
+        "description": "When a process result object is first created, it is assigned an ID. When updating the process result object, set the processResultID to the ID of the process result object you are referring to.",
+        "readOnly": true,
+        "x-oapi-codegen-extra-tags": {
+          "audit": "keep"
+        }
+      },
+      "Activity-Result-Manual-Status": {
+        "type": "string",
+        "enum": [
+          "FALSE_POSITIVE",
+          "TRUE_POSITIVE_ACCEPT",
+          "TRUE_POSITIVE_REJECT",
+          "IN_REVIEW"
+        ],
+        "description": "The status of the result.\n- FALSE_POSITIVE: When the result is determined to be false positive and the activity is within the risk profile to continue.\n- TRUE_POSITIVE_ACCEPT: When the result is determined to be true positive and the activity is within the risk profile to continue.\n- TRUE_POSITIVE_REJECT: When the result is determined to be true positive and the activity is NOT within the risk profile to continue.\n- IN_REVIEW: When the activity has been picked up for review.\n"
+      },
+      "Activity-Result-ID": {
+        "type": "string",
+        "readOnly": true,
+        "description": "Activity Result ID that identifies a result from an evaluation of an activity",
+        "format": "ulid"
+      },
+      "Activity-Result-Class": {
+        "type": "string",
+        "description": "The class of the activity result (AML, FRAUD, EVENT)",
+        "enum": [
+          "AML",
+          "FRAUD",
+          "EVENT"
+        ]
+      },
+      "Activities-Process-Result-Link": {
+        "type": "object",
+        "description": "This object includes link details between relatedActivities and a processResult.\n",
+        "properties": {
+          "processResultId": {
+            "$ref": "#/components/schemas/Process-Result-ID"
+          },
+          "relatedActivityIds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Activity-ID"
+            }
+          },
+          "manualStatus": {
+            "$ref": "#/components/schemas/Activity-Result-Manual-Status"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The timestamp that the process result was created"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The timestamp that the process result was updated"
+          },
+          "activityResultId": {
+            "$ref": "#/components/schemas/Activity-Result-ID"
+          },
+          "class": {
+            "$ref": "#/components/schemas/Activity-Result-Class"
+          }
+        }
       },
       "Activity-Base": {
         "type": "object",
@@ -2029,6 +2385,13 @@
             "type": "string",
             "format": "ulid",
             "description": "The request ID associated to the activity being submitted"
+          },
+          "relatedProcessResults": {
+            "type": "array",
+            "readOnly": true,
+            "items": {
+              "$ref": "#/components/schemas/Activities-Process-Result-Link"
+            }
           }
         }
       },
@@ -2042,36 +2405,6 @@
         "description": "The ID of the evaluation",
         "readOnly": true,
         "format": "ulid"
-      },
-      "Activity-Result-ID": {
-        "type": "string",
-        "readOnly": true,
-        "description": "Activity Result ID that identifies a result from an evaluation of an activity",
-        "format": "ulid"
-      },
-      "Process-Result-ID": {
-        "type": "string",
-        "description": "When a process result object is first created, it is assigned an ID. When updating the process result object, set the processResultID to the ID of the process result object you are referring to.",
-        "readOnly": true
-      },
-      "Activity-Result-Class": {
-        "type": "string",
-        "description": "The class of the activity result (AML, FRAUD, EVENT)",
-        "enum": [
-          "AML",
-          "FRAUD",
-          "EVENT"
-        ]
-      },
-      "Activity-Result-Manual-Status": {
-        "type": "string",
-        "enum": [
-          "FALSE_POSITIVE",
-          "TRUE_POSITIVE_ACCEPT",
-          "TRUE_POSITIVE_REJECT",
-          "IN_REVIEW"
-        ],
-        "description": "The status of the result.\n- FALSE_POSITIVE: When the result is determined to be false positive and the activity is within the risk profile to continue.\n- TRUE_POSITIVE_ACCEPT: When the result is determined to be true positive and the activity is within the risk profile to continue.\n- TRUE_POSITIVE_REJECT: When the result is determined to be true positive and the activity is NOT within the risk profile to continue.\n- IN_REVIEW: When the activity has been picked up for review.\n"
       },
       "Indicator-ID": {
         "type": "string",
@@ -2346,7 +2679,10 @@
         "type": "string",
         "description": "Entities are assigned a FrankieOne auto-generated UUID to ensure global uniqueness, represented as entityId. The entityId allows for precise modification when required.\nTo modify an entity, set the entityId of the entity you wish to update in an update request.",
         "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-        "readOnly": true
+        "readOnly": true,
+        "x-oapi-codegen-extra-tags": {
+          "audit": "keep"
+        }
       },
       "Query-Meta": {
         "type": "object",
@@ -2567,6 +2903,11 @@
         ],
         "readOnly": true
       },
+      "Process-Result-SubClass": {
+        "type": "string",
+        "pattern": "^[A-Z_]+$",
+        "description": "the subclass must be in SCREAMING_SNAKE_CASE"
+      },
       "Supplementary-Data-Base": {
         "type": "object",
         "required": [
@@ -2652,7 +2993,10 @@
           "NON_BINARY",
           "OTHER",
           "UNSPECIFIED"
-        ]
+        ],
+        "x-oapi-codegen-extra-tags": {
+          "audit": "mask"
+        }
       },
       "Supplementary-Data-AML-MatchData": {
         "type": "object",
@@ -2765,11 +3109,17 @@
           "type": {
             "description": "The attribute type.",
             "type": "string",
-            "maxLength": 64
+            "maxLength": 64,
+            "x-oapi-codegen-extra-tags": {
+              "audit": "keep"
+            }
           },
           "value": {
             "description": "The value assigned to the attribute.",
-            "type": "string"
+            "type": "string",
+            "x-oapi-codegen-extra-tags": {
+              "audit": "mask"
+            }
           }
         }
       },
@@ -3540,7 +3890,10 @@
           "UNKNOWN"
         ],
         "description": "The type of entity within Frankie. This can be \"INDIVIDUAL\", \"ORGANIZATION\", or \"UNKNOWN\".",
-        "readOnly": true
+        "readOnly": true,
+        "x-oapi-codegen-extra-tags": {
+          "audit": "keep"
+        }
       },
       "Supplementary-Data-KYB-Organization": {
         "type": "object",
@@ -3793,7 +4146,10 @@
           "ORGANIZATION_PROFILE",
           "ORGANIZATION_OWNERSHIP"
         ],
-        "description": "Valid document ID types.\n\n  - \"OTHER\": Generic document type. Unspecified.\n  - \"DRIVERS_LICENSE\": Driver's license.\n  - \"PASSPORT\": Passport.\n  - \"VISA\": Visa document (not Visa payment card).\n  - \"IMMIGRATION\": Immigration card.\n  - \"NATIONAL_ID\": Any national ID card.\n  - \"TAX_ID\": Any national tax identifier.\n  - \"NATIONAL_HEALTH_ID\": Any national health program ID card (e.g., Medicare, NHS).\n  - \"CONCESSION\": State-issued concession card.\n  - \"HEALTH_CONCESSION\": State-issued health-specific concession card.\n  - \"PENSION\": State-issued pension ID.\n  - \"MILITARY_ID\": Military ID.\n  - \"BIRTH_CERT\": Birth certificate.\n  - \"CITIZENSHIP\": Citizenship certificate.\n  - \"MARRIAGE_CERT\": Marriage certificate.\n  - \"DEATH_CERT\": Death certificate.\n  - \"NAME_CHANGE\": Name change confirmation.\n  - \"UTILITY_BILL\": Regulated utility bill, such as electricity, gas, etc.\n  - \"BANK_STATEMENT\": Bank/card statement.\n  - \"BANK_ACCOUNT\": Bank account.\n  - \"INTENT_PROOF\": Proof of intent, generally a photo/video or a scanned letter.\n  - \"ATTESTATION\": Document of attestation (e.g., Statutory Declaration).\n\n  NOTE: These cannot be used as a supporting document:\n  - \"SELF_IMAGE\": A \"selfie\" used for comparisons.\n  - \"DEVICE\": Device ID.\n  - \"VEHICLE_REGISTRATION\": Vehicle registration number.\n  - \"PROOF_OF_ADDRESS\": Any document that provides proof of address.\n  - \"HOUSE_REGISTRATION\": House registration document.\n  - \"YELLOW_HOUSE_REGISTRATION\": Yellow House Registration Thor Ror 13.\n  - \"WORK_PERMIT\": Work permit.\n  - \"EMPLOYMENT_CERTIFICATE\": Certificate of employment.\n  - \"NOTARY_PUBLIC_ID\": Notary Public Identification.\n\n  Business-related documentation:\n\n  - \"EXTERNAL_ADMIN\": Details of appointed administrator.\n  - \"CHARGES\": Details of any charges laid against a company or director.\n  - \"PRE_ASIC\": Any documents that are Pre-ASIC.\n  - \"ANNUAL_RETURN\": Details of a company's annual return.\n  - \"REPORT\": Frankie-generated report.\n  - \"TRUST_DEED\": Corporate trust deed.\n  - \"DEED_OF_VARIATION\": Deed of variation document.\n  - \"REGISTER_OF_UNIT_HOLDERS\": Register of unit holders document.\n  - \"PARTNERSHIP_AGREEMENT\": Partnership agreement documents.\n  - \"ADMIN_CHANGE\": Change of administrator.\n  - \"COMPANY_REPORT\": Registry-filed company reports.\n  - \"ORGANIZATION_PROFILE\": Organization profile document.\n  - \"ORGANIZATION_OWNERSHIP\": Organization ownership document.\n\n  Special document types:\n\n  - \"CHECK_RESULTS\": Special document type for specifying results of checks completed other than through Frankie.\n  - \"AVIATION_SECURITY_ID\": Aviation Security Identification Card.\n  - \"MARITIME_SECURITY_ID\": Maritime Security Identification Card."
+        "description": "Valid document ID types.\n\n  - \"OTHER\": Generic document type. Unspecified.\n  - \"DRIVERS_LICENSE\": Driver's license.\n  - \"PASSPORT\": Passport.\n  - \"VISA\": Visa document (not Visa payment card).\n  - \"IMMIGRATION\": Immigration card.\n  - \"NATIONAL_ID\": Any national ID card.\n  - \"TAX_ID\": Any national tax identifier.\n  - \"NATIONAL_HEALTH_ID\": Any national health program ID card (e.g., Medicare, NHS).\n  - \"CONCESSION\": State-issued concession card.\n  - \"HEALTH_CONCESSION\": State-issued health-specific concession card.\n  - \"PENSION\": State-issued pension ID.\n  - \"MILITARY_ID\": Military ID.\n  - \"BIRTH_CERT\": Birth certificate.\n  - \"CITIZENSHIP\": Citizenship certificate.\n  - \"MARRIAGE_CERT\": Marriage certificate.\n  - \"DEATH_CERT\": Death certificate.\n  - \"NAME_CHANGE\": Name change confirmation.\n  - \"UTILITY_BILL\": Regulated utility bill, such as electricity, gas, etc.\n  - \"BANK_STATEMENT\": Bank/card statement.\n  - \"BANK_ACCOUNT\": Bank account.\n  - \"INTENT_PROOF\": Proof of intent, generally a photo/video or a scanned letter.\n  - \"ATTESTATION\": Document of attestation (e.g., Statutory Declaration).\n\n  NOTE: These cannot be used as a supporting document:\n  - \"SELF_IMAGE\": A \"selfie\" used for comparisons.\n  - \"DEVICE\": Device ID.\n  - \"VEHICLE_REGISTRATION\": Vehicle registration number.\n  - \"PROOF_OF_ADDRESS\": Any document that provides proof of address.\n  - \"HOUSE_REGISTRATION\": House registration document.\n  - \"YELLOW_HOUSE_REGISTRATION\": Yellow House Registration Thor Ror 13.\n  - \"WORK_PERMIT\": Work permit.\n  - \"EMPLOYMENT_CERTIFICATE\": Certificate of employment.\n  - \"NOTARY_PUBLIC_ID\": Notary Public Identification.\n\n  Business-related documentation:\n\n  - \"EXTERNAL_ADMIN\": Details of appointed administrator.\n  - \"CHARGES\": Details of any charges laid against a company or director.\n  - \"PRE_ASIC\": Any documents that are Pre-ASIC.\n  - \"ANNUAL_RETURN\": Details of a company's annual return.\n  - \"REPORT\": Frankie-generated report.\n  - \"TRUST_DEED\": Corporate trust deed.\n  - \"DEED_OF_VARIATION\": Deed of variation document.\n  - \"REGISTER_OF_UNIT_HOLDERS\": Register of unit holders document.\n  - \"PARTNERSHIP_AGREEMENT\": Partnership agreement documents.\n  - \"ADMIN_CHANGE\": Change of administrator.\n  - \"COMPANY_REPORT\": Registry-filed company reports.\n  - \"ORGANIZATION_PROFILE\": Organization profile document.\n  - \"ORGANIZATION_OWNERSHIP\": Organization ownership document.\n\n  Special document types:\n\n  - \"CHECK_RESULTS\": Special document type for specifying results of checks completed other than through Frankie.\n  - \"AVIATION_SECURITY_ID\": Aviation Security Identification Card.\n  - \"MARITIME_SECURITY_ID\": Maritime Security Identification Card.",
+        "x-oapi-codegen-extra-tags": {
+          "audit": "keep"
+        }
       },
       "Supplementary-Data-IDV-Document": {
         "type": "object",
@@ -4196,6 +4552,13 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/Supplementary-Data-Activity-Result-Detail-Indicator"
+            }
+          },
+          "relatedActivityIds": {
+            "description": "The related activity ids.\n",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Activity-ID"
             }
           }
         }
@@ -4726,6 +5089,9 @@
           },
           "class": {
             "$ref": "#/components/schemas/Process-Result-ClassEnum"
+          },
+          "subClass": {
+            "$ref": "#/components/schemas/Process-Result-SubClass"
           },
           "supplementaryData": {
             "$ref": "#/components/schemas/Supplementary-Data"
