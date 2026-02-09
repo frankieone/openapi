@@ -3796,6 +3796,180 @@
           },
           {
             "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/subClasses"
+          }
+        ],
+        "tags": [
+          "Individual Results"
+        ],
+        "security": [
+          {
+            "Api-Key": []
+          },
+          {
+            "jwt": [
+              "kyc:api"
+            ]
+          }
+        ]
+      }
+    },
+    "/v2/individuals/{entityId}/results/{processResultId}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/entityId"
+        },
+        {
+          "$ref": "#/components/parameters/path_process_result_id"
+        }
+      ],
+      "get": {
+        "summary": "Get a process result",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "requestId": {
+                      "$ref": "#/components/schemas/Request-ID"
+                    },
+                    "processResult": {
+                      "$ref": "#/components/schemas/Process-Result-Object"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "Invalid EntityId": {
+                    "value": {
+                      "errorCode": "API-0400,",
+                      "errorMsg": "Multiple Errors: See Issues list",
+                      "details": [
+                        {
+                          "issue": "entityId in path must be of type uuid: \"test\"",
+                          "issueLocation": "VALIDATE-entityId"
+                        }
+                      ],
+                      "requestId": "01HM5XJ7VASZ3EJMB1VQGTBFJ4"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "Invalid authentication": {
+                    "value": {
+                      "errorCode": "AUTH-0002,",
+                      "errorMsg": "Unauthorized",
+                      "details": [
+                        {
+                          "issue": "Invalid Authentication provided. Access denied.",
+                          "issueLocation": "request"
+                        }
+                      ],
+                      "requestId": "00000000S6MNG7624K2TDXT1E3"
+                    }
+                  },
+                  "No Api-Key": {
+                    "value": {
+                      "errorCode": "AUTH-0401",
+                      "errorMsg": "Unauthorized",
+                      "details": [
+                        {
+                          "issue": "No api key provided. Access denied.",
+                          "issueLocation": "request"
+                        }
+                      ],
+                      "requestId": "00000001S6MNG7624K2TDXT1E3"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getPRO",
+        "description": "Get process result using process result id for a given individual entity",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Api-Key"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-CustomerID"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-CustomerChildID"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-Channel"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-Username"
+          },
+          {
+            "$ref": "#/components/parameters/entityId"
           }
         ],
         "tags": [
@@ -7425,6 +7599,169 @@
         ]
       }
     },
+    "/v2/individuals/{entityId}/actions/idv/checkstatus": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/entityId"
+        }
+      ],
+      "post": {
+        "summary": "At the end of the IDV data capture process with all photos and videos captured, signal to IDV provider that check is ready to analyse and check.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IDV-CheckStatus-Request"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IDV-CheckStatus-Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "Invalid EntityId": {
+                    "value": {
+                      "errorCode": "API-0400,",
+                      "errorMsg": "Multiple Errors: See Issues list",
+                      "details": [
+                        {
+                          "issue": "entityId in path must be of type uuid: \"test\"",
+                          "issueLocation": "VALIDATE-entityId"
+                        }
+                      ],
+                      "requestId": "01HM5XJ7VASZ3EJMB1VQGTBFJ4"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "Invalid authentication": {
+                    "value": {
+                      "errorCode": "AUTH-0002,",
+                      "errorMsg": "Unauthorized",
+                      "details": [
+                        {
+                          "issue": "Invalid Authentication provided. Access denied.",
+                          "issueLocation": "request"
+                        }
+                      ],
+                      "requestId": "00000000S6MNG7624K2TDXT1E3"
+                    }
+                  },
+                  "No Api-Key": {
+                    "value": {
+                      "errorCode": "AUTH-0401",
+                      "errorMsg": "Unauthorized",
+                      "details": [
+                        {
+                          "issue": "No api key provided. Access denied.",
+                          "issueLocation": "request"
+                        }
+                      ],
+                      "requestId": "00000001S6MNG7624K2TDXT1E3"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "operationId": "checkIDVStatus",
+        "description": "At the end of the IDV data capture process with all photos and videos captured, signal to IDV provider\n    that check is ready to analyse and check. If this call is successful, an entity\nis populated with with any details supplied if it doesn't not already have a name.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Api-Key"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-CustomerID"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-CustomerChildID"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-Channel"
+          }
+        ],
+        "tags": [
+          "IDV"
+        ],
+        "security": [
+          {
+            "Api-Key": []
+          },
+          {
+            "jwt": [
+              "kyc:api"
+            ]
+          }
+        ]
+      }
+    },
     "/v2/individuals/hostedurl": {
       "post": {
         "summary": "Provide hosted url for a hosted version of onesdk.",
@@ -8012,6 +8349,28 @@
         },
         "description": "List of result value that the Process Result will be filtered with\nAvailable values : MATCH, PARTIAL_MATCH, INVALID_MATCH, NO_MATCH, CLEAR, HIT, BAD_DATA, CREATED, UPDATED, DELETED, FAIL"
       },
+      "subClasses": {
+        "in": "query",
+        "name": "subClasses",
+        "style": "form",
+        "explode": false,
+        "schema": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/Process-Result-SubClass"
+          }
+        },
+        "description": "List of subClasses to filter results with"
+      },
+      "path_process_result_id": {
+        "name": "processResultId",
+        "in": "path",
+        "schema": {
+          "$ref": "#/components/schemas/Process-Result-ID"
+        },
+        "description": "Process Result Object ID",
+        "required": true
+      },
       "nameId": {
         "name": "nameId",
         "in": "path",
@@ -8472,6 +8831,47 @@
           "$ref": "#/components/schemas/Attribute"
         }
       },
+      "External-Reference-Metadata-TypeEnum": {
+        "type": "string",
+        "default": "STRING",
+        "enum": [
+          "STRING",
+          "INTEGER",
+          "FLOAT",
+          "BOOLEAN",
+          "DATE",
+          "DATE_TIME"
+        ],
+        "description": "The type of the external reference metadata value"
+      },
+      "External-Reference-Metadata": {
+        "type": "object",
+        "required": [
+          "type",
+          "value"
+        ],
+        "x-examples": {
+          "String Metadata": {
+            "type": "STRING",
+            "value": "2024-01-15"
+          },
+          "Number Metadata": {
+            "type": "NUMBER",
+            "value": "100"
+          }
+        },
+        "description": "Metadata item for external reference with typed value",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/External-Reference-Metadata-TypeEnum"
+          },
+          "value": {
+            "type": "string",
+            "maxLength": 128,
+            "description": "The value of the metadata item, stored as string regardless of type"
+          }
+        }
+      },
       "External-Reference-Information": {
         "type": "object",
         "x-examples": {
@@ -8522,6 +8922,7 @@
                 "enum": [
                   "SYSTEM",
                   "CUSTOMER",
+                  "ACCOUNT",
                   "OTHER"
                 ],
                 "default": "CUSTOMER"
@@ -8531,6 +8932,13 @@
                 "description": "The source from which specific information was sourced. This is a link to an informationSource object in the informationSources map.",
                 "example": "93da15f64-5717-4562-b3fc-2c963f6663fe",
                 "readOnly": true
+              },
+              "metadata": {
+                "type": "object",
+                "description": "Key-value pairs for storing additional metadata about the external reference",
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/External-Reference-Metadata"
+                }
               }
             }
           },
@@ -10127,9 +10535,10 @@
           "VERIFY",
           "VISA",
           "WATCHLIST",
-          "ACTIVITY"
+          "ACTIVITY",
+          "RISK"
         ],
-        "description": "General category of issue found:\n  - AML: Anti-Money Laundering issues.\n  - BAD_DATA: Indicates that the data provided is invalid or incorrect.\n  - BIOMETRICS: Issues found during a biometrics check.\n  - BLOCKLISTED: The entity has a hit on a blocklist.\n  - DECEASED: Indicates that the entity is deceased.\n  - DEVICE: Issues found during device checks.\n  - DOCUMENT: Issues found during a document check.\n  - DUPLICATE: Indicates that the entity has duplicates.\n  - EXPIRY: Indicates that a process or document for the entity has expired.\n  - FRAUD: Possible fraud detected.\n  - IDV: Issues found during an Identity Verification (IDV) process.\n  - INFORMATIONAL: Informational messages that are not issues but are required to be returned.\n  - KYC: Issues found during a Know Your Customer (KYC) process.\n  - SYSTEM: System-level issues.\n  - VERIFY: Issues found during a verification process.\n  - VISA: Issues found during a visa check.\n  - WATCHLIST: Issues found during a watchlist check.\n  - ACTIVITY: Issues found during an activity process.\n  - SUPPORTING_DOC: Issues found during a supporting document check."
+        "description": "General category of issue found:\n  - AML: Anti-Money Laundering issues.\n  - BAD_DATA: Indicates that the data provided is invalid or incorrect.\n  - BIOMETRICS: Issues found during a biometrics check.\n  - BLOCKLISTED: The entity has a hit on a blocklist.\n  - DECEASED: Indicates that the entity is deceased.\n  - DEVICE: Issues found during device checks.\n  - DOCUMENT: Issues found during a document check.\n  - DUPLICATE: Indicates that the entity has duplicates.\n  - EXPIRY: Indicates that a process or document for the entity has expired.\n  - FRAUD: Possible fraud detected.\n  - IDV: Issues found during an Identity Verification (IDV) process.\n  - INFORMATIONAL: Informational messages that are not issues but are required to be returned.\n  - KYC: Issues found during a Know Your Customer (KYC) process.\n  - SYSTEM: System-level issues.\n  - VERIFY: Issues found during a verification process.\n  - VISA: Issues found during a visa check.\n  - WATCHLIST: Issues found during a watchlist check.\n  - ACTIVITY: Issues found during an activity process.\n  - SUPPORTING_DOC: Issues found during a supporting document check.\n  - RISK: Issues related to risk assessment."
       },
       "Workflow-Issue-Type": {
         "type": "string",
@@ -10190,9 +10599,12 @@
           "ACTIVITY_EVENT",
           "ACTIVITY_DEVICE",
           "DOCUMENT_MISSING",
-          "DOCUMENTS_NOT_APPROVED"
+          "DOCUMENTS_NOT_APPROVED",
+          "RISK_THRESHOLD_HIGH",
+          "RISK_THRESHOLD_UNACCEPTABLE",
+          "RISK_THRESHOLD_MEDIUM"
         ],
-        "description": "For each category, this provides the specific issue type.\n\nAML:\n  - PEP: The entity has Politically Exposed Person (PEP) hits.\n  - SANCTION: The entity has sanction hits.\n  - MEDIA: The entity has adverse media hits.\n  - WATCHLIST: The entity has watchlist hits.\n\nBAD_DATA:\n  - BAD_DATA_NAME: Name is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_DOB: Date of Birth is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_ADDRESS: Address is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_ID: ID is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_EMAIL: Email is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_MOBILE: Mobile is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_DEVICE: Device is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_IP_ADDRESS: IP Address is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_EMAIL_ADDRESS: Email Address is required for verification but is missing or unusable due to data quality issues.\n\nBLOCKLISTED:\n  - MATCHED_INTERNAL: The entity matched an internal blocklist.\n  - MATCHED_SHARED: The entity matched a shared blocklist.\n  - MATCHED_EXTERNAL: The entity matched an external blocklist.\n\nDECEASED:\n  - DECEASED: The person whose data is being verified is deceased.\n\nDEVICE:\n  - DEVICE_FRAUD_MATCH: Fraud detected on the device.\n  - DEVICE_INVALID: The device is invalid.\n\nDUPLICATE:\n  - DUPLICATE: The entity is a duplicate of another entity.\n\nEXPIRY:\n  - REQUIRES_KYC: KYC process needs to be re-initiated.\n  - REQUIRES_IDV: IDV process needs to be re-initiated.\n  - REQUIRES_AML: AML process needs to be re-initiated.\n  - REQUIRES_VISA: Visa process needs to be re-initiated.\n\nFRAUD:\n  - FRAUD_LIST: The entity is on a fraud list.\n  - FRAUD_CHECK: Fraud detected during checks.\n  - FRAUD_DEVICE: Device fraud detected.\n  - FRAUD_IP_ADDRESS: IP address fraud detected.\n  - FRAUD_EMAIL_ADDRESS: Email address fraud detected.\n  - FRAUD_PHONE_NUMBER: Phone number fraud detected.\n\nIDV:\n  - DATA_COMPARISON: Data comparison issue.\n  - DATA_VALIDATION: Data validation issue.\n  - DATA_CONSISTENCY: Data consistency issue.\n  - VISUAL_AUTHENTICITY: Visual authenticity issue.\n  - IMAGE_INTEGRITY: Image integrity issue.\n  - COMPROMISED_DOCUMENT: Document is compromised.\n  - LIVENESS_DETECTION: Liveness detection failed.\n  - DOCUMENT_COMPARISON: Document comparison issue.\n\nINFORMATIONAL:\n  - CREDIT_HEADER: Credit header information was returned as part of a credit agency check.\n\nKYC:\n  - PARTIAL: The KYC check was only partially successful.\n  - NOT_FOUND: No match was found for the given data.\n\nOCR:\n  - OCR: The OCR data does not match what was entered by the user.\n\nSYSTEM:\n  - SERVICE_TIMEOUT: All providers have timed out.\n  - SERVICE_ERROR: All providers have returned an error or an internal error has occurred.\n\nVISA:\n  - DENY_LIST: The entity matched a visa deny list.\n  - VISA_FAILED: Visa check failed from the provider.\n\nWATCHLIST:\n  - INTERNAL_MATCH: The entity matched an internal watchlist.\n\nACTIVITY:\n  - ACTIVITY_AML: The entity has had an activity that is flagged for AML\n  - ACTIVITY_FRAUD: The entity has had an activity that is flagged for fraud\n  - ACTIVITY_EVENT: The entity has had an activity that is deemed as suspicious, but not exactly classified as either fraud or AML\n\nSUPPORTING_DOC:\n  - DOCUMENT_MISSING: The document is not provided\n  - DOCUMENTS_NOT_APPROVED: The document is not approved"
+        "description": "For each category, this provides the specific issue type.\n\nAML:\n  - PEP: The entity has Politically Exposed Person (PEP) hits.\n  - SANCTION: The entity has sanction hits.\n  - MEDIA: The entity has adverse media hits.\n  - WATCHLIST: The entity has watchlist hits.\n\nBAD_DATA:\n  - BAD_DATA_NAME: Name is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_DOB: Date of Birth is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_ADDRESS: Address is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_ID: ID is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_EMAIL: Email is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_MOBILE: Mobile is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_DEVICE: Device is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_IP_ADDRESS: IP Address is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_EMAIL_ADDRESS: Email Address is required for verification but is missing or unusable due to data quality issues.\n\nBLOCKLISTED:\n  - MATCHED_INTERNAL: The entity matched an internal blocklist.\n  - MATCHED_SHARED: The entity matched a shared blocklist.\n  - MATCHED_EXTERNAL: The entity matched an external blocklist.\n\nDECEASED:\n  - DECEASED: The person whose data is being verified is deceased.\n\nDEVICE:\n  - DEVICE_FRAUD_MATCH: Fraud detected on the device.\n  - DEVICE_INVALID: The device is invalid.\n\nDUPLICATE:\n  - DUPLICATE: The entity is a duplicate of another entity.\n\nEXPIRY:\n  - REQUIRES_KYC: KYC process needs to be re-initiated.\n  - REQUIRES_IDV: IDV process needs to be re-initiated.\n  - REQUIRES_AML: AML process needs to be re-initiated.\n  - REQUIRES_VISA: Visa process needs to be re-initiated.\n\nFRAUD:\n  - FRAUD_LIST: The entity is on a fraud list.\n  - FRAUD_CHECK: Fraud detected during checks.\n  - FRAUD_DEVICE: Device fraud detected.\n  - FRAUD_IP_ADDRESS: IP address fraud detected.\n  - FRAUD_EMAIL_ADDRESS: Email address fraud detected.\n  - FRAUD_PHONE_NUMBER: Phone number fraud detected.\n\nIDV:\n  - DATA_COMPARISON: Data comparison issue.\n  - DATA_VALIDATION: Data validation issue.\n  - DATA_CONSISTENCY: Data consistency issue.\n  - VISUAL_AUTHENTICITY: Visual authenticity issue.\n  - IMAGE_INTEGRITY: Image integrity issue.\n  - COMPROMISED_DOCUMENT: Document is compromised.\n  - LIVENESS_DETECTION: Liveness detection failed.\n  - DOCUMENT_COMPARISON: Document comparison issue.\n\nINFORMATIONAL:\n  - CREDIT_HEADER: Credit header information was returned as part of a credit agency check.\n\nKYC:\n  - PARTIAL: The KYC check was only partially successful.\n  - NOT_FOUND: No match was found for the given data.\n\nOCR:\n  - OCR: The OCR data does not match what was entered by the user.\n\nSYSTEM:\n  - SERVICE_TIMEOUT: All providers have timed out.\n  - SERVICE_ERROR: All providers have returned an error or an internal error has occurred.\n\nVISA:\n  - DENY_LIST: The entity matched a visa deny list.\n  - VISA_FAILED: Visa check failed from the provider.\n\nWATCHLIST:\n  - INTERNAL_MATCH: The entity matched an internal watchlist.\n\nACTIVITY:\n  - ACTIVITY_AML: The entity has had an activity that is flagged for AML\n  - ACTIVITY_FRAUD: The entity has had an activity that is flagged for fraud\n  - ACTIVITY_EVENT: The entity has had an activity that is deemed as suspicious, but not exactly classified as either fraud or AML\n\nSUPPORTING_DOC:\n  - DOCUMENT_MISSING: The document is not provided\n  - DOCUMENTS_NOT_APPROVED: The document is not approved\n\nRISK:\n  - RISK_THRESHOLD_HIGH: The risk threshold is too high\n  - RISK_THRESHOLD_MEDIUM: The risk threshold is medium\n  - RISK_THRESHOLD_UNACCEPTABLE: The risk threshold is unacceptable\n  "
       },
       "Workflow-Issue-Severity": {
         "type": "string",
@@ -10752,26 +11164,177 @@
           }
         }
       },
+      "Workflow-Definition-Variable": {
+        "type": "object",
+        "description": "Workflow variable definition",
+        "required": [
+          "name",
+          "type"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the variable",
+            "example": "customerEmail"
+          },
+          "type": {
+            "type": "string",
+            "description": "Type of the variable",
+            "default": "STRING",
+            "enum": [
+              "STRING",
+              "NUMBER",
+              "BOOLEAN",
+              "OBJECT",
+              "ARRAY"
+            ],
+            "example": "STRING"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the variable",
+            "example": "Customer's email address"
+          },
+          "example": {
+            "type": "string",
+            "description": "Example value of the variable",
+            "example": "customer@example.com"
+          },
+          "default": {
+            "type": "string",
+            "description": "Default value of the variable if not provided",
+            "example": ""
+          }
+        }
+      },
       "Workflow-Definition": {
         "type": "object",
         "description": "Workflow definition",
         "properties": {
-          "definitionUpdatedAt": {
-            "description": "The date and time the workflow was last updated",
-            "type": "string",
-            "format": "date-time",
-            "example": "2023-01-15T02:18:11.365Z"
-          },
           "version": {
-            "description": "The version of the workflow",
-            "type": "string",
-            "example": "v1"
+            "description": "The version number of this workflow definition",
+            "type": "integer",
+            "example": 3
           },
           "steps": {
+            "deprecated": true,
             "description": "The steps of the workflow",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/Workflow-Step"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the workflow definition was first created",
+            "example": "2023-01-01T12:00:00Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the workflow definition was last updated",
+            "example": "2023-01-02T14:30:00Z"
+          },
+          "definitionId": {
+            "type": "string",
+            "description": "Unique identifier for the workflow defintion",
+            "example": "01KCG5V9H4ZQC5T1H4A2ZZHWA",
+            "format": "ulid"
+          },
+          "name": {
+            "type": "string",
+            "description": "Human-readable name for the workflow",
+            "example": "Customer Verification Workflow"
+          },
+          "owner": {
+            "type": "string",
+            "description": "Owner of the workflow",
+            "default": "SYSTEM",
+            "example": "SYSTEM"
+          },
+          "description": {
+            "type": "string",
+            "description": "Optional detailed description of the workflow",
+            "example": "Workflow to verify new customer identities, including KYC and AML checks."
+          },
+          "tags": {
+            "type": "array",
+            "description": "Tags associated with the workflow",
+            "items": {
+              "type": "string"
+            },
+            "default": [],
+            "example": [
+              "customer-verification",
+              "aml",
+              "kyc"
+            ]
+          },
+          "isTemplate": {
+            "type": "boolean",
+            "description": "Whether the workflow is a template",
+            "default": false,
+            "example": false
+          },
+          "isDraft": {
+            "type": "boolean",
+            "description": "Whether the workflow definition is a draft",
+            "default": false
+          },
+          "versionId": {
+            "type": "string",
+            "format": "ulid",
+            "description": "Version identifier to refer to",
+            "example": "01KCNG5VAH4ZQC5T1H4A2ZZHWA"
+          },
+          "versions": {
+            "type": "array",
+            "description": "List of available versions for this workflow definition",
+            "items": {
+              "type": "integer"
+            },
+            "example": [
+              1,
+              2,
+              3
+            ]
+          },
+          "createdBy": {
+            "type": "string",
+            "description": "User who created the workflow definition",
+            "example": "John Doe"
+          },
+          "updatedBy": {
+            "type": "string",
+            "description": "User who last updated the workflow definition",
+            "example": "Jane Smith"
+          },
+          "variables": {
+            "type": "array",
+            "description": "Workflow-level variables that can be referenced in task configurations using template syntax, these would be validated into the initial state on workflow execution",
+            "items": {
+              "$ref": "#/components/schemas/Workflow-Definition-Variable"
+            }
+          },
+          "initialState": {
+            "type": "object",
+            "description": "Initial state for the workflow execution",
+            "default": {},
+            "example": {
+              "name": "John Doe",
+              "age": 30
+            }
+          },
+          "defaultErrorHandling": {
+            "type": "object",
+            "description": "Default error handling configuration for the workflow"
+          },
+          "tasks": {
+            "type": "array",
+            "description": "Tasks in the workflow",
+            "items": {
+              "type": "object"
             }
           }
         }
@@ -11820,6 +12383,34 @@
           }
         }
       },
+      "Report-Type": {
+        "type": "string",
+        "enum": [
+          "ORGANIZATION_PROFILE",
+          "ORGANIZATION_OWNERSHIP"
+        ],
+        "description": "Type of Frankie generated report."
+      },
+      "Workflow-Step-Summary-Report": {
+        "type": "object",
+        "required": [
+          "stepName"
+        ],
+        "properties": {
+          "stepName": {
+            "type": "string"
+          },
+          "reportType": {
+            "$ref": "#/components/schemas/Report-Type"
+          },
+          "documentId": {
+            "type": "string"
+          },
+          "attachmentId": {
+            "type": "string"
+          }
+        }
+      },
       "Workflow-Step-Summary": {
         "type": "object",
         "oneOf": [
@@ -11861,6 +12452,9 @@
           },
           {
             "$ref": "#/components/schemas/Workflow-Step-Summary-SupportDoc"
+          },
+          {
+            "$ref": "#/components/schemas/Workflow-Step-Summary-Report"
           }
         ],
         "discriminator": {
@@ -11878,7 +12472,8 @@
             "DUPLICATE": "#/components/schemas/Workflow-Step-Summary-Duplicate",
             "ACTIVITY_MONITOR": "#/components/schemas/Workflow-Step-Summary-Activity-Monitor",
             "FRAUD": "#/components/schemas/Workflow-Step-Summary-Fraud",
-            "SUPPORT_DOCUMENTS_CHECK": "#/components/schemas/Workflow-Step-Summary-SupportDoc"
+            "SUPPORT_DOCUMENTS_CHECK": "#/components/schemas/Workflow-Step-Summary-SupportDoc",
+            "REPORT": "#/components/schemas/Workflow-Step-Summary-Report"
           }
         }
       },
@@ -12084,6 +12679,11 @@
           "ACTIVITY"
         ],
         "readOnly": true
+      },
+      "Process-Result-SubClass": {
+        "type": "string",
+        "pattern": "^[A-Z_]+$",
+        "description": "the subclass must be in SCREAMING_SNAKE_CASE"
       },
       "Supplementary-Data-Base": {
         "type": "object",
@@ -13659,6 +14259,34 @@
           }
         }
       },
+      "Party-Risk-Signals": {
+        "type": "object",
+        "description": "Risk level signals for party attributes",
+        "readOnly": true,
+        "properties": {
+          "email": {
+            "$ref": "#/components/schemas/Risk-Level"
+          },
+          "emailDomain": {
+            "$ref": "#/components/schemas/Risk-Level"
+          },
+          "address": {
+            "$ref": "#/components/schemas/Risk-Level"
+          },
+          "phone": {
+            "$ref": "#/components/schemas/Risk-Level"
+          }
+        }
+      },
+      "Party-Detail-Risk-Signals": {
+        "type": "object",
+        "description": "Risk signals for party details",
+        "properties": {
+          "riskSignals": {
+            "$ref": "#/components/schemas/Party-Risk-Signals"
+          }
+        }
+      },
       "Party-Detail": {
         "type": "object",
         "description": "A party describes the details of one of the parties in a given transaction. It can be used to \ndescribe any participant.\n\nA party can only either be an individual or an organization.\n\nTo evaluate a party, you need to provide the details about the party involved by:\n* Using an existing entity data: Include the entityId in the party object. The data will be extracted from the entity in the FrankieOne system.\n* Filling in the details: Include the specific details within the party object. Data provided here will take precedence over the entity data but will not enrich the entity details in the FrankieOne system.\n",
@@ -13668,6 +14296,9 @@
           },
           {
             "$ref": "#/components/schemas/Party-Detail-Contact"
+          },
+          {
+            "$ref": "#/components/schemas/Party-Detail-Risk-Signals"
           }
         ]
       },
@@ -13748,7 +14379,14 @@
           "EMAIL_CHANGE",
           "ACCOUNT_UPDATE",
           "2FA_UPDATE",
-          "PAYMENT_METHOD_LINK"
+          "PAYMENT_METHOD_LINK",
+          "ACCOUNT_CREATE",
+          "LOGIN_FAIL",
+          "INSUFFICIENT_FUNDS",
+          "KYC_FAIL",
+          "KYC_PASS",
+          "CHALLENGE_FAIL",
+          "CHALLENGE_PASS"
         ]
       },
       "Event": {
@@ -14082,6 +14720,9 @@
           },
           "numberDistractionEvents": {
             "type": "integer"
+          },
+          "riskLevel": {
+            "$ref": "#/components/schemas/Risk-Level"
           }
         }
       },
@@ -14137,6 +14778,12 @@
           },
           "botLikelihood": {
             "$ref": "#/components/schemas/Likelihood"
+          },
+          "remoteSoftwareLikelihood": {
+            "$ref": "#/components/schemas/Likelihood"
+          },
+          "osAnomaly": {
+            "$ref": "#/components/schemas/Risk-Level"
           }
         }
       },
@@ -14253,9 +14900,8 @@
           }
         }
       },
-      "IP-Information": {
+      "IP-Addresses": {
         "type": "object",
-        "description": "IP information, typically in relation to a device",
         "properties": {
           "v4Address": {
             "type": "string",
@@ -14266,26 +14912,40 @@
             "type": "string",
             "description": "The IPv6 address",
             "format": "ipv6"
-          },
-          "trueAddress": {
-            "type": "string",
-            "description": "The true IP address"
-          },
-          "asn": {
-            "type": "string",
-            "description": "The ASN of the IP address"
-          },
-          "connectionType": {
-            "type": "string",
-            "description": "The type of IP connection (if available)",
-            "example": [
-              "Fixed Line ISP"
-            ]
-          },
-          "location": {
-            "$ref": "#/components/schemas/Geolocation"
           }
         }
+      },
+      "IP-Information": {
+        "type": "object",
+        "description": "IP information, typically in relation to a device",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/IP-Addresses"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "trueAddress": {
+                "type": "string",
+                "description": "The true IP address"
+              },
+              "asn": {
+                "type": "string",
+                "description": "The ASN of the IP address"
+              },
+              "connectionType": {
+                "type": "string",
+                "description": "The type of IP connection (if available)",
+                "example": [
+                  "Fixed Line ISP"
+                ]
+              },
+              "location": {
+                "$ref": "#/components/schemas/Geolocation"
+              }
+            }
+          }
+        ]
       },
       "Device": {
         "type": "object",
@@ -14312,6 +14972,65 @@
             }
           }
         ]
+      },
+      "Activity-Result-Manual-Status": {
+        "type": "string",
+        "enum": [
+          "FALSE_POSITIVE",
+          "TRUE_POSITIVE_ACCEPT",
+          "TRUE_POSITIVE_REJECT",
+          "IN_REVIEW"
+        ],
+        "description": "The status of the result.\n- FALSE_POSITIVE: When the result is determined to be false positive and the activity is within the risk profile to continue.\n- TRUE_POSITIVE_ACCEPT: When the result is determined to be true positive and the activity is within the risk profile to continue.\n- TRUE_POSITIVE_REJECT: When the result is determined to be true positive and the activity is NOT within the risk profile to continue.\n- IN_REVIEW: When the activity has been picked up for review.\n"
+      },
+      "Activity-Result-ID": {
+        "type": "string",
+        "readOnly": true,
+        "description": "Activity Result ID that identifies a result from an evaluation of an activity",
+        "format": "ulid"
+      },
+      "Activity-Result-Class": {
+        "type": "string",
+        "description": "The class of the activity result (AML, FRAUD, EVENT)",
+        "enum": [
+          "AML",
+          "FRAUD",
+          "EVENT"
+        ]
+      },
+      "Activities-Process-Result-Link": {
+        "type": "object",
+        "description": "This object includes link details between relatedActivities and a processResult.\n",
+        "properties": {
+          "processResultId": {
+            "$ref": "#/components/schemas/Process-Result-ID"
+          },
+          "relatedActivityIds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Activity-ID"
+            }
+          },
+          "manualStatus": {
+            "$ref": "#/components/schemas/Activity-Result-Manual-Status"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The timestamp that the process result was created"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The timestamp that the process result was updated"
+          },
+          "activityResultId": {
+            "$ref": "#/components/schemas/Activity-Result-ID"
+          },
+          "class": {
+            "$ref": "#/components/schemas/Activity-Result-Class"
+          }
+        }
       },
       "Activity-Base": {
         "type": "object",
@@ -14340,6 +15059,13 @@
             "type": "string",
             "format": "ulid",
             "description": "The request ID associated to the activity being submitted"
+          },
+          "relatedProcessResults": {
+            "type": "array",
+            "readOnly": true,
+            "items": {
+              "$ref": "#/components/schemas/Activities-Process-Result-Link"
+            }
           }
         }
       },
@@ -14347,12 +15073,6 @@
         "type": "string",
         "description": "The ID of the evaluation",
         "readOnly": true,
-        "format": "ulid"
-      },
-      "Activity-Result-ID": {
-        "type": "string",
-        "readOnly": true,
-        "description": "Activity Result ID that identifies a result from an evaluation of an activity",
         "format": "ulid"
       },
       "Result-Reference-Type": {
@@ -14453,6 +15173,13 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/Supplementary-Data-Activity-Result-Detail-Indicator"
+            }
+          },
+          "relatedActivityIds": {
+            "description": "The related activity ids.\n",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Activity-ID"
             }
           }
         }
@@ -14983,6 +15710,9 @@
           },
           "class": {
             "$ref": "#/components/schemas/Process-Result-ClassEnum"
+          },
+          "subClass": {
+            "$ref": "#/components/schemas/Process-Result-SubClass"
           },
           "supplementaryData": {
             "$ref": "#/components/schemas/Supplementary-Data"
@@ -16026,6 +16756,56 @@
       "IDV-InitProcess-Response": {
         "type": "object",
         "description": "Init Process Response, used after retrieval of IDV reports from a provider. For providers that support it, this will synchronously report all report results from the provider. For providers that do not support synchronous reporting, this will request the reports and return a request id and status. The status can be polled for the final result or sent via webhook",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "COMPLETE",
+            "description": "Status of the process. Status can be one of:\n- IN_PROGRESS - the provider has been sent the request and is currently still processing the result\n- CHECK_PROCESSING_DOWNLOAD_FAIL  - the provider has been sent the request and is currently still processing the result, there was an issue downloading the images that will be retried later automatically\n- WAITING_SELFIE_UPLOAD - the selfie has not been uploaded yet by the applicant, still awaiting applicant action\n- CHECK_PROCESSING - the provider has been sent the request and is currently still processing the result\n- DOCUMENT_INVALID_EXCEEDED_SIZE_LIMIT - the document is too large to be processed\n- DOCUMENT_INVALID_INCORRECT_FILE_FORMAT - the document is not a supported file format, mostly only jpeg and png are supported but this is provider specific\n- PROVIDER_OFFLINE - the provider is not available for processing the request\n- COMPLETE - process is valid and completed\n",
+            "enum": [
+              "IN_PROGRESS",
+              "CHECK_PROCESSING_DOWNLOAD_FAIL",
+              "WAITING_SELFIE_UPLOAD",
+              "CHECK_PROCESSING",
+              "DOCUMENT_INVALID_EXCEEDED_SIZE_LIMIT",
+              "DOCUMENT_INVALID_INCORRECT_FILE_FORMAT",
+              "PROVIDER_OFFLINE",
+              "COMPLETE"
+            ]
+          },
+          "requestId": {
+            "$ref": "#/components/schemas/Request-ID"
+          },
+          "workflowExecutionId": {
+            "type": "string",
+            "description": "If a workflow was run as part of the processing, this is the workflow execution id"
+          },
+          "ocrResult": {
+            "$ref": "#/components/schemas/Process-Result-Object"
+          }
+        }
+      },
+      "IDV-CheckStatus-Request": {
+        "type": "object",
+        "description": "IDV check status request",
+        "required": [
+          "token"
+        ],
+        "properties": {
+          "providerReferenceId": {
+            "description": "provider reference Id if known. May be referred to as checkId or interviewId in vendor specific document",
+            "example": "41cf9401f0f889616bef",
+            "type": "string"
+          },
+          "token": {
+            "description": "token for the idv check",
+            "example": "41cf9401f0f889616bef",
+            "type": "string"
+          }
+        }
+      },
+      "IDV-CheckStatus-Response": {
+        "type": "object",
+        "description": "IDV check status response",
         "properties": {
           "status": {
             "type": "string",
