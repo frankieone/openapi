@@ -1083,26 +1083,6 @@
           "registeredName": {
             "type": "string",
             "description": "The registered name of the organization"
-          },
-          "registeredSubdivision": {
-            "description": "The subdivision that the organization was registered at",
-            "type": "string"
-          },
-          "registeredCountry": {
-            "description": "The country that the organization was registered at",
-            "type": "string"
-          },
-          "registrationNumber": {
-            "description": "The registration number of the organization in the registry",
-            "type": "string"
-          },
-          "registrationNumberType": {
-            "description": "The type of the registration number, e.g. ACN, ABN, etc",
-            "type": "string"
-          },
-          "registrationNumberDescription": {
-            "description": "The description of type of the registration number, e.g. Australian Company Number, Australian Business Number, etc",
-            "type": "string"
           }
         }
       },
