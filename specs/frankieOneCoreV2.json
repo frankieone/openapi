@@ -6844,17 +6844,6 @@
             "type": "string",
             "readOnly": true
           },
-          "organizationType": {
-            "type": "string",
-            "example": "SOLE TRADER",
-            "readOnly": true
-          },
-          "country": {
-            "type": "string",
-            "description": "The ISO 3166 alpha-3 code representing the individual's country of residence or the business's country of registration.",
-            "example": "AUS",
-            "readOnly": true
-          },
           "schemaVersion": {
             "type": "integer",
             "description": "The version number of the schema.",
