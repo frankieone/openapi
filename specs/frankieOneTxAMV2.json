@@ -138,6 +138,36 @@
               }
             }
           },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
           "500": {
             "description": "Internal Server Error",
             "content": {
@@ -194,6 +224,9 @@
           },
           {
             "$ref": "#/components/parameters/query_activity_result_classes"
+          },
+          {
+            "$ref": "#/components/parameters/query_activity_ids"
           },
           {
             "$ref": "#/components/parameters/query_sort_field"
@@ -623,6 +656,25 @@
         "style": "form",
         "explode": false
       },
+      "query_activity_ids": {
+        "name": "activityIds",
+        "in": "query",
+        "description": "Activity IDs to filter activities by",
+        "required": false,
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "description": "Activity ID to filter activities"
+          }
+        },
+        "style": "form",
+        "explode": false,
+        "example": [
+          "01KB4E05PVMS5Y6TXBCPTMWJZK",
+          "01KB4E05PVMS5Y6TXBCPTMWJZL"
+        ]
+      },
       "query_sort_field": {
         "name": "sortField",
         "in": "query",
@@ -719,6 +771,47 @@
         ],
         "description": "The type of entity within Frankie. This can be \"INDIVIDUAL\", \"ORGANIZATION\", or \"UNKNOWN\"."
       },
+      "External-Reference-Metadata-TypeEnum": {
+        "type": "string",
+        "default": "STRING",
+        "enum": [
+          "STRING",
+          "INTEGER",
+          "FLOAT",
+          "BOOLEAN",
+          "DATE",
+          "DATE_TIME"
+        ],
+        "description": "The type of the external reference metadata value"
+      },
+      "External-Reference-Metadata": {
+        "type": "object",
+        "required": [
+          "type",
+          "value"
+        ],
+        "x-examples": {
+          "String Metadata": {
+            "type": "STRING",
+            "value": "2024-01-15"
+          },
+          "Number Metadata": {
+            "type": "NUMBER",
+            "value": "100"
+          }
+        },
+        "description": "Metadata item for external reference with typed value",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/External-Reference-Metadata-TypeEnum"
+          },
+          "value": {
+            "type": "string",
+            "maxLength": 128,
+            "description": "The value of the metadata item, stored as string regardless of type"
+          }
+        }
+      },
       "External-Reference-Information": {
         "type": "object",
         "x-examples": {
@@ -761,14 +854,14 @@
               "referenceId": {
                 "type": "string",
                 "description": "As external references are added to an entity, they are assigned a unique identifier to assist with modification and reference.\nTo modify an external reference, include the referenceId in an update request for the individual.",
-                "example": "24de15f64-5717-4562-b3fc-2c963f66e23e",
-                "readOnly": true
+                "example": "24de15f64-5717-4562-b3fc-2c963f66e23e"
               },
               "type": {
                 "type": "string",
                 "enum": [
                   "SYSTEM",
                   "CUSTOMER",
+                  "ACCOUNT",
                   "OTHER"
                 ],
                 "default": "CUSTOMER"
@@ -778,6 +871,19 @@
                 "description": "The source from which specific information was sourced. This is a link to an informationSource object in the informationSources map.",
                 "example": "93da15f64-5717-4562-b3fc-2c963f6663fe",
                 "readOnly": true
+              },
+              "metadata": {
+                "type": "object",
+                "description": "Key-value pairs for storing additional metadata about the external reference",
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/External-Reference-Metadata"
+                }
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time",
+                "readOnly": true,
+                "description": "The date and time the external reference was last updated. ISO 8601 format."
               }
             }
           },
@@ -851,6 +957,12 @@
             "type": "string",
             "example": "John Doe",
             "description": "Long format of the individual's full name, including any prefix, suffix, middle, or other names. Best used when the proper structure of the individual's name is unknown."
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true,
+            "description": "The date and time the name was last updated. ISO 8601 format."
           }
         }
       },
@@ -934,6 +1046,12 @@
                 "type": "string",
                 "description": "The source from which specific information was sourced. This is a link to an informationSource object in the informationSources map.",
                 "readOnly": true
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time",
+                "readOnly": true,
+                "description": "The date and time the date of birth was last updated. ISO 8601 format."
               }
             }
           },
@@ -1053,6 +1171,12 @@
           "addressId": {
             "type": "string",
             "description": "As addresses are added to an entity, they are assigned an ID to assist with tracking."
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true,
+            "description": "The date and time the address was last updated. ISO 8601 format."
           },
           "sourceId": {
             "type": "string",
@@ -1215,6 +1339,12 @@
           "unstructuredLongForm": {
             "type": "string",
             "description": "Used to capture free-form phone numbers or to store numbers that could not be normalized."
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true,
+            "description": "The date and time the phone number was last updated. ISO 8601 format."
           }
         }
       },
@@ -1270,6 +1400,12 @@
                 }
               }
             }
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true,
+            "description": "The date and time the email address was last updated. ISO 8601 format."
           }
         }
       },
@@ -1296,6 +1432,45 @@
           }
         }
       },
+      "Risk-Level": {
+        "type": "string",
+        "enum": [
+          "UNKNOWN",
+          "LOW",
+          "MEDIUM",
+          "HIGH",
+          "UNACCEPTABLE"
+        ],
+        "description": "The risk level classification:\n  - UNKNOWN: Risk level is not determined.\n  - LOW: Low risk.\n  - MEDIUM: Medium risk.\n  - HIGH: High risk.\n  - UNACCEPTABLE: Risk level is unacceptable.\n"
+      },
+      "Party-Risk-Signals": {
+        "type": "object",
+        "description": "Risk level signals for party attributes",
+        "readOnly": true,
+        "properties": {
+          "email": {
+            "$ref": "#/components/schemas/Risk-Level"
+          },
+          "emailDomain": {
+            "$ref": "#/components/schemas/Risk-Level"
+          },
+          "address": {
+            "$ref": "#/components/schemas/Risk-Level"
+          },
+          "phone": {
+            "$ref": "#/components/schemas/Risk-Level"
+          }
+        }
+      },
+      "Party-Detail-Risk-Signals": {
+        "type": "object",
+        "description": "Risk signals for party details",
+        "properties": {
+          "riskSignals": {
+            "$ref": "#/components/schemas/Party-Risk-Signals"
+          }
+        }
+      },
       "Party-Detail": {
         "type": "object",
         "description": "A party describes the details of one of the parties in a given transaction. It can be used to \ndescribe any participant.\n\nA party can only either be an individual or an organization.\n\nTo evaluate a party, you need to provide the details about the party involved by:\n* Using an existing entity data: Include the entityId in the party object. The data will be extracted from the entity in the FrankieOne system.\n* Filling in the details: Include the specific details within the party object. Data provided here will take precedence over the entity data but will not enrich the entity details in the FrankieOne system.\n",
@@ -1305,6 +1480,9 @@
           },
           {
             "$ref": "#/components/schemas/Party-Detail-Contact"
+          },
+          {
+            "$ref": "#/components/schemas/Party-Detail-Risk-Signals"
           }
         ]
       },
@@ -1385,7 +1563,14 @@
           "EMAIL_CHANGE",
           "ACCOUNT_UPDATE",
           "2FA_UPDATE",
-          "PAYMENT_METHOD_LINK"
+          "PAYMENT_METHOD_LINK",
+          "ACCOUNT_CREATE",
+          "LOGIN_FAIL",
+          "INSUFFICIENT_FUNDS",
+          "KYC_FAIL",
+          "KYC_PASS",
+          "CHALLENGE_FAIL",
+          "CHALLENGE_PASS"
         ]
       },
       "Event": {
@@ -1640,6 +1825,11 @@
           "transactionIdentifier": {
             "type": "string",
             "description": "A payment identifier supplied by an external party / source to associate with this party in the transaction.\nThis should be a unique reference for the customer to tie their transaction records to FrankieOne data."
+          },
+          "transactionLabel": {
+            "type": "string",
+            "description": "Custom display name for the transaction (e.g., FIAT WITHDRAWAL, CRYPTO DEPOSIT) \nto make transactions more easily distinguishable and meaningful in the portal \nand downstream systems.\n",
+            "maxLength": 128
           }
         }
       },
@@ -1706,6 +1896,30 @@
           }
         }
       },
+      "IP-Addresses": {
+        "type": "object",
+        "properties": {
+          "v4Address": {
+            "type": "string",
+            "description": "The IPv4 address",
+            "format": "ipv4"
+          },
+          "v6Address": {
+            "type": "string",
+            "description": "The IPv6 address",
+            "format": "ipv6"
+          }
+        }
+      },
+      "Activity-Evaluate-Req-Device-Input": {
+        "type": "object",
+        "description": "The device information for the activity, you may only provide one IPv4 or IPv6 address.",
+        "properties": {
+          "ipAddressInformation": {
+            "$ref": "#/components/schemas/IP-Addresses"
+          }
+        }
+      },
       "Activity-Evaluate-Req-Body": {
         "type": "object",
         "description": "Input data for activity evaluation.\n\nA session token is an identifier that will link together activities done in the same end user session to identify the grouping of activities that belong together. It is represented in FrankieOne as a ULID but can differ if not FrankieOne generated.\n\nThe session token may  be provided to tie in the activity to a longer running overall session. There are a few options for session tokens:\n* A session token may not be provided. It is optional to provide but there must be configuration in your account to allow this - FrankieOne will generate a session token on your behalf to identify the overarching session, you may then use this for further calls for the extent of the service. This is not recommended when device signals are important to your use case.\n* A session token generated on the client side and not registered with FrankieOne. The client can generate some sort of unique ID to identify the session and provide that at the time of call and manage the session token for the duration of the session. This can be used when device signals are required.\n* A session token can be generated in a seperate API within FrankieOne - Refer to the `Create Individual Session` API. This will register the session in FrankieOne and tie it to the individual of interest. There is configuration in your account which can enforce session ownership to avoid clients modifying the session token, adding another layer of security. This can be used when device signals are required.\n",
@@ -1722,6 +1936,9 @@
           },
           "detail": {
             "$ref": "#/components/schemas/Activity-Detail"
+          },
+          "device": {
+            "$ref": "#/components/schemas/Activity-Evaluate-Req-Device-Input"
           }
         }
       },
@@ -1747,17 +1964,6 @@
         "description": "Activity ID that identifies an activity within the FrankieOne platform",
         "format": "ulid"
       },
-      "Risk-Level": {
-        "type": "string",
-        "enum": [
-          "UNKNOWN",
-          "LOW",
-          "MEDIUM",
-          "HIGH",
-          "UNACCEPTABLE"
-        ],
-        "description": "The risk level classification:\n  - UNKNOWN: Risk level is not determined.\n  - LOW: Low risk.\n  - MEDIUM: Medium risk.\n  - HIGH: High risk.\n  - UNACCEPTABLE: Risk level is unacceptable.\n"
-      },
       "Behavior-Biometrics": {
         "type": "object",
         "properties": {
@@ -1771,6 +1977,9 @@
           },
           "numberDistractionEvents": {
             "type": "integer"
+          },
+          "riskLevel": {
+            "$ref": "#/components/schemas/Risk-Level"
           }
         }
       },
@@ -1826,6 +2035,12 @@
           },
           "botLikelihood": {
             "$ref": "#/components/schemas/Likelihood"
+          },
+          "remoteSoftwareLikelihood": {
+            "$ref": "#/components/schemas/Likelihood"
+          },
+          "osAnomaly": {
+            "$ref": "#/components/schemas/Risk-Level"
           }
         }
       },
@@ -1945,36 +2160,34 @@
       "IP-Information": {
         "type": "object",
         "description": "IP information, typically in relation to a device",
-        "properties": {
-          "v4Address": {
-            "type": "string",
-            "description": "The IPv4 address",
-            "format": "ipv4"
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/IP-Addresses"
           },
-          "v6Address": {
-            "type": "string",
-            "description": "The IPv6 address",
-            "format": "ipv6"
-          },
-          "trueAddress": {
-            "type": "string",
-            "description": "The true IP address"
-          },
-          "asn": {
-            "type": "string",
-            "description": "The ASN of the IP address"
-          },
-          "connectionType": {
-            "type": "string",
-            "description": "The type of IP connection (if available)",
-            "example": [
-              "Fixed Line ISP"
-            ]
-          },
-          "location": {
-            "$ref": "#/components/schemas/Geolocation"
+          {
+            "type": "object",
+            "properties": {
+              "trueAddress": {
+                "type": "string",
+                "description": "The true IP address"
+              },
+              "asn": {
+                "type": "string",
+                "description": "The ASN of the IP address"
+              },
+              "connectionType": {
+                "type": "string",
+                "description": "The type of IP connection (if available)",
+                "example": [
+                  "Fixed Line ISP"
+                ]
+              },
+              "location": {
+                "$ref": "#/components/schemas/Geolocation"
+              }
+            }
           }
-        }
+        ]
       },
       "Device": {
         "type": "object",
@@ -2001,6 +2214,70 @@
             }
           }
         ]
+      },
+      "Process-Result-ID": {
+        "type": "string",
+        "description": "When a process result object is first created, it is assigned an ID. When updating the process result object, set the processResultID to the ID of the process result object you are referring to.",
+        "readOnly": true
+      },
+      "Activity-Result-Manual-Status": {
+        "type": "string",
+        "enum": [
+          "FALSE_POSITIVE",
+          "TRUE_POSITIVE_ACCEPT",
+          "TRUE_POSITIVE_REJECT",
+          "IN_REVIEW"
+        ],
+        "description": "The status of the result.\n- FALSE_POSITIVE: When the result is determined to be false positive and the activity is within the risk profile to continue.\n- TRUE_POSITIVE_ACCEPT: When the result is determined to be true positive and the activity is within the risk profile to continue.\n- TRUE_POSITIVE_REJECT: When the result is determined to be true positive and the activity is NOT within the risk profile to continue.\n- IN_REVIEW: When the activity has been picked up for review.\n"
+      },
+      "Activity-Result-ID": {
+        "type": "string",
+        "readOnly": true,
+        "description": "Activity Result ID that identifies a result from an evaluation of an activity",
+        "format": "ulid"
+      },
+      "Activity-Result-Class": {
+        "type": "string",
+        "description": "The class of the activity result (AML, FRAUD, EVENT)",
+        "enum": [
+          "AML",
+          "FRAUD",
+          "EVENT"
+        ]
+      },
+      "Activities-Process-Result-Link": {
+        "type": "object",
+        "description": "This object includes link details between relatedActivities and a processResult.\n",
+        "properties": {
+          "processResultId": {
+            "$ref": "#/components/schemas/Process-Result-ID"
+          },
+          "relatedActivityIds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Activity-ID"
+            }
+          },
+          "manualStatus": {
+            "$ref": "#/components/schemas/Activity-Result-Manual-Status"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The timestamp that the process result was created"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The timestamp that the process result was updated"
+          },
+          "activityResultId": {
+            "$ref": "#/components/schemas/Activity-Result-ID"
+          },
+          "class": {
+            "$ref": "#/components/schemas/Activity-Result-Class"
+          }
+        }
       },
       "Activity-Base": {
         "type": "object",
@@ -2029,6 +2306,13 @@
             "type": "string",
             "format": "ulid",
             "description": "The request ID associated to the activity being submitted"
+          },
+          "relatedProcessResults": {
+            "type": "array",
+            "readOnly": true,
+            "items": {
+              "$ref": "#/components/schemas/Activities-Process-Result-Link"
+            }
           }
         }
       },
@@ -2042,36 +2326,6 @@
         "description": "The ID of the evaluation",
         "readOnly": true,
         "format": "ulid"
-      },
-      "Activity-Result-ID": {
-        "type": "string",
-        "readOnly": true,
-        "description": "Activity Result ID that identifies a result from an evaluation of an activity",
-        "format": "ulid"
-      },
-      "Process-Result-ID": {
-        "type": "string",
-        "description": "When a process result object is first created, it is assigned an ID. When updating the process result object, set the processResultID to the ID of the process result object you are referring to.",
-        "readOnly": true
-      },
-      "Activity-Result-Class": {
-        "type": "string",
-        "description": "The class of the activity result (AML, FRAUD, EVENT)",
-        "enum": [
-          "AML",
-          "FRAUD",
-          "EVENT"
-        ]
-      },
-      "Activity-Result-Manual-Status": {
-        "type": "string",
-        "enum": [
-          "FALSE_POSITIVE",
-          "TRUE_POSITIVE_ACCEPT",
-          "TRUE_POSITIVE_REJECT",
-          "IN_REVIEW"
-        ],
-        "description": "The status of the result.\n- FALSE_POSITIVE: When the result is determined to be false positive and the activity is within the risk profile to continue.\n- TRUE_POSITIVE_ACCEPT: When the result is determined to be true positive and the activity is within the risk profile to continue.\n- TRUE_POSITIVE_REJECT: When the result is determined to be true positive and the activity is NOT within the risk profile to continue.\n- IN_REVIEW: When the activity has been picked up for review.\n"
       },
       "Indicator-ID": {
         "type": "string",
@@ -2566,6 +2820,11 @@
           "ACTIVITY"
         ],
         "readOnly": true
+      },
+      "Process-Result-SubClass": {
+        "type": "string",
+        "pattern": "^[A-Z_]+$",
+        "description": "the subclass must be in SCREAMING_SNAKE_CASE"
       },
       "Supplementary-Data-Base": {
         "type": "object",
@@ -4197,6 +4456,13 @@
             "items": {
               "$ref": "#/components/schemas/Supplementary-Data-Activity-Result-Detail-Indicator"
             }
+          },
+          "relatedActivityIds": {
+            "description": "The related activity ids.\n",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Activity-ID"
+            }
           }
         }
       },
@@ -4726,6 +4992,9 @@
           },
           "class": {
             "$ref": "#/components/schemas/Process-Result-ClassEnum"
+          },
+          "subClass": {
+            "$ref": "#/components/schemas/Process-Result-SubClass"
           },
           "supplementaryData": {
             "$ref": "#/components/schemas/Supplementary-Data"

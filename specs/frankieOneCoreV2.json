@@ -35,8 +35,20 @@
       "description": "Retrieve background request results"
     },
     {
+      "name": "Reports",
+      "description": "Generate and manage reports"
+    },
+    {
+      "name": "Workflow Definitions",
+      "description": "Create and update workflow definitions"
+    },
+    {
       "name": "Status",
       "description": "All valid customers will get a successful response."
+    },
+    {
+      "name": "Workflows",
+      "description": "Manage Workflows and Workflow Definitions"
     }
   ],
   "paths": {
@@ -561,7 +573,334 @@
           }
         ],
         "tags": [
-          "Individual Workflows"
+          "Workflows"
+        ],
+        "security": [
+          {
+            "Api-Key": []
+          },
+          {
+            "jwt": [
+              "kyc:api"
+            ]
+          }
+        ]
+      }
+    },
+    "/v2/workflows/{workflowId}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/workflowId"
+        },
+        {
+          "$ref": "#/components/parameters/X-Frankie-CustomerID"
+        },
+        {
+          "$ref": "#/components/parameters/X-Frankie-CustomerChildID"
+        },
+        {
+          "$ref": "#/components/parameters/X-Frankie-RequestID"
+        },
+        {
+          "$ref": "#/components/parameters/X-Frankie-Channel"
+        },
+        {
+          "$ref": "#/components/parameters/X-Frankie-Username"
+        }
+      ],
+      "patch": {
+        "operationId": "updateWorkflow",
+        "summary": "Update Workflow Information",
+        "description": "Update Workflow Information",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Update-Workflow-Request"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "requestId"
+                  ],
+                  "properties": {
+                    "requestId": {
+                      "$ref": "#/components/schemas/Request-ID"
+                    },
+                    "workflow": {
+                      "$ref": "#/components/schemas/Workflow-Lookup"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Already exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Gone",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Workflows"
+        ],
+        "security": [
+          {
+            "jwt": [
+              "workflows:*",
+              "frankieone:*"
+            ]
+          }
+        ]
+      }
+    },
+    "/v2/workflowDefinitions/{workflowDefinitionId}": {
+      "parameters": [
+        {
+          "name": "workflowDefinitionId",
+          "in": "path",
+          "required": true,
+          "description": "The unique identifier of the workflow definition to create or update",
+          "schema": {
+            "type": "string",
+            "example": "customer-verification-workflow"
+          }
+        }
+      ],
+      "put": {
+        "operationId": "upsertWorkflowDefinition",
+        "summary": "Create or update a workflow definition",
+        "description": "Forwards the request to the FLOW Workflow Engine to create or update a workflow definition. The request body and headers are forwarded as-is to the upstream service. When isDraft is true, the definition is saved as a draft (version -1). When isDraft is false, a new published version is created.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Upsert-Workflow-Definition-Request"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Upsert-Workflow-Definition-Result"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "Invalid EntityId": {
+                    "value": {
+                      "errorCode": "API-0400,",
+                      "errorMsg": "Multiple Errors: See Issues list",
+                      "details": [
+                        {
+                          "issue": "entityId in path must be of type uuid: \"test\"",
+                          "issueLocation": "VALIDATE-entityId"
+                        }
+                      ],
+                      "requestId": "01HM5XJ7VASZ3EJMB1VQGTBFJ4"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "Invalid authentication": {
+                    "value": {
+                      "errorCode": "AUTH-0002,",
+                      "errorMsg": "Unauthorized",
+                      "details": [
+                        {
+                          "issue": "Invalid Authentication provided. Access denied.",
+                          "issueLocation": "request"
+                        }
+                      ],
+                      "requestId": "00000000S6MNG7624K2TDXT1E3"
+                    }
+                  },
+                  "No Api-Key": {
+                    "value": {
+                      "errorCode": "AUTH-0401",
+                      "errorMsg": "Unauthorized",
+                      "details": [
+                        {
+                          "issue": "No api key provided. Access denied.",
+                          "issueLocation": "request"
+                        }
+                      ],
+                      "requestId": "00000001S6MNG7624K2TDXT1E3"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Api-Key"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-CustomerID"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-CustomerChildID"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-Channel"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-Username"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-RequestID"
+          }
+        ],
+        "tags": [
+          "Workflow Definitions"
         ],
         "security": [
           {
@@ -2115,6 +2454,514 @@
           }
         ]
       }
+    },
+    "/v2/report/extractPII": {
+      "get": {
+        "summary": "List Extract PII jobs",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Extract-PII-Jobs-Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "Invalid EntityId": {
+                    "value": {
+                      "errorCode": "API-0400,",
+                      "errorMsg": "Multiple Errors: See Issues list",
+                      "details": [
+                        {
+                          "issue": "entityId in path must be of type uuid: \"test\"",
+                          "issueLocation": "VALIDATE-entityId"
+                        }
+                      ],
+                      "requestId": "01HM5XJ7VASZ3EJMB1VQGTBFJ4"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "Invalid authentication": {
+                    "value": {
+                      "errorCode": "AUTH-0002,",
+                      "errorMsg": "Unauthorized",
+                      "details": [
+                        {
+                          "issue": "Invalid Authentication provided. Access denied.",
+                          "issueLocation": "request"
+                        }
+                      ],
+                      "requestId": "00000000S6MNG7624K2TDXT1E3"
+                    }
+                  },
+                  "No Api-Key": {
+                    "value": {
+                      "errorCode": "AUTH-0401",
+                      "errorMsg": "Unauthorized",
+                      "details": [
+                        {
+                          "issue": "No api key provided. Access denied.",
+                          "issueLocation": "request"
+                        }
+                      ],
+                      "requestId": "00000001S6MNG7624K2TDXT1E3"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "operationId": "listExtractPIIJobs",
+        "description": "Retrieve a list of Extract PII jobs for a customer with optional filtering by status and pagination support.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Api-Key"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-RequestID"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-CustomerID"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-CustomerChildID"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-Username"
+          },
+          {
+            "$ref": "#/components/parameters/page"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/query_job_statuses"
+          },
+          {
+            "$ref": "#/components/parameters/sort"
+          },
+          {
+            "$ref": "#/components/parameters/query_sort_fields-2"
+          }
+        ],
+        "tags": [
+          "Reports"
+        ],
+        "security": [
+          {
+            "Api-Key": []
+          },
+          {
+            "jwt": [
+              "kyc:api"
+            ]
+          }
+        ]
+      },
+      "post": {
+        "summary": "Extract PII report",
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Extract-PII-Job-Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "Invalid EntityId": {
+                    "value": {
+                      "errorCode": "API-0400,",
+                      "errorMsg": "Multiple Errors: See Issues list",
+                      "details": [
+                        {
+                          "issue": "entityId in path must be of type uuid: \"test\"",
+                          "issueLocation": "VALIDATE-entityId"
+                        }
+                      ],
+                      "requestId": "01HM5XJ7VASZ3EJMB1VQGTBFJ4"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "Invalid authentication": {
+                    "value": {
+                      "errorCode": "AUTH-0002,",
+                      "errorMsg": "Unauthorized",
+                      "details": [
+                        {
+                          "issue": "Invalid Authentication provided. Access denied.",
+                          "issueLocation": "request"
+                        }
+                      ],
+                      "requestId": "00000000S6MNG7624K2TDXT1E3"
+                    }
+                  },
+                  "No Api-Key": {
+                    "value": {
+                      "errorCode": "AUTH-0401",
+                      "errorMsg": "Unauthorized",
+                      "details": [
+                        {
+                          "issue": "No api key provided. Access denied.",
+                          "issueLocation": "request"
+                        }
+                      ],
+                      "requestId": "00000001S6MNG7624K2TDXT1E3"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "operationId": "extractPIIReport",
+        "description": "Create a request for extract PII report.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Api-Key"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-RequestID"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-CustomerID"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-CustomerChildID"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-Username"
+          }
+        ],
+        "tags": [
+          "Reports"
+        ],
+        "security": [
+          {
+            "Api-Key": []
+          },
+          {
+            "jwt": [
+              "kyc:api"
+            ]
+          }
+        ]
+      }
+    },
+    "/v2/report/extractPII/download": {
+      "post": {
+        "summary": "Download Extract PII files",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Download-ExtractPII-Request"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "ZIP file containing the extracted PII CSV files",
+            "content": {
+              "application/zip": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary",
+                  "description": "ZIP file (optionally password-protected) containing CSV files"
+                }
+              }
+            },
+            "headers": {
+              "Content-Disposition": {
+                "schema": {
+                  "type": "string",
+                  "example": "attachment; filename=\"extractPII-data.zip\""
+                },
+                "description": "Indicates the file should be downloaded"
+              },
+              "Content-Type": {
+                "schema": {
+                  "type": "string",
+                  "example": "application/zip"
+                },
+                "description": "MIME type of the response"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "Invalid EntityId": {
+                    "value": {
+                      "errorCode": "API-0400,",
+                      "errorMsg": "Multiple Errors: See Issues list",
+                      "details": [
+                        {
+                          "issue": "entityId in path must be of type uuid: \"test\"",
+                          "issueLocation": "VALIDATE-entityId"
+                        }
+                      ],
+                      "requestId": "01HM5XJ7VASZ3EJMB1VQGTBFJ4"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "Invalid authentication": {
+                    "value": {
+                      "errorCode": "AUTH-0002,",
+                      "errorMsg": "Unauthorized",
+                      "details": [
+                        {
+                          "issue": "Invalid Authentication provided. Access denied.",
+                          "issueLocation": "request"
+                        }
+                      ],
+                      "requestId": "00000000S6MNG7624K2TDXT1E3"
+                    }
+                  },
+                  "No Api-Key": {
+                    "value": {
+                      "errorCode": "AUTH-0401",
+                      "errorMsg": "Unauthorized",
+                      "details": [
+                        {
+                          "issue": "No api key provided. Access denied.",
+                          "issueLocation": "request"
+                        }
+                      ],
+                      "requestId": "00000001S6MNG7624K2TDXT1E3"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - One or more S3 keys not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "operationId": "downloadExtractPIIFiles",
+        "description": "Download extracted PII CSV files as a ZIP archive. The backend retrieves the job details using the provided jobId and authentication headers, fetches all associated CSV files from S3, compresses them into a ZIP file, and optionally applies password protection if a password is provided. The backend validates that the requesting user has access to the specified job.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Api-Key"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-RequestID"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-CustomerID"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-CustomerChildID"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-Username"
+          }
+        ],
+        "tags": [
+          "Reports"
+        ],
+        "security": [
+          {
+            "Api-Key": []
+          },
+          {
+            "jwt": [
+              "kyc:api"
+            ]
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -2356,6 +3203,26 @@
         },
         "description": "Query parameter to include additional fields of fetch workflow"
       },
+      "workflowId": {
+        "name": "workflowId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "description": "Workflow ID"
+      },
+      "X-Frankie-RequestID": {
+        "name": "X-Frankie-RequestID",
+        "in": "header",
+        "description": "GUID identifier for request",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "example": "82988375-1F9C-40C7-8543-ECCA0D94CC7C"
+        }
+      },
       "sortFields": {
         "name": "sortFields",
         "in": "query",
@@ -2368,16 +3235,6 @@
           }
         },
         "description": "List of fields that the Process Results will be filtered with\nAvailable values : createdAt, updatedAt"
-      },
-      "X-Frankie-RequestID": {
-        "name": "X-Frankie-RequestID",
-        "in": "header",
-        "description": "GUID identifier for request",
-        "required": true,
-        "schema": {
-          "type": "string",
-          "example": "82988375-1F9C-40C7-8543-ECCA0D94CC7C"
-        }
       },
       "X-Frankie-Background": {
         "name": "X-Frankie-Background",
@@ -2500,6 +3357,38 @@
         },
         "description": "The unique identifier of the matchlist entry.",
         "required": true
+      },
+      "query_job_statuses": {
+        "in": "query",
+        "name": "statuses",
+        "required": false,
+        "schema": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/Job-Status"
+          }
+        },
+        "style": "form",
+        "explode": false,
+        "description": "Filter jobs by status. Multiple statuses can be provided to filter by any of them."
+      },
+      "query_sort_fields-2": {
+        "name": "sortFields",
+        "in": "query",
+        "style": "form",
+        "explode": false,
+        "schema": {
+          "description": "The fields that were used to sort the items in the response",
+          "type": "array",
+          "items": {
+            "description": "The fields that were used to sort the items in the response",
+            "type": "string",
+            "enum": [
+              "createdAt"
+            ]
+          }
+        },
+        "description": "The fields that were used to sort the items in the response"
       }
     },
     "schemas": {
@@ -2799,7 +3688,9 @@
               "ACTIVITY",
               "FRAUD",
               "DOCUMENT_REVIEW",
-              "DOCUMENT"
+              "DOCUMENT",
+              "PORTAL_ACTION",
+              "WORKFLOW_COMPLETED"
             ]
           },
           "origin": {
@@ -4540,26 +5431,177 @@
           }
         }
       },
+      "Workflow-Definition-Variable": {
+        "type": "object",
+        "description": "Workflow variable definition",
+        "required": [
+          "name",
+          "type"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the variable",
+            "example": "customerEmail"
+          },
+          "type": {
+            "type": "string",
+            "description": "Type of the variable",
+            "default": "STRING",
+            "enum": [
+              "STRING",
+              "NUMBER",
+              "BOOLEAN",
+              "OBJECT",
+              "ARRAY"
+            ],
+            "example": "STRING"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the variable",
+            "example": "Customer's email address"
+          },
+          "example": {
+            "type": "string",
+            "description": "Example value of the variable",
+            "example": "customer@example.com"
+          },
+          "default": {
+            "type": "string",
+            "description": "Default value of the variable if not provided",
+            "example": ""
+          }
+        }
+      },
       "Workflow-Definition": {
         "type": "object",
         "description": "Workflow definition",
         "properties": {
-          "definitionUpdatedAt": {
-            "description": "The date and time the workflow was last updated",
-            "type": "string",
-            "format": "date-time",
-            "example": "2023-01-15T02:18:11.365Z"
-          },
           "version": {
-            "description": "The version of the workflow",
-            "type": "string",
-            "example": "v1"
+            "description": "The version number of this workflow definition",
+            "type": "integer",
+            "example": 3
           },
           "steps": {
+            "deprecated": true,
             "description": "The steps of the workflow",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/Workflow-Step"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the workflow definition was first created",
+            "example": "2023-01-01T12:00:00Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the workflow definition was last updated",
+            "example": "2023-01-02T14:30:00Z"
+          },
+          "definitionId": {
+            "type": "string",
+            "description": "Unique identifier for the workflow defintion",
+            "example": "01KCG5V9H4ZQC5T1H4A2ZZHWA",
+            "format": "ulid"
+          },
+          "name": {
+            "type": "string",
+            "description": "Human-readable name for the workflow",
+            "example": "Customer Verification Workflow"
+          },
+          "owner": {
+            "type": "string",
+            "description": "Owner of the workflow",
+            "default": "SYSTEM",
+            "example": "SYSTEM"
+          },
+          "description": {
+            "type": "string",
+            "description": "Optional detailed description of the workflow",
+            "example": "Workflow to verify new customer identities, including KYC and AML checks."
+          },
+          "tags": {
+            "type": "array",
+            "description": "Tags associated with the workflow",
+            "items": {
+              "type": "string"
+            },
+            "default": [],
+            "example": [
+              "customer-verification",
+              "aml",
+              "kyc"
+            ]
+          },
+          "isTemplate": {
+            "type": "boolean",
+            "description": "Whether the workflow is a template",
+            "default": false,
+            "example": false
+          },
+          "isDraft": {
+            "type": "boolean",
+            "description": "Whether the workflow definition is a draft",
+            "default": false
+          },
+          "versionId": {
+            "type": "string",
+            "format": "ulid",
+            "description": "Version identifier to refer to",
+            "example": "01KCNG5VAH4ZQC5T1H4A2ZZHWA"
+          },
+          "versions": {
+            "type": "array",
+            "description": "List of available versions for this workflow definition",
+            "items": {
+              "type": "integer"
+            },
+            "example": [
+              1,
+              2,
+              3
+            ]
+          },
+          "createdBy": {
+            "type": "string",
+            "description": "User who created the workflow definition",
+            "example": "John Doe"
+          },
+          "updatedBy": {
+            "type": "string",
+            "description": "User who last updated the workflow definition",
+            "example": "Jane Smith"
+          },
+          "variables": {
+            "type": "array",
+            "description": "Workflow-level variables that can be referenced in task configurations using template syntax, these would be validated into the initial state on workflow execution",
+            "items": {
+              "$ref": "#/components/schemas/Workflow-Definition-Variable"
+            }
+          },
+          "initialState": {
+            "type": "object",
+            "description": "Initial state for the workflow execution",
+            "default": {},
+            "example": {
+              "name": "John Doe",
+              "age": 30
+            }
+          },
+          "defaultErrorHandling": {
+            "type": "object",
+            "description": "Default error handling configuration for the workflow"
+          },
+          "tasks": {
+            "type": "array",
+            "description": "Tasks in the workflow",
+            "items": {
+              "type": "object"
             }
           }
         }
@@ -4567,13 +5609,21 @@
       "Workflow-Lookup": {
         "type": "object",
         "properties": {
+          "workflowId": {
+            "type": "string",
+            "description": "ID of the workflow."
+          },
+          "serviceId": {
+            "type": "string",
+            "description": "ID of the service the workflow is associated with."
+          },
           "serviceName": {
             "type": "string",
             "description": "Name of the service."
           },
-          "workflowId": {
+          "workflowDefinitionId": {
             "type": "string",
-            "description": "Unique identifier of the workflow."
+            "description": "Id Reference of the Workflow Definition."
           },
           "workflowName": {
             "type": "string",
@@ -4587,6 +5637,28 @@
             "type": "string",
             "description": "Type of the workflow."
           },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The date and time the workflow was created."
+          },
+          "createdBy": {
+            "type": "string",
+            "description": "The user who created the workflow."
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The date and time the workflow was updated."
+          },
+          "updatedBy": {
+            "type": "string",
+            "description": "The user who updated the workflow."
+          },
+          "workflowDefinitionVersion": {
+            "type": "string",
+            "description": "Reference version id used in our workflow builder."
+          },
           "lifecyclePhase": {
             "$ref": "#/components/schemas/Workflow-LifecyclePhaseEnum"
           },
@@ -4599,6 +5671,370 @@
           },
           "definition": {
             "$ref": "#/components/schemas/Workflow-Definition"
+          }
+        }
+      },
+      "Update-Workflow-Request": {
+        "type": "object",
+        "description": "Workflow Update Request",
+        "properties": {
+          "workflowDefinitionId": {
+            "type": "string",
+            "description": "The ID of the Workflow Definition"
+          },
+          "workflowName": {
+            "type": "string",
+            "description": "The name of the workflow as displayed in the UI and the API"
+          },
+          "workflowDisplayName": {
+            "type": "string",
+            "description": "The display name for the workflow. This field is optional, when the value exists workflow name displayed in portal will be the value of this field."
+          },
+          "lifecyclePhase": {
+            "$ref": "#/components/schemas/Workflow-LifecyclePhaseEnum"
+          },
+          "monitoringTypes": {
+            "type": "array",
+            "description": "The types of monitoring that subscribe to the workflow. When included, it will overwrite the existing subscriptionType list.\n`[]` will remove all existing monitoring types. `[\"AML\"]` will remove all existing monitoring types and add the AML monitoring type. When not included, the existing monitoring types will remain unchanged.",
+            "items": {
+              "$ref": "#/components/schemas/Monitoring-Type"
+            }
+          },
+          "workflowDefinitionVersion": {
+            "type": "string",
+            "description": "Reference version id used in our workflow builder."
+          }
+        }
+      },
+      "Workflow-Definition-Error-Handling-Config": {
+        "type": "object",
+        "description": "Error handling configuration for workflow tasks",
+        "properties": {
+          "ignoreErrors": {
+            "type": "boolean",
+            "description": "Whether to ignore errors and continue execution",
+            "default": false
+          },
+          "fallbackState": {
+            "type": "object",
+            "description": "State to set when an error occurs",
+            "additionalProperties": true
+          },
+          "retryConfig": {
+            "type": "object",
+            "description": "Retry configuration for failed tasks",
+            "properties": {
+              "maxAttempts": {
+                "type": "integer",
+                "description": "Maximum number of retry attempts",
+                "minimum": 1,
+                "example": 3
+              },
+              "delayMs": {
+                "type": "integer",
+                "description": "Delay in milliseconds between retries",
+                "minimum": 0,
+                "example": 1000
+              },
+              "backoffFactor": {
+                "type": "number",
+                "description": "Multiplier applied to delay between successive retries",
+                "minimum": 1,
+                "example": 2
+              }
+            }
+          }
+        }
+      },
+      "Workflow-Definition-Task-Configuration": {
+        "type": "object",
+        "description": "Task configuration object. Discriminated by the 'type' field. Supported types: HTTP, BRANCH, LOOP, LOG, WAIT, SET_STATE, PARALLEL, NOTIFICATION, AGENT, SUBFLOW, FORM, RUN_WORKFLOW, STEP.\n",
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "The type of task to execute",
+            "enum": [
+              "HTTP",
+              "BRANCH",
+              "LOOP",
+              "LOG",
+              "WAIT",
+              "SET_STATE",
+              "PARALLEL",
+              "NOTIFICATION",
+              "AGENT",
+              "SUBFLOW",
+              "FORM",
+              "RUN_WORKFLOW",
+              "STEP"
+            ]
+          }
+        },
+        "additionalProperties": true
+      },
+      "Workflow-Definition-Task": {
+        "type": "object",
+        "description": "A task within a workflow definition",
+        "required": [
+          "id",
+          "name",
+          "configuration"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the task within the workflow",
+            "example": "verify-identity"
+          },
+          "name": {
+            "type": "string",
+            "description": "Human-readable name for the task",
+            "example": "Verify Identity"
+          },
+          "description": {
+            "type": "string",
+            "description": "Optional description of what the task does",
+            "example": "Runs identity verification checks against the customer"
+          },
+          "errorHandling": {
+            "$ref": "#/components/schemas/Workflow-Definition-Error-Handling-Config"
+          },
+          "configuration": {
+            "$ref": "#/components/schemas/Workflow-Definition-Task-Configuration"
+          }
+        }
+      },
+      "Upsert-Workflow-Definition-Request": {
+        "type": "object",
+        "description": "Request body for creating or updating a workflow definition",
+        "required": [
+          "id",
+          "name",
+          "tasks"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the workflow",
+            "example": "customer-verification-workflow"
+          },
+          "name": {
+            "type": "string",
+            "description": "Human-readable name for the workflow",
+            "example": "Customer Verification Workflow"
+          },
+          "description": {
+            "type": "string",
+            "description": "Optional detailed description of the workflow",
+            "example": "Workflow to verify new customer identities"
+          },
+          "owner": {
+            "type": "string",
+            "description": "Owner of the workflow",
+            "default": "SYSTEM",
+            "example": "SYSTEM"
+          },
+          "isDraft": {
+            "type": "boolean",
+            "description": "true = save as draft (version -1), false = publish new version",
+            "default": false
+          },
+          "isTemplate": {
+            "type": "boolean",
+            "description": "Whether the workflow is a template",
+            "default": false
+          },
+          "tags": {
+            "type": "array",
+            "description": "Tags associated with the workflow",
+            "items": {
+              "type": "string"
+            },
+            "default": [],
+            "example": [
+              "customer-verification",
+              "kyc"
+            ]
+          },
+          "initialState": {
+            "type": "object",
+            "description": "Initial state for the workflow execution",
+            "additionalProperties": true,
+            "default": {},
+            "example": {
+              "name": "John Doe",
+              "age": 30
+            }
+          },
+          "defaultErrorHandling": {
+            "$ref": "#/components/schemas/Workflow-Definition-Error-Handling-Config"
+          },
+          "variables": {
+            "type": "array",
+            "description": "Workflow-level variables that can be referenced in task configurations using template syntax, these would be validated into the initial state on workflow execution",
+            "items": {
+              "$ref": "#/components/schemas/Workflow-Definition-Variable"
+            }
+          },
+          "versions": {
+            "type": "array",
+            "description": "List of available versions for this workflow definition",
+            "items": {
+              "type": "integer"
+            },
+            "example": [
+              1,
+              2,
+              3
+            ]
+          },
+          "version": {
+            "type": "integer",
+            "description": "The version number of this workflow definition",
+            "example": 3
+          },
+          "versionId": {
+            "type": "string",
+            "format": "ulid",
+            "description": "Version Identifier to refer to",
+            "example": "01KCNG5VAH4ZQC5T1H4A2ZZHWA"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the workflow definition was first created",
+            "example": "2023-01-01T12:00:00Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the workflow definition was last updated",
+            "example": "2023-01-02T14:30:00Z"
+          },
+          "createdBy": {
+            "type": "string",
+            "description": "User who created the workflow definition",
+            "example": "John Doe"
+          },
+          "updatedBy": {
+            "type": "string",
+            "description": "User who last updated the workflow definition",
+            "example": "Jane Smith"
+          },
+          "tasks": {
+            "type": "array",
+            "description": "Array of workflow tasks",
+            "items": {
+              "$ref": "#/components/schemas/Workflow-Definition-Task"
+            }
+          }
+        }
+      },
+      "Upsert-Workflow-Definition-Result": {
+        "type": "object",
+        "required": [
+          "workflowDefinition"
+        ],
+        "properties": {
+          "workflowDefinition": {
+            "type": "object",
+            "description": "The created or updated workflow definition",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "Unique identifier for the workflow",
+                "example": "customer-verification-workflow"
+              },
+              "name": {
+                "type": "string",
+                "description": "Human-readable name for the workflow",
+                "example": "Customer Verification Workflow"
+              },
+              "description": {
+                "type": "string",
+                "description": "Description of the workflow"
+              },
+              "owner": {
+                "type": "string",
+                "description": "Owner of the workflow",
+                "example": "SYSTEM"
+              },
+              "isDraft": {
+                "type": "boolean",
+                "description": "Whether the workflow definition is a draft"
+              },
+              "version": {
+                "type": "integer",
+                "description": "Version number. -1 for draft, positive integer for published",
+                "example": 1
+              },
+              "versions": {
+                "type": "array",
+                "description": "List of available versions for this workflow definition",
+                "items": {
+                  "type": "integer"
+                },
+                "example": [
+                  1,
+                  2,
+                  3
+                ]
+              },
+              "versionId": {
+                "type": "string",
+                "format": "ulid",
+                "description": "Version identifier",
+                "example": "01KCNG5VAH4ZQC5T1H4A2ZZHWA"
+              },
+              "tags": {
+                "type": "array",
+                "description": "Tags associated with the workflow",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "tasks": {
+                "type": "array",
+                "description": "Tasks in the workflow",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              },
+              "variables": {
+                "type": "array",
+                "description": "Workflow-level variables",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Timestamp when the workflow definition was first created",
+                "example": "2023-01-01T12:00:00Z"
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Timestamp when the workflow definition was last updated",
+                "example": "2023-01-02T14:30:00Z"
+              },
+              "createdBy": {
+                "type": "string",
+                "description": "User who created the workflow definition",
+                "example": "John Doe"
+              },
+              "updatedBy": {
+                "type": "string",
+                "description": "User who last updated the workflow definition",
+                "example": "Jane Smith"
+              }
+            }
           }
         }
       },
@@ -4722,9 +6158,10 @@
           "VERIFY",
           "VISA",
           "WATCHLIST",
-          "ACTIVITY"
+          "ACTIVITY",
+          "RISK"
         ],
-        "description": "General category of issue found:\n  - AML: Anti-Money Laundering issues.\n  - BAD_DATA: Indicates that the data provided is invalid or incorrect.\n  - BIOMETRICS: Issues found during a biometrics check.\n  - BLOCKLISTED: The entity has a hit on a blocklist.\n  - DECEASED: Indicates that the entity is deceased.\n  - DEVICE: Issues found during device checks.\n  - DOCUMENT: Issues found during a document check.\n  - DUPLICATE: Indicates that the entity has duplicates.\n  - EXPIRY: Indicates that a process or document for the entity has expired.\n  - FRAUD: Possible fraud detected.\n  - IDV: Issues found during an Identity Verification (IDV) process.\n  - INFORMATIONAL: Informational messages that are not issues but are required to be returned.\n  - KYC: Issues found during a Know Your Customer (KYC) process.\n  - SYSTEM: System-level issues.\n  - VERIFY: Issues found during a verification process.\n  - VISA: Issues found during a visa check.\n  - WATCHLIST: Issues found during a watchlist check.\n  - ACTIVITY: Issues found during an activity process.\n  - SUPPORTING_DOC: Issues found during a supporting document check."
+        "description": "General category of issue found:\n  - AML: Anti-Money Laundering issues.\n  - BAD_DATA: Indicates that the data provided is invalid or incorrect.\n  - BIOMETRICS: Issues found during a biometrics check.\n  - BLOCKLISTED: The entity has a hit on a blocklist.\n  - DECEASED: Indicates that the entity is deceased.\n  - DEVICE: Issues found during device checks.\n  - DOCUMENT: Issues found during a document check.\n  - DUPLICATE: Indicates that the entity has duplicates.\n  - EXPIRY: Indicates that a process or document for the entity has expired.\n  - FRAUD: Possible fraud detected.\n  - IDV: Issues found during an Identity Verification (IDV) process.\n  - INFORMATIONAL: Informational messages that are not issues but are required to be returned.\n  - KYC: Issues found during a Know Your Customer (KYC) process.\n  - SYSTEM: System-level issues.\n  - VERIFY: Issues found during a verification process.\n  - VISA: Issues found during a visa check.\n  - WATCHLIST: Issues found during a watchlist check.\n  - ACTIVITY: Issues found during an activity process.\n  - SUPPORTING_DOC: Issues found during a supporting document check.\n  - RISK: Issues related to risk assessment."
       },
       "Workflow-Issue-Severity": {
         "type": "string",
@@ -4797,9 +6234,12 @@
           "ACTIVITY_EVENT",
           "ACTIVITY_DEVICE",
           "DOCUMENT_MISSING",
-          "DOCUMENTS_NOT_APPROVED"
+          "DOCUMENTS_NOT_APPROVED",
+          "RISK_THRESHOLD_HIGH",
+          "RISK_THRESHOLD_UNACCEPTABLE",
+          "RISK_THRESHOLD_MEDIUM"
         ],
-        "description": "For each category, this provides the specific issue type.\n\nAML:\n  - PEP: The entity has Politically Exposed Person (PEP) hits.\n  - SANCTION: The entity has sanction hits.\n  - MEDIA: The entity has adverse media hits.\n  - WATCHLIST: The entity has watchlist hits.\n\nBAD_DATA:\n  - BAD_DATA_NAME: Name is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_DOB: Date of Birth is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_ADDRESS: Address is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_ID: ID is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_EMAIL: Email is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_MOBILE: Mobile is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_DEVICE: Device is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_IP_ADDRESS: IP Address is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_EMAIL_ADDRESS: Email Address is required for verification but is missing or unusable due to data quality issues.\n\nBLOCKLISTED:\n  - MATCHED_INTERNAL: The entity matched an internal blocklist.\n  - MATCHED_SHARED: The entity matched a shared blocklist.\n  - MATCHED_EXTERNAL: The entity matched an external blocklist.\n\nDECEASED:\n  - DECEASED: The person whose data is being verified is deceased.\n\nDEVICE:\n  - DEVICE_FRAUD_MATCH: Fraud detected on the device.\n  - DEVICE_INVALID: The device is invalid.\n\nDUPLICATE:\n  - DUPLICATE: The entity is a duplicate of another entity.\n\nEXPIRY:\n  - REQUIRES_KYC: KYC process needs to be re-initiated.\n  - REQUIRES_IDV: IDV process needs to be re-initiated.\n  - REQUIRES_AML: AML process needs to be re-initiated.\n  - REQUIRES_VISA: Visa process needs to be re-initiated.\n\nFRAUD:\n  - FRAUD_LIST: The entity is on a fraud list.\n  - FRAUD_CHECK: Fraud detected during checks.\n  - FRAUD_DEVICE: Device fraud detected.\n  - FRAUD_IP_ADDRESS: IP address fraud detected.\n  - FRAUD_EMAIL_ADDRESS: Email address fraud detected.\n  - FRAUD_PHONE_NUMBER: Phone number fraud detected.\n\nIDV:\n  - DATA_COMPARISON: Data comparison issue.\n  - DATA_VALIDATION: Data validation issue.\n  - DATA_CONSISTENCY: Data consistency issue.\n  - VISUAL_AUTHENTICITY: Visual authenticity issue.\n  - IMAGE_INTEGRITY: Image integrity issue.\n  - COMPROMISED_DOCUMENT: Document is compromised.\n  - LIVENESS_DETECTION: Liveness detection failed.\n  - DOCUMENT_COMPARISON: Document comparison issue.\n\nINFORMATIONAL:\n  - CREDIT_HEADER: Credit header information was returned as part of a credit agency check.\n\nKYC:\n  - PARTIAL: The KYC check was only partially successful.\n  - NOT_FOUND: No match was found for the given data.\n\nOCR:\n  - OCR: The OCR data does not match what was entered by the user.\n\nSYSTEM:\n  - SERVICE_TIMEOUT: All providers have timed out.\n  - SERVICE_ERROR: All providers have returned an error or an internal error has occurred.\n\nVISA:\n  - DENY_LIST: The entity matched a visa deny list.\n  - VISA_FAILED: Visa check failed from the provider.\n\nWATCHLIST:\n  - INTERNAL_MATCH: The entity matched an internal watchlist.\n\nACTIVITY:\n  - ACTIVITY_AML: The entity has had an activity that is flagged for AML\n  - ACTIVITY_FRAUD: The entity has had an activity that is flagged for fraud\n  - ACTIVITY_EVENT: The entity has had an activity that is deemed as suspicious, but not exactly classified as either fraud or AML\n\nSUPPORTING_DOC:\n  - DOCUMENT_MISSING: The document is not provided\n  - DOCUMENTS_NOT_APPROVED: The document is not approved"
+        "description": "For each category, this provides the specific issue type.\n\nAML:\n  - PEP: The entity has Politically Exposed Person (PEP) hits.\n  - SANCTION: The entity has sanction hits.\n  - MEDIA: The entity has adverse media hits.\n  - WATCHLIST: The entity has watchlist hits.\n\nBAD_DATA:\n  - BAD_DATA_NAME: Name is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_DOB: Date of Birth is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_ADDRESS: Address is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_ID: ID is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_EMAIL: Email is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_MOBILE: Mobile is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_DEVICE: Device is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_IP_ADDRESS: IP Address is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_EMAIL_ADDRESS: Email Address is required for verification but is missing or unusable due to data quality issues.\n\nBLOCKLISTED:\n  - MATCHED_INTERNAL: The entity matched an internal blocklist.\n  - MATCHED_SHARED: The entity matched a shared blocklist.\n  - MATCHED_EXTERNAL: The entity matched an external blocklist.\n\nDECEASED:\n  - DECEASED: The person whose data is being verified is deceased.\n\nDEVICE:\n  - DEVICE_FRAUD_MATCH: Fraud detected on the device.\n  - DEVICE_INVALID: The device is invalid.\n\nDUPLICATE:\n  - DUPLICATE: The entity is a duplicate of another entity.\n\nEXPIRY:\n  - REQUIRES_KYC: KYC process needs to be re-initiated.\n  - REQUIRES_IDV: IDV process needs to be re-initiated.\n  - REQUIRES_AML: AML process needs to be re-initiated.\n  - REQUIRES_VISA: Visa process needs to be re-initiated.\n\nFRAUD:\n  - FRAUD_LIST: The entity is on a fraud list.\n  - FRAUD_CHECK: Fraud detected during checks.\n  - FRAUD_DEVICE: Device fraud detected.\n  - FRAUD_IP_ADDRESS: IP address fraud detected.\n  - FRAUD_EMAIL_ADDRESS: Email address fraud detected.\n  - FRAUD_PHONE_NUMBER: Phone number fraud detected.\n\nIDV:\n  - DATA_COMPARISON: Data comparison issue.\n  - DATA_VALIDATION: Data validation issue.\n  - DATA_CONSISTENCY: Data consistency issue.\n  - VISUAL_AUTHENTICITY: Visual authenticity issue.\n  - IMAGE_INTEGRITY: Image integrity issue.\n  - COMPROMISED_DOCUMENT: Document is compromised.\n  - LIVENESS_DETECTION: Liveness detection failed.\n  - DOCUMENT_COMPARISON: Document comparison issue.\n\nINFORMATIONAL:\n  - CREDIT_HEADER: Credit header information was returned as part of a credit agency check.\n\nKYC:\n  - PARTIAL: The KYC check was only partially successful.\n  - NOT_FOUND: No match was found for the given data.\n\nOCR:\n  - OCR: The OCR data does not match what was entered by the user.\n\nSYSTEM:\n  - SERVICE_TIMEOUT: All providers have timed out.\n  - SERVICE_ERROR: All providers have returned an error or an internal error has occurred.\n\nVISA:\n  - DENY_LIST: The entity matched a visa deny list.\n  - VISA_FAILED: Visa check failed from the provider.\n\nWATCHLIST:\n  - INTERNAL_MATCH: The entity matched an internal watchlist.\n\nACTIVITY:\n  - ACTIVITY_AML: The entity has had an activity that is flagged for AML\n  - ACTIVITY_FRAUD: The entity has had an activity that is flagged for fraud\n  - ACTIVITY_EVENT: The entity has had an activity that is deemed as suspicious, but not exactly classified as either fraud or AML\n\nSUPPORTING_DOC:\n  - DOCUMENT_MISSING: The document is not provided\n  - DOCUMENTS_NOT_APPROVED: The document is not approved\n\nRISK:\n  - RISK_THRESHOLD_HIGH: The risk threshold is too high\n  - RISK_THRESHOLD_MEDIUM: The risk threshold is medium\n  - RISK_THRESHOLD_UNACCEPTABLE: The risk threshold is unacceptable\n  "
       },
       "Workflow-Execution-ScopeEnum": {
         "type": "string",
@@ -6058,6 +7498,179 @@
           },
           "comment": {
             "$ref": "#/components/schemas/Comment"
+          }
+        }
+      },
+      "Job-Status": {
+        "type": "string",
+        "description": "Status of the job",
+        "enum": [
+          "CREATED",
+          "IN_PROGRESS",
+          "COMPLETED",
+          "FAILED",
+          "CANCELLED"
+        ]
+      },
+      "Job-ID": {
+        "type": "string",
+        "description": "Unique identifier for a job"
+      },
+      "Operation-Type-Enum": {
+        "type": "string",
+        "description": "Type of operation being performed",
+        "enum": [
+          "REPORT",
+          "EXPORT",
+          "IMPORT",
+          "PROCESSING"
+        ]
+      },
+      "Operation-Name-Enum": {
+        "type": "string",
+        "description": "Specific name of the operation",
+        "enum": [
+          "EXTRACT_PII",
+          "BULK_EXPORT",
+          "DATA_MIGRATION",
+          "BATCH_PROCESSING"
+        ]
+      },
+      "Report-ExtractPII-Job": {
+        "type": "object",
+        "description": "Detailed information about an Extract PII job including metadata and results",
+        "required": [
+          "jobId",
+          "status"
+        ],
+        "properties": {
+          "jobId": {
+            "$ref": "#/components/schemas/Job-ID"
+          },
+          "status": {
+            "$ref": "#/components/schemas/Job-Status"
+          },
+          "operationType": {
+            "$ref": "#/components/schemas/Operation-Type-Enum"
+          },
+          "operationName": {
+            "$ref": "#/components/schemas/Operation-Name-Enum"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Job creation timestamp"
+          },
+          "createdBy": {
+            "type": "string",
+            "description": "The user requested this report"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When results expires at"
+          },
+          "scheduledAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When job is scheduled to run"
+          },
+          "attemptedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Last attempt timestamp"
+          },
+          "finalizedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When job completed/failed"
+          },
+          "attempt": {
+            "type": "integer",
+            "description": "Current attempt number"
+          },
+          "maxAttempts": {
+            "type": "integer",
+            "description": "Maximum retry attempts"
+          },
+          "queue": {
+            "type": "string",
+            "description": "Queue name"
+          },
+          "filename": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "The name of the file"
+            }
+          }
+        }
+      },
+      "Extract-PII-Jobs-Response": {
+        "type": "object",
+        "description": "Response for listing Extract PII jobs",
+        "required": [
+          "requestId",
+          "jobs"
+        ],
+        "properties": {
+          "requestId": {
+            "$ref": "#/components/schemas/Request-ID"
+          },
+          "jobs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Report-ExtractPII-Job"
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/List-Operation-Meta"
+          }
+        }
+      },
+      "Report-ExtractPII-Response": {
+        "type": "object",
+        "description": "Response for Extract PII report job",
+        "properties": {
+          "jobId": {
+            "$ref": "#/components/schemas/Job-ID"
+          },
+          "status": {
+            "$ref": "#/components/schemas/Job-Status"
+          }
+        }
+      },
+      "Extract-PII-Job-Response": {
+        "type": "object",
+        "description": "Response for creating an Extract PII job",
+        "required": [
+          "requestId",
+          "response"
+        ],
+        "properties": {
+          "requestId": {
+            "$ref": "#/components/schemas/Request-ID"
+          },
+          "response": {
+            "$ref": "#/components/schemas/Report-ExtractPII-Response"
+          }
+        }
+      },
+      "Download-ExtractPII-Request": {
+        "type": "object",
+        "description": "Request body for downloading extracted PII files",
+        "required": [
+          "jobId"
+        ],
+        "properties": {
+          "jobId": {
+            "type": "string",
+            "description": "The Extract PII job ID to download files from"
+          },
+          "password": {
+            "type": "string",
+            "description": "Optional password to protect the ZIP file",
+            "example": "SecureP@ssw0rd123"
           }
         }
       }
