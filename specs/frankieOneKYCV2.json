@@ -10637,15 +10637,24 @@
           "FRAUD_ISSUE",
           "FRAUD_LIST",
           "IMAGE_INTEGRITY",
+          "INSUFFICIENT_ADDRESS_MATCH",
+          "INSUFFICIENT_DOB_MATCH",
+          "INSUFFICIENT_GOVID_MATCH",
+          "INSUFFICIENT_NAME_MATCH",
           "INTERNAL_MATCH",
           "LIVENESS_DETECTION",
           "MATCHED_EXTERNAL",
           "MATCHED_INTERNAL",
           "MATCHED_SHARED",
           "MEDIA",
+          "NO_ADDRESS_MATCH",
+          "NO_DOB_MATCH",
+          "NO_GOVID_MATCH",
+          "NO_NAME_MATCH",
           "NOT_FOUND",
           "OCR",
           "PARTIAL",
+          "PARTIAL_MATCH",
           "PEP",
           "REQUIRES_AML",
           "REQUIRES_IDV",
@@ -10667,7 +10676,7 @@
           "RISK_THRESHOLD_UNACCEPTABLE",
           "RISK_THRESHOLD_MEDIUM"
         ],
-        "description": "For each category, this provides the specific issue type.\n\nAML:\n  - PEP: The entity has Politically Exposed Person (PEP) hits.\n  - SANCTION: The entity has sanction hits.\n  - MEDIA: The entity has adverse media hits.\n  - WATCHLIST: The entity has watchlist hits.\n\nBAD_DATA:\n  - BAD_DATA_NAME: Name is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_DOB: Date of Birth is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_ADDRESS: Address is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_ID: ID is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_EMAIL: Email is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_MOBILE: Mobile is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_DEVICE: Device is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_IP_ADDRESS: IP Address is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_EMAIL_ADDRESS: Email Address is required for verification but is missing or unusable due to data quality issues.\n\nBLOCKLISTED:\n  - MATCHED_INTERNAL: The entity matched an internal blocklist.\n  - MATCHED_SHARED: The entity matched a shared blocklist.\n  - MATCHED_EXTERNAL: The entity matched an external blocklist.\n\nDECEASED:\n  - DECEASED: The person whose data is being verified is deceased.\n\nDEVICE:\n  - DEVICE_FRAUD_MATCH: Fraud detected on the device.\n  - DEVICE_INVALID: The device is invalid.\n\nDUPLICATE:\n  - DUPLICATE: The entity is a duplicate of another entity.\n\nEXPIRY:\n  - REQUIRES_KYC: KYC process needs to be re-initiated.\n  - REQUIRES_IDV: IDV process needs to be re-initiated.\n  - REQUIRES_AML: AML process needs to be re-initiated.\n  - REQUIRES_VISA: Visa process needs to be re-initiated.\n\nFRAUD:\n  - FRAUD_LIST: The entity is on a fraud list.\n  - FRAUD_CHECK: Fraud detected during checks.\n  - FRAUD_DEVICE: Device fraud detected.\n  - FRAUD_IP_ADDRESS: IP address fraud detected.\n  - FRAUD_EMAIL_ADDRESS: Email address fraud detected.\n  - FRAUD_PHONE_NUMBER: Phone number fraud detected.\n\nIDV:\n  - DATA_COMPARISON: Data comparison issue.\n  - DATA_VALIDATION: Data validation issue.\n  - DATA_CONSISTENCY: Data consistency issue.\n  - VISUAL_AUTHENTICITY: Visual authenticity issue.\n  - IMAGE_INTEGRITY: Image integrity issue.\n  - COMPROMISED_DOCUMENT: Document is compromised.\n  - LIVENESS_DETECTION: Liveness detection failed.\n  - DOCUMENT_COMPARISON: Document comparison issue.\n\nINFORMATIONAL:\n  - CREDIT_HEADER: Credit header information was returned as part of a credit agency check.\n\nKYC:\n  - PARTIAL: The KYC check was only partially successful.\n  - NOT_FOUND: No match was found for the given data.\n\nOCR:\n  - OCR: The OCR data does not match what was entered by the user.\n\nSYSTEM:\n  - SERVICE_TIMEOUT: All providers have timed out.\n  - SERVICE_ERROR: All providers have returned an error or an internal error has occurred.\n\nVISA:\n  - DENY_LIST: The entity matched a visa deny list.\n  - VISA_FAILED: Visa check failed from the provider.\n\nWATCHLIST:\n  - INTERNAL_MATCH: The entity matched an internal watchlist.\n\nACTIVITY:\n  - ACTIVITY_AML: The entity has had an activity that is flagged for AML\n  - ACTIVITY_FRAUD: The entity has had an activity that is flagged for fraud\n  - ACTIVITY_EVENT: The entity has had an activity that is deemed as suspicious, but not exactly classified as either fraud or AML\n\nSUPPORTING_DOC:\n  - DOCUMENT_MISSING: The document is not provided\n  - DOCUMENTS_NOT_APPROVED: The document is not approved\n\nRISK:\n  - RISK_THRESHOLD_HIGH: The risk threshold is too high\n  - RISK_THRESHOLD_MEDIUM: The risk threshold is medium\n  - RISK_THRESHOLD_UNACCEPTABLE: The risk threshold is unacceptable\n  "
+        "description": "For each category, this provides the specific issue type.\n\nAML:\n  - PEP: The entity has Politically Exposed Person (PEP) hits.\n  - SANCTION: The entity has sanction hits.\n  - MEDIA: The entity has adverse media hits.\n  - WATCHLIST: The entity has watchlist hits.\n\nBAD_DATA:\n  - BAD_DATA_NAME: Name is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_DOB: Date of Birth is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_ADDRESS: Address is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_ID: ID is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_EMAIL: Email is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_MOBILE: Mobile is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_DEVICE: Device is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_IP_ADDRESS: IP Address is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_EMAIL_ADDRESS: Email Address is required for verification but is missing or unusable due to data quality issues.\n\nBLOCKLISTED:\n  - MATCHED_INTERNAL: The entity matched an internal blocklist.\n  - MATCHED_SHARED: The entity matched a shared blocklist.\n  - MATCHED_EXTERNAL: The entity matched an external blocklist.\n\nDECEASED:\n  - DECEASED: The person whose data is being verified is deceased.\n\nDEVICE:\n  - DEVICE_FRAUD_MATCH: Fraud detected on the device.\n  - DEVICE_INVALID: The device is invalid.\n\nDUPLICATE:\n  - DUPLICATE: The entity is a duplicate of another entity.\n\nEXPIRY:\n  - REQUIRES_KYC: KYC process needs to be re-initiated.\n  - REQUIRES_IDV: IDV process needs to be re-initiated.\n  - REQUIRES_AML: AML process needs to be re-initiated.\n  - REQUIRES_VISA: Visa process needs to be re-initiated.\n\nFRAUD:\n  - FRAUD_LIST: The entity is on a fraud list.\n  - FRAUD_CHECK: Fraud detected during checks.\n  - FRAUD_DEVICE: Device fraud detected.\n  - FRAUD_IP_ADDRESS: IP address fraud detected.\n  - FRAUD_EMAIL_ADDRESS: Email address fraud detected.\n  - FRAUD_PHONE_NUMBER: Phone number fraud detected.\n\nIDV:\n  - DATA_COMPARISON: Data comparison issue.\n  - DATA_VALIDATION: Data validation issue.\n  - DATA_CONSISTENCY: Data consistency issue.\n  - VISUAL_AUTHENTICITY: Visual authenticity issue.\n  - IMAGE_INTEGRITY: Image integrity issue.\n  - COMPROMISED_DOCUMENT: Document is compromised.\n  - LIVENESS_DETECTION: Liveness detection failed.\n  - DOCUMENT_COMPARISON: Document comparison issue.\n\nINFORMATIONAL:\n  - CREDIT_HEADER: Credit header information was returned as part of a credit agency check.\n\nKYC:\n  - NOT_FOUND: KYC ruleset not met.\n  - PARTIAL: Some matches but insufficient.\n  - NO_GOVID_MATCH: GovID required but no GovID match.\n  - INSUFFICIENT_GOVID_MATCH: GovID required but insufficient matches.\n  - NO_DOB_MATCH: DOB required but no DOB match.\n  - INSUFFICIENT_DOB_MATCH: DOB required but insufficient matches.\n  - NO_ADDRESS_MATCH: Address required but no address match.\n  - INSUFFICIENT_ADDRESS_MATCH: Address required but insufficient matches.\n  - NO_NAME_MATCH: Name required but no name match.\n  - INSUFFICIENT_NAME_MATCH: Name required but insufficient matches.\n  - PARTIAL_MATCH: General partial match.\n\nOCR:\n  - OCR: The OCR data does not match what was entered by the user.\n\nSYSTEM:\n  - SERVICE_TIMEOUT: All providers have timed out.\n  - SERVICE_ERROR: All providers have returned an error or an internal error has occurred.\n\nVISA:\n  - DENY_LIST: The entity matched a visa deny list.\n  - VISA_FAILED: Visa check failed from the provider.\n\nWATCHLIST:\n  - INTERNAL_MATCH: The entity matched an internal watchlist.\n\nACTIVITY:\n  - ACTIVITY_AML: The entity has had an activity that is flagged for AML\n  - ACTIVITY_FRAUD: The entity has had an activity that is flagged for fraud\n  - ACTIVITY_EVENT: The entity has had an activity that is deemed as suspicious, but not exactly classified as either fraud or AML\n\nSUPPORTING_DOC:\n  - DOCUMENT_MISSING: The document is not provided\n  - DOCUMENTS_NOT_APPROVED: The document is not approved\n\nRISK:\n  - RISK_THRESHOLD_HIGH: The risk threshold is too high\n  - RISK_THRESHOLD_MEDIUM: The risk threshold is medium\n  - RISK_THRESHOLD_UNACCEPTABLE: The risk threshold is unacceptable\n  "
       },
       "Workflow-Issue-Severity": {
         "type": "string",
@@ -12775,7 +12784,7 @@
         "properties": {
           "type": {
             "type": "string",
-            "description": "The type of supplementary data. Possible values:\n  - AML\n  - KYC_ADDRESS\n  - KYC_DOB\n  - KYC_GENDER\n  - KYC_NAME\n  - ID\n  - VISA\n  - NAME_VALIDATION\n  - KYB_ORGANIZATION\n  - MATCHLIST\n  - DUPLICATE\n  - FRAUD_DEVICE\n  - FRAUD_EMAIL\n  - FRAUD_PHONE\n  - FRAUD_LOOKUP\n  - ACTIVITY_AML\n  - ACTIVITY_EVENT\n  - ACTIVITY_FRAUD\n",
+            "description": "The type of supplementary data. Possible values:\n  - AML\n  - KYC_ADDRESS\n  - KYC_DOB\n  - KYC_GENDER\n  - KYC_NAME\n  - ID\n  - VISA\n  - NAME_VALIDATION\n  - KYB_ORGANIZATION\n  - KYB_ADDRESS_VERIFICATION\n  - KYB_NAME_VERIFICATION\n  - KYB_REGISTRATION_VERIFICATION\n  - KYB_TAX_VERIFICATION\n  - MATCHLIST\n  - DUPLICATE\n  - FRAUD_DEVICE\n  - FRAUD_EMAIL\n  - FRAUD_PHONE\n  - FRAUD_LOOKUP\n  - ACTIVITY_AML\n  - ACTIVITY_EVENT\n  - ACTIVITY_FRAUD\n",
             "enum": [
               "AML",
               "KYC_ADDRESS",
@@ -12786,6 +12795,10 @@
               "VISA",
               "NAME_VALIDATION",
               "KYB_ORGANIZATION",
+              "KYB_ADDRESS_VERIFICATION",
+              "KYB_NAME_VERIFICATION",
+              "KYB_REGISTRATION_VERIFICATION",
+              "KYB_TAX_VERIFICATION",
               "MATCHLIST",
               "DUPLICATE",
               "FRAUD_DEVICE",
@@ -13723,6 +13736,117 @@
           }
         ]
       },
+      "Risk-Verbose-Description": {
+        "type": "object",
+        "description": "A code and description pair with a risk level.",
+        "properties": {
+          "code": {
+            "description": "Short standard code or normalized representation of the information",
+            "type": "string"
+          },
+          "riskLevel": {
+            "$ref": "#/components/schemas/Risk-Level"
+          },
+          "rawValue": {
+            "description": "The raw value coming from the vendor",
+            "type": "string"
+          },
+          "description": {
+            "description": "Short description of the information",
+            "type": "string"
+          },
+          "verboseDescription": {
+            "description": "More detailed description of the information if available",
+            "type": "string"
+          }
+        }
+      },
+      "Supplementary-Data-KYB-Verification-Base": {
+        "type": "object",
+        "description": "The base verification result for a KYB verification check, containing risk level,\nraw vendor data, submission status, and evaluation results.\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "riskLevel": {
+                "$ref": "#/components/schemas/Risk-Level"
+              },
+              "rawValue": {
+                "type": "string",
+                "description": "The raw value coming from the vendor"
+              },
+              "isSubmitted": {
+                "type": "boolean",
+                "description": "Whether the object being verified was submitted"
+              },
+              "evaluations": {
+                "type": "array",
+                "description": "List of evaluation results",
+                "items": {
+                  "$ref": "#/components/schemas/Risk-Verbose-Description"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Supplementary-Data-KYB-Address-Verification": {
+        "type": "object",
+        "description": "Provider assessment of an organization address.\nIf the addressId is not provided, this is the overall address assessment of the organization.\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-KYB-Verification-Base"
+          }
+        ]
+      },
+      "Supplementary-Data-KYB-Name-Verification": {
+        "type": "object",
+        "description": "Provider assessment of a business name\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-KYB-Verification-Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "name": {
+                "description": "the verified organization name",
+                "type": "string"
+              }
+            }
+          }
+        ]
+      },
+      "Supplementary-Data-KYB-Registration-Verification": {
+        "type": "object",
+        "description": "Provider assessment of the organization registration details\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-KYB-Verification-Base"
+          }
+        ]
+      },
+      "Supplementary-Data-KYB-Tax-Verification": {
+        "type": "object",
+        "description": "Provider assessment of the submitted tax identifier\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-KYB-Verification-Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "taxpayerIdentificationNumber": {
+                "type": "string",
+                "description": "The evaluated tax identifier"
+              }
+            }
+          }
+        ]
+      },
       "Object-Type": {
         "description": "The type of object being annotated.",
         "type": "string",
@@ -14276,6 +14400,7 @@
             "$ref": "#/components/schemas/Entity-ID-Writeable"
           },
           "entityType": {
+            "description": "The type of entity. This is required to be provided if an entity ID is provided.\n",
             "$ref": "#/components/schemas/Entity-Type-Writeable"
           },
           "externalReference": {
@@ -14351,7 +14476,7 @@
       },
       "Party-Detail": {
         "type": "object",
-        "description": "A party describes the details of one of the parties in a given transaction. It can be used to \ndescribe any participant.\n\nA party can only either be an individual or an organization.\n\nTo evaluate a party, you need to provide the details about the party involved by:\n* Using an existing entity data: Include the entityId in the party object. The data will be extracted from the entity in the FrankieOne system.\n* Filling in the details: Include the specific details within the party object. Data provided here will take precedence over the entity data but will not enrich the entity details in the FrankieOne system.\n",
+        "description": "A party describes the details of one of the parties in a given transaction. It can be used to \ndescribe any participant.\n\nA party can only either be an individual or an organization.\n\nTo evaluate a party, you need to provide the details about the party involved by:\n* Using an existing entity data: Include the entityId in the party object. The data will be extracted from the entity in the FrankieOne system.\n* Filling in the details: Include the specific details within the party object. Data provided here will take precedence over the entity data but will not enrich the entity details in the FrankieOne system.\n\nNote: If the entity ID is provided, the entity type must also be specified.\n",
         "allOf": [
           {
             "$ref": "#/components/schemas/Party-Detail-Summary"
@@ -14495,7 +14620,7 @@
       },
       "Transaction-Method": {
         "type": "string",
-        "description": "The method of payment used for the transaction",
+        "description": "The method of payment used for the transaction. Note that if you specify account details you also need to \nspecify the transfer method and vice-versa.\n",
         "enum": [
           "CARD_DEBIT",
           "CARD_CREDIT",
@@ -15514,6 +15639,18 @@
             "$ref": "#/components/schemas/Supplementary-Data-KYB-Organization"
           },
           {
+            "$ref": "#/components/schemas/Supplementary-Data-KYB-Address-Verification"
+          },
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-KYB-Name-Verification"
+          },
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-KYB-Registration-Verification"
+          },
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-KYB-Tax-Verification"
+          },
+          {
             "$ref": "#/components/schemas/Supplementary-Data-Duplicate"
           },
           {
@@ -15568,6 +15705,10 @@
             "VISA": "#/components/schemas/Supplementary-Data-Visa",
             "NAME_VALIDATION": "#/components/schemas/Supplementary-Data-NameValidation",
             "KYB_ORGANIZATION": "#/components/schemas/Supplementary-Data-KYB-Organization",
+            "KYB_ADDRESS_VERIFICATION": "#/components/schemas/Supplementary-Data-KYB-Address-Verification",
+            "KYB_NAME_VERIFICATION": "#/components/schemas/Supplementary-Data-KYB-Name-Verification",
+            "KYB_REGISTRATION_VERIFICATION": "#/components/schemas/Supplementary-Data-KYB-Registration-Verification",
+            "KYB_TAX_VERIFICATION": "#/components/schemas/Supplementary-Data-KYB-Tax-Verification",
             "DUPLICATE": "#/components/schemas/Supplementary-Data-Duplicate",
             "IDV_DOCUMENT": "#/components/schemas/Supplementary-Data-IDV-Document",
             "IDV_FACIAL_COMPARISON": "#/components/schemas/Supplementary-Data-IDV-Facial-Comparison",
