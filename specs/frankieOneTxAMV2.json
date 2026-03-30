@@ -31,16 +31,12 @@
       "description": "APIs to verify activities which will range from platform level activities such as login and registration\nto financial transactions such as deposits, withdrawals, etc.\n"
     },
     {
-      "name": "Individual Activities",
-      "description": "APIs to verify activities for an individual.\n"
-    },
-    {
-      "name": "Individual Results",
-      "description": "APIs to manage results for an individual.\n"
+      "name": "Results",
+      "description": "APIs to manage results for an individual or organization.\n"
     },
     {
       "name": "Sessions",
-      "description": "APIs to manage sessions for an individual.\n"
+      "description": "APIs to manage sessions for an individual or organization.\n"
     }
   ],
   "paths": {
@@ -216,7 +212,7 @@
         "summary": "Get Individual Activities",
         "operationId": "getIndividualActivities",
         "tags": [
-          "Individual Activities"
+          "Activities"
         ],
         "parameters": [
           {
@@ -345,7 +341,7 @@
         "summary": "Update Results",
         "operationId": "updateActivityProcessResults",
         "tags": [
-          "Individual Results"
+          "Results"
         ],
         "parameters": [
           {
@@ -451,10 +447,139 @@
         }
       }
     },
+    "/v2/organizations/{entityId}/activities": {
+      "get": {
+        "description": "Get a list of activities for an organization.",
+        "summary": "Get Organization Activities",
+        "operationId": "getOrganizationActivities",
+        "tags": [
+          "Activities"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/query_activity_types"
+          },
+          {
+            "$ref": "#/components/parameters/query_activity_result_classes"
+          },
+          {
+            "$ref": "#/components/parameters/query_activity_ids"
+          },
+          {
+            "$ref": "#/components/parameters/query_sort_field"
+          },
+          {
+            "$ref": "#/components/parameters/query_sort"
+          },
+          {
+            "$ref": "#/components/parameters/query_limit"
+          },
+          {
+            "$ref": "#/components/parameters/query_page"
+          },
+          {
+            "$ref": "#/components/parameters/query_after_activity_at"
+          },
+          {
+            "$ref": "#/components/parameters/query_before_activity_at"
+          },
+          {
+            "$ref": "#/components/parameters/Api-Key"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-CustomerID"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-CustomerChildID"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-Channel"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-Username"
+          },
+          {
+            "$ref": "#/components/parameters/path_entity_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Get-Activities-Res"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v2/individuals/{entityId}/sessions": {
       "post": {
         "description": "Create a new session for an individual.",
-        "summary": "Create Individual Session",
+        "summary": "Create Individual Session. This is only required for onboarding fraud checks where device data is required and at this stage \nit is NOT specifically needed for Transaction and Activity monitoring.\n",
         "operationId": "createIndividualSession",
         "tags": [
           "Sessions"
@@ -1094,6 +1219,7 @@
             "$ref": "#/components/schemas/Entity-ID-Writeable"
           },
           "entityType": {
+            "description": "The type of entity. This is required to be provided if an entity ID is provided.\n",
             "$ref": "#/components/schemas/Entity-Type-Writeable"
           },
           "externalReference": {
@@ -1453,7 +1579,7 @@
       },
       "Party-Detail": {
         "type": "object",
-        "description": "A party describes the details of one of the parties in a given transaction. It can be used to \ndescribe any participant.\n\nA party can only either be an individual or an organization.\n\nTo evaluate a party, you need to provide the details about the party involved by:\n* Using an existing entity data: Include the entityId in the party object. The data will be extracted from the entity in the FrankieOne system.\n* Filling in the details: Include the specific details within the party object. Data provided here will take precedence over the entity data but will not enrich the entity details in the FrankieOne system.\n",
+        "description": "A party describes the details of one of the parties in a given transaction. It can be used to \ndescribe any participant.\n\nA party can only either be an individual or an organization.\n\nTo evaluate a party, you need to provide the details about the party involved by:\n* Using an existing entity data: Include the entityId in the party object. The data will be extracted from the entity in the FrankieOne system.\n* Filling in the details: Include the specific details within the party object. Data provided here will take precedence over the entity data but will not enrich the entity details in the FrankieOne system.\n\nNote: If the entity ID is provided, the entity type must also be specified.\n",
         "allOf": [
           {
             "$ref": "#/components/schemas/Party-Detail-Summary"
@@ -1597,7 +1723,7 @@
       },
       "Transaction-Method": {
         "type": "string",
-        "description": "The method of payment used for the transaction",
+        "description": "The method of payment used for the transaction. Note that if you specify account details you also need to \nspecify the transfer method and vice-versa.\n",
         "enum": [
           "CARD_DEBIT",
           "CARD_CREDIT",
@@ -2814,7 +2940,7 @@
         "properties": {
           "type": {
             "type": "string",
-            "description": "The type of supplementary data. Possible values:\n  - AML\n  - KYC_ADDRESS\n  - KYC_DOB\n  - KYC_GENDER\n  - KYC_NAME\n  - ID\n  - VISA\n  - NAME_VALIDATION\n  - KYB_ORGANIZATION\n  - MATCHLIST\n  - DUPLICATE\n  - FRAUD_DEVICE\n  - FRAUD_EMAIL\n  - FRAUD_PHONE\n  - FRAUD_LOOKUP\n  - ACTIVITY_AML\n  - ACTIVITY_EVENT\n  - ACTIVITY_FRAUD\n",
+            "description": "The type of supplementary data. Possible values:\n  - AML\n  - KYC_ADDRESS\n  - KYC_DOB\n  - KYC_GENDER\n  - KYC_NAME\n  - ID\n  - VISA\n  - NAME_VALIDATION\n  - KYB_ORGANIZATION\n  - KYB_ADDRESS_VERIFICATION\n  - KYB_NAME_VERIFICATION\n  - KYB_REGISTRATION_VERIFICATION\n  - KYB_TAX_VERIFICATION\n  - MATCHLIST\n  - DUPLICATE\n  - FRAUD_DEVICE\n  - FRAUD_EMAIL\n  - FRAUD_PHONE\n  - FRAUD_LOOKUP\n  - ACTIVITY_AML\n  - ACTIVITY_EVENT\n  - ACTIVITY_FRAUD\n",
             "enum": [
               "AML",
               "KYC_ADDRESS",
@@ -2825,6 +2951,10 @@
               "VISA",
               "NAME_VALIDATION",
               "KYB_ORGANIZATION",
+              "KYB_ADDRESS_VERIFICATION",
+              "KYB_NAME_VERIFICATION",
+              "KYB_REGISTRATION_VERIFICATION",
+              "KYB_TAX_VERIFICATION",
               "MATCHLIST",
               "DUPLICATE",
               "FRAUD_DEVICE",
@@ -3806,6 +3936,117 @@
           }
         ]
       },
+      "Risk-Verbose-Description": {
+        "type": "object",
+        "description": "A code and description pair with a risk level.",
+        "properties": {
+          "code": {
+            "description": "Short standard code or normalized representation of the information",
+            "type": "string"
+          },
+          "riskLevel": {
+            "$ref": "#/components/schemas/Risk-Level"
+          },
+          "rawValue": {
+            "description": "The raw value coming from the vendor",
+            "type": "string"
+          },
+          "description": {
+            "description": "Short description of the information",
+            "type": "string"
+          },
+          "verboseDescription": {
+            "description": "More detailed description of the information if available",
+            "type": "string"
+          }
+        }
+      },
+      "Supplementary-Data-KYB-Verification-Base": {
+        "type": "object",
+        "description": "The base verification result for a KYB verification check, containing risk level,\nraw vendor data, submission status, and evaluation results.\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "riskLevel": {
+                "$ref": "#/components/schemas/Risk-Level"
+              },
+              "rawValue": {
+                "type": "string",
+                "description": "The raw value coming from the vendor"
+              },
+              "isSubmitted": {
+                "type": "boolean",
+                "description": "Whether the object being verified was submitted"
+              },
+              "evaluations": {
+                "type": "array",
+                "description": "List of evaluation results",
+                "items": {
+                  "$ref": "#/components/schemas/Risk-Verbose-Description"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Supplementary-Data-KYB-Address-Verification": {
+        "type": "object",
+        "description": "Provider assessment of an organization address.\nIf the addressId is not provided, this is the overall address assessment of the organization.\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-KYB-Verification-Base"
+          }
+        ]
+      },
+      "Supplementary-Data-KYB-Name-Verification": {
+        "type": "object",
+        "description": "Provider assessment of a business name\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-KYB-Verification-Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "name": {
+                "description": "the verified organization name",
+                "type": "string"
+              }
+            }
+          }
+        ]
+      },
+      "Supplementary-Data-KYB-Registration-Verification": {
+        "type": "object",
+        "description": "Provider assessment of the organization registration details\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-KYB-Verification-Base"
+          }
+        ]
+      },
+      "Supplementary-Data-KYB-Tax-Verification": {
+        "type": "object",
+        "description": "Provider assessment of the submitted tax identifier\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-KYB-Verification-Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "taxpayerIdentificationNumber": {
+                "type": "string",
+                "description": "The evaluated tax identifier"
+              }
+            }
+          }
+        ]
+      },
       "Object-Type": {
         "description": "The type of object being annotated.",
         "type": "string",
@@ -4709,6 +4950,18 @@
             "$ref": "#/components/schemas/Supplementary-Data-KYB-Organization"
           },
           {
+            "$ref": "#/components/schemas/Supplementary-Data-KYB-Address-Verification"
+          },
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-KYB-Name-Verification"
+          },
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-KYB-Registration-Verification"
+          },
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-KYB-Tax-Verification"
+          },
+          {
             "$ref": "#/components/schemas/Supplementary-Data-Duplicate"
           },
           {
@@ -4763,6 +5016,10 @@
             "VISA": "#/components/schemas/Supplementary-Data-Visa",
             "NAME_VALIDATION": "#/components/schemas/Supplementary-Data-NameValidation",
             "KYB_ORGANIZATION": "#/components/schemas/Supplementary-Data-KYB-Organization",
+            "KYB_ADDRESS_VERIFICATION": "#/components/schemas/Supplementary-Data-KYB-Address-Verification",
+            "KYB_NAME_VERIFICATION": "#/components/schemas/Supplementary-Data-KYB-Name-Verification",
+            "KYB_REGISTRATION_VERIFICATION": "#/components/schemas/Supplementary-Data-KYB-Registration-Verification",
+            "KYB_TAX_VERIFICATION": "#/components/schemas/Supplementary-Data-KYB-Tax-Verification",
             "DUPLICATE": "#/components/schemas/Supplementary-Data-Duplicate",
             "IDV_DOCUMENT": "#/components/schemas/Supplementary-Data-IDV-Document",
             "IDV_FACIAL_COMPARISON": "#/components/schemas/Supplementary-Data-IDV-Facial-Comparison",
