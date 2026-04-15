@@ -447,139 +447,10 @@
         }
       }
     },
-    "/v2/organizations/{entityId}/activities": {
-      "get": {
-        "description": "Get a list of activities for an organization.",
-        "summary": "Get Organization Activities",
-        "operationId": "getOrganizationActivities",
-        "tags": [
-          "Activities"
-        ],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/query_activity_types"
-          },
-          {
-            "$ref": "#/components/parameters/query_activity_result_classes"
-          },
-          {
-            "$ref": "#/components/parameters/query_activity_ids"
-          },
-          {
-            "$ref": "#/components/parameters/query_sort_field"
-          },
-          {
-            "$ref": "#/components/parameters/query_sort"
-          },
-          {
-            "$ref": "#/components/parameters/query_limit"
-          },
-          {
-            "$ref": "#/components/parameters/query_page"
-          },
-          {
-            "$ref": "#/components/parameters/query_after_activity_at"
-          },
-          {
-            "$ref": "#/components/parameters/query_before_activity_at"
-          },
-          {
-            "$ref": "#/components/parameters/Api-Key"
-          },
-          {
-            "$ref": "#/components/parameters/X-Frankie-CustomerID"
-          },
-          {
-            "$ref": "#/components/parameters/X-Frankie-CustomerChildID"
-          },
-          {
-            "$ref": "#/components/parameters/X-Frankie-Channel"
-          },
-          {
-            "$ref": "#/components/parameters/X-Frankie-Username"
-          },
-          {
-            "$ref": "#/components/parameters/path_entity_id"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Get-Activities-Res"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "503": {
-            "description": "Service Unavailable",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/v2/individuals/{entityId}/sessions": {
       "post": {
-        "description": "Create a new session for an individual.",
-        "summary": "Create Individual Session. This is only required for onboarding fraud checks where device data is required and at this stage \nit is NOT specifically needed for Transaction and Activity monitoring.\n",
+        "description": "Create a new session for an individual. This is only required for onboarding fraud checks where device data is required and at this stage \nit is NOT specifically needed for Transaction and Activity monitoring.\n",
+        "summary": "Create Individual Session.\n",
         "operationId": "createIndividualSession",
         "tags": [
           "Sessions"
@@ -2921,6 +2792,9 @@
           "DUPLICATE",
           "BLOCKLIST",
           "SUPPORTING_DOC",
+          "ORGANIZATION_PROFILE",
+          "ORGANIZATION_VERIFICATION",
+          "ORGANIZATION_OWNERSHIP",
           "MATCHLIST",
           "VISA",
           "ACTIVITY"
@@ -3911,9 +3785,2405 @@
         "description": "The type of entity within Frankie. This can be \"INDIVIDUAL\", \"ORGANIZATION\", or \"UNKNOWN\".",
         "readOnly": true
       },
+      "Document-Class": {
+        "type": "string",
+        "enum": [
+          "OTHER",
+          "IDENTITY",
+          "SUPPORTING",
+          "REPORT"
+        ],
+        "description": "The classification of the document, indicating how it should be used or interpreted.",
+        "example": "IDENTITY"
+      },
+      "Document-ID": {
+        "type": "string",
+        "format": "uuid",
+        "description": "As documents are added to an entity, they are assigned a unique identifier to assist with modification and reference.\nTo modify a document, include the documentId in an update request.",
+        "example": "92de15f64-5717-4562-b3fc-2c963f6665a7"
+      },
+      "Document-Type": {
+        "type": "string",
+        "enum": [
+          "OTHER",
+          "DRIVERS_LICENSE",
+          "PASSPORT",
+          "VISA",
+          "IMMIGRATION",
+          "NATIONAL_ID",
+          "TAX_ID",
+          "NATIONAL_HEALTH_ID",
+          "CONCESSION",
+          "HEALTH_CONCESSION",
+          "PENSION",
+          "MILITARY_ID",
+          "BIRTH_CERT",
+          "CITIZENSHIP",
+          "MARRIAGE_CERT",
+          "DEATH_CERT",
+          "NAME_CHANGE",
+          "UTILITY_BILL",
+          "BANK_STATEMENT",
+          "BANK_ACCOUNT",
+          "INTENT_PROOF",
+          "ATTESTATION",
+          "SELF_IMAGE",
+          "DEVICE",
+          "VEHICLE_REGISTRATION",
+          "PROOF_OF_ADDRESS",
+          "HOUSE_REGISTRATION",
+          "YELLOW_HOUSE_REGISTRATION",
+          "WORK_PERMIT",
+          "EMPLOYMENT_CERTIFICATE",
+          "NOTARY_PUBLIC_ID",
+          "EXTERNAL_ADMIN",
+          "CHARGES",
+          "PRE_ASIC",
+          "ANNUAL_RETURN",
+          "REPORT",
+          "TRUST_DEED",
+          "DEED_OF_VARIATION",
+          "REGISTER_OF_UNIT_HOLDERS",
+          "PARTNERSHIP_AGREEMENT",
+          "ADMIN_CHANGE",
+          "COMPANY_REPORT",
+          "CHECK_RESULTS",
+          "AVIATION_SECURITY_ID",
+          "MARITIME_SECURITY_ID",
+          "ORGANIZATION_PROFILE",
+          "ORGANIZATION_OWNERSHIP"
+        ],
+        "description": "Valid document ID types.\n\n  - \"OTHER\": Generic document type. Unspecified.\n  - \"DRIVERS_LICENSE\": Driver's license.\n  - \"PASSPORT\": Passport.\n  - \"VISA\": Visa document (not Visa payment card).\n  - \"IMMIGRATION\": Immigration card.\n  - \"NATIONAL_ID\": Any national ID card.\n  - \"TAX_ID\": Any national tax identifier.\n  - \"NATIONAL_HEALTH_ID\": Any national health program ID card (e.g., Medicare, NHS).\n  - \"CONCESSION\": State-issued concession card.\n  - \"HEALTH_CONCESSION\": State-issued health-specific concession card.\n  - \"PENSION\": State-issued pension ID.\n  - \"MILITARY_ID\": Military ID.\n  - \"BIRTH_CERT\": Birth certificate.\n  - \"CITIZENSHIP\": Citizenship certificate.\n  - \"MARRIAGE_CERT\": Marriage certificate.\n  - \"DEATH_CERT\": Death certificate.\n  - \"NAME_CHANGE\": Name change confirmation.\n  - \"UTILITY_BILL\": Regulated utility bill, such as electricity, gas, etc.\n  - \"BANK_STATEMENT\": Bank/card statement.\n  - \"BANK_ACCOUNT\": Bank account.\n  - \"INTENT_PROOF\": Proof of intent, generally a photo/video or a scanned letter.\n  - \"ATTESTATION\": Document of attestation (e.g., Statutory Declaration).\n\n  NOTE: These cannot be used as a supporting document:\n  - \"SELF_IMAGE\": A \"selfie\" used for comparisons.\n  - \"DEVICE\": Device ID.\n  - \"VEHICLE_REGISTRATION\": Vehicle registration number.\n  - \"PROOF_OF_ADDRESS\": Any document that provides proof of address.\n  - \"HOUSE_REGISTRATION\": House registration document.\n  - \"YELLOW_HOUSE_REGISTRATION\": Yellow House Registration Thor Ror 13.\n  - \"WORK_PERMIT\": Work permit.\n  - \"EMPLOYMENT_CERTIFICATE\": Certificate of employment.\n  - \"NOTARY_PUBLIC_ID\": Notary Public Identification.\n\n  Business-related documentation:\n\n  - \"EXTERNAL_ADMIN\": Details of appointed administrator.\n  - \"CHARGES\": Details of any charges laid against a company or director.\n  - \"PRE_ASIC\": Any documents that are Pre-ASIC.\n  - \"ANNUAL_RETURN\": Details of a company's annual return.\n  - \"REPORT\": Frankie-generated report.\n  - \"TRUST_DEED\": Corporate trust deed.\n  - \"DEED_OF_VARIATION\": Deed of variation document.\n  - \"REGISTER_OF_UNIT_HOLDERS\": Register of unit holders document.\n  - \"PARTNERSHIP_AGREEMENT\": Partnership agreement documents.\n  - \"ADMIN_CHANGE\": Change of administrator.\n  - \"COMPANY_REPORT\": Registry-filed company reports.\n  - \"ORGANIZATION_PROFILE\": Organization profile document.\n  - \"ORGANIZATION_OWNERSHIP\": Organization ownership document.\n\n  Special document types:\n\n  - \"CHECK_RESULTS\": Special document type for specifying results of checks completed other than through Frankie.\n  - \"AVIATION_SECURITY_ID\": Aviation Security Identification Card.\n  - \"MARITIME_SECURITY_ID\": Maritime Security Identification Card."
+      },
+      "Document-Supplementary-Data-Base": {
+        "type": "object",
+        "description": "Supplementary data associated with a document.",
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "The document type that defines the type of supplementary data returned.",
+            "enum": [
+              "NATIONAL_HEALTH_ID",
+              "BIRTH_CERT",
+              "NATIONAL_ID",
+              "CITIZENSHIP",
+              "PASSPORT",
+              "MARRIAGE_CERT"
+            ]
+          }
+        }
+      },
+      "Document-Supplementary-Data-National-Health-ID": {
+        "type": "object",
+        "description": "Supplementary information relevant to a national health id.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Document-Supplementary-Data-Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "reference": {
+                "type": "string",
+                "description": "The individual reference number used to identify the position of the applicant's name on the health card. Required for Australian Medicare cards (this is the number to the left of the name on the card).",
+                "example": "1"
+              },
+              "nameOnCardLine1": {
+                "type": "string",
+                "description": "The individual's name as it appears on the card."
+              },
+              "nameOnCardLine2": {
+                "type": "string",
+                "description": "If the individual's name spans more than one line, this is the part of the name that appears on line 2."
+              },
+              "nameOnCardLine3": {
+                "type": "string",
+                "description": "If the individual's name spans more than two lines, this is the part of the name that appears on line 3."
+              },
+              "nameOnCardLine4": {
+                "type": "string",
+                "description": "If the individual's name spans more than three lines, this is the part of the name that appears on line 4."
+              },
+              "middleNameOnCard": {
+                "type": "string",
+                "description": "The individual's middle name or initial as it appears on the card."
+              }
+            }
+          }
+        ]
+      },
+      "Document-Supplementary-Data-Birth-Certificate": {
+        "type": "object",
+        "description": "Supplementary information relevant to a birth certificate.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Document-Supplementary-Data-Base"
+          },
+          {
+            "type": "object",
+            "description": "Supplementary information relevant to a birth certificate.",
+            "properties": {
+              "registrationDate": {
+                "type": "string",
+                "description": "The date the birth was registered.",
+                "example": "2000"
+              },
+              "registrationDistrict": {
+                "type": "string",
+                "description": "The district where the birth was registered.",
+                "example": "Sydney"
+              },
+              "dateOfPrint": {
+                "type": "string",
+                "description": "The date the birth certificate was printed.",
+                "example": "2000"
+              },
+              "givenName": {
+                "type": "string",
+                "description": "The given name as printed on the certificate."
+              },
+              "otherNames": {
+                "type": "string",
+                "description": "Other name(s) as printed on the certificate."
+              },
+              "familyName": {
+                "type": "string",
+                "description": "The family name as printed on the certificate."
+              },
+              "countryOfBirth": {
+                "type": "string",
+                "description": "The country of birth as printed on the certificate. ISO 3166-1 alpha-3 code.",
+                "example": "AUS"
+              }
+            }
+          }
+        ]
+      },
+      "Document-Supplementary-Data-National-ID": {
+        "type": "object",
+        "description": "Supplementary information relevant to a national ID.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Document-Supplementary-Data-Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "homeCountryFullName": {
+                "type": "string",
+                "description": "The original full name from the individual's home country national ID.",
+                "example": "张伟明"
+              },
+              "paternalFamilyName": {
+                "type": "string",
+                "description": "The individual's family name inherited from the father's side.",
+                "example": "MENDOZA"
+              },
+              "maternalFamilyName": {
+                "type": "string",
+                "description": "The individual's family name inherited from the mother's side.",
+                "example": "GARCIA"
+              }
+            }
+          }
+        ]
+      },
+      "Document-Supplementary-Data-Citizenship": {
+        "type": "object",
+        "description": "Supplementary information relevant to a citizenship certificate.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Document-Supplementary-Data-Base"
+          },
+          {
+            "type": "object",
+            "description": "Supplementary information relevant to a citizenship certificate.",
+            "properties": {
+              "acquisitionDate": {
+                "type": "string",
+                "description": "The date citizenship was acquired.",
+                "example": "2000/01/01"
+              },
+              "primaryCountry": {
+                "type": "string",
+                "description": "The primary country of citizenship, represented by its three-letter ISO 3166-1 alpha-3 code.",
+                "example": "USA"
+              },
+              "secondaryCountry": {
+                "type": "string",
+                "description": "The secondary country of citizenship, if applicable, represented by its three-letter ISO 3166-1 alpha-3 code.",
+                "example": "CAN"
+              }
+            }
+          }
+        ]
+      },
+      "Document-Supplementary-Data-Passport": {
+        "type": "object",
+        "description": "Supplementary information relevant to a national health id.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Document-Supplementary-Data-Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "homeCountryFullName": {
+                "type": "string",
+                "description": "The original name from the home country of passport.",
+                "example": "张伟明"
+              }
+            }
+          }
+        ]
+      },
+      "Document-Supplementary-Data-Marriage-Certificate": {
+        "type": "object",
+        "description": "Supplementary information relevant to a marriage certificate.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Document-Supplementary-Data-Base"
+          },
+          {
+            "type": "object",
+            "description": "Supplementary information relevant to a marriage certificate.",
+            "properties": {
+              "partner1GivenName": {
+                "type": "string",
+                "description": "The given name of partner 1.",
+                "example": "Harry"
+              },
+              "partner1FamilyName": {
+                "type": "string",
+                "description": "The family name of partner 1.",
+                "example": "Versailles"
+              },
+              "partner1OtherName": {
+                "type": "string",
+                "description": "The other name of partner 1.",
+                "example": "S."
+              },
+              "partner2GivenName": {
+                "type": "string",
+                "description": "The given name of partner 2.",
+                "example": "Harry"
+              },
+              "partner2FamilyName": {
+                "type": "string",
+                "description": "The family name of partner 2.",
+                "example": "Versailles"
+              },
+              "partner2OtherName": {
+                "type": "string",
+                "description": "The other name of partner 2.",
+                "example": "S."
+              },
+              "registrationDate": {
+                "type": "string",
+                "description": "The date the marriage was registered.",
+                "example": "2023"
+              },
+              "marriageDate": {
+                "type": "string",
+                "description": "The date the marriage was held.",
+                "example": "2023-10-01"
+              },
+              "dateOfPrint": {
+                "type": "string",
+                "description": "The date the birth certificate was printed.",
+                "example": "2023-10-01"
+              }
+            }
+          }
+        ]
+      },
+      "Document-Supplementary-Data-Name-Change-Certificate": {
+        "type": "object",
+        "description": "Supplementary information relevant to a name change certificate.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Document-Supplementary-Data-Base"
+          },
+          {
+            "type": "object",
+            "description": "Supplementary information relevant to a name change certificate.",
+            "properties": {
+              "dateOfPrint": {
+                "type": "string",
+                "description": "The date the name change certificate was printed.",
+                "example": "2000/01/01"
+              },
+              "registrationDate": {
+                "type": "string",
+                "description": "The date the name change certificate was registered.",
+                "example": "2000/01/01"
+              },
+              "registeredFamilyName": {
+                "type": "string",
+                "description": "The family name registered in the name change certificate.",
+                "example": "Doe"
+              },
+              "registeredGivenName": {
+                "type": "string",
+                "description": "The given name registered in the name change certificate.",
+                "example": "John"
+              },
+              "registeredOtherGivenNames": {
+                "type": "string",
+                "description": "Other given names registered in the name change certificate.",
+                "example": "Roy Michael"
+              }
+            }
+          }
+        ]
+      },
+      "Document-Supplementary-Data": {
+        "type": "object",
+        "description": "Supplementary information relevant to a specific document or report type.",
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/Document-Supplementary-Data-National-Health-ID"
+          },
+          {
+            "$ref": "#/components/schemas/Document-Supplementary-Data-Birth-Certificate"
+          },
+          {
+            "$ref": "#/components/schemas/Document-Supplementary-Data-National-ID"
+          },
+          {
+            "$ref": "#/components/schemas/Document-Supplementary-Data-Citizenship"
+          },
+          {
+            "$ref": "#/components/schemas/Document-Supplementary-Data-Passport"
+          },
+          {
+            "$ref": "#/components/schemas/Document-Supplementary-Data-Marriage-Certificate"
+          },
+          {
+            "$ref": "#/components/schemas/Document-Supplementary-Data-Name-Change-Certificate"
+          }
+        ],
+        "discriminator": {
+          "propertyName": "type",
+          "mapping": {
+            "NATIONAL_HEALTH_ID": "#/components/schemas/Document-Supplementary-Data-National-Health-ID",
+            "BIRTH_CERT": "#/components/schemas/Document-Supplementary-Data-Birth-Certificate",
+            "NATIONAL_ID": "#/components/schemas/Document-Supplementary-Data-National-ID",
+            "CITIZENSHIP": "#/components/schemas/Document-Supplementary-Data-Citizenship",
+            "PASSPORT": "#/components/schemas/Document-Supplementary-Data-Passport",
+            "MARRIAGE_CERT": "#/components/schemas/Document-Supplementary-Data-Marriage-Certificate",
+            "NAME_CHANGE": "#/components/schemas/Document-Supplementary-Data-Name-Change-Certificate"
+          }
+        }
+      },
+      "Document-Attachment-ID": {
+        "type": "string",
+        "format": "uuid",
+        "description": "When a document attachment is created or uploaded, it is assigned an attachmentId. This identifier will appear in a successful response or accepted response. It can be referenced in subsequent calls if you are uploading additional or updated data."
+      },
+      "Document-Attachment-Side": {
+        "type": "string",
+        "enum": [
+          "FRONT",
+          "BACK"
+        ],
+        "description": "Indicates whether the attachment is the front or back side of a document."
+      },
+      "Document-Attachment-Type": {
+        "type": "string",
+        "description": "General types of valid document attachments.\n  - \"PHOTO\": Any photo.\n  - \"VIDEO\": Any video.\n  - \"AUDIO\": Any audio.\n  - \"PDF\": PDF or PS file (may contain text, images, or both).\n  - \"DOC\": Word document, RTF, etc.\n  - \"ZIP\": Any compressed file(s)."
+      },
+      "Data-URI-Base64": {
+        "description": "A Base64-encoded string or URI representing the data.",
+        "oneOf": [
+          {
+            "type": "object",
+            "readOnly": true,
+            "required": [
+              "uri"
+            ],
+            "properties": {
+              "uri": {
+                "type": "string",
+                "description": "URI identifying the resource location.",
+                "example": "https://s3.amazonaws.com/dev/41963bc5feff322020137de233c3be0fac6/croppedFrontID/38d54232-b840-431d-b248-152345fe214.jpg"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "base64"
+            ],
+            "properties": {
+              "base64": {
+                "type": "string",
+                "description": "Base64-encoded string of the raw attachment data.",
+                "example": "ZG9jdW1lbnQgaW1hZ2UgZ29lcyBoZXJl"
+              }
+            }
+          }
+        ]
+      },
+      "Document-Attachment-Retrieval-Status": {
+        "type": "string",
+        "readOnly": true,
+        "enum": [
+          "NORMAL",
+          "EXCLUDED",
+          "FAILED"
+        ],
+        "description": "The reason why the data in a response is missing.\n\n- \"NORMAL\": The data was retrieved and is included. If it is empty, then\n  it was never provided or was provided empty.\n\n- \"EXCLUDED\": The retrieval request was not for 'full' data, or the object\n  has been deleted, so the data is not included.\n\n- \"FAILED\": The data could not be retrieved from the secure document\n  store.\n\nThe retrievalStatus enum will not usually be set in a request. If an\nattachment in a response has a 'FAILED' retrieval state, then\nthat object should not be sent back in a future update. It should\neither be omitted or the original data should be resent if it is available\nfrom another source. However, it is safe to send the object in an update\nwith the state received in a response. Any state other than 'NORMAL' (or\n'') will cause the blank data to be ignored, but other fields in the\nobject will be updated if needed."
+      },
+      "Document-Attachment": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "description": "Document attachment details.",
+        "properties": {
+          "attachmentId": {
+            "$ref": "#/components/schemas/Document-Attachment-ID"
+          },
+          "sourceId": {
+            "type": "string",
+            "readOnly": true,
+            "description": "The source from which specific information was sourced. This is a link to an informationSource object in the informationSources map."
+          },
+          "createdAt": {
+            "type": "string",
+            "readOnly": true,
+            "format": "date-time",
+            "description": "The date and time the attachment was created. This is not the date of the attached document, which should be in the idIssued attribute of the document that owns this attachment."
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true,
+            "description": "The date and time the attachment was last updated. This is not the date of the attached document, which should be in the idIssued attribute of the document that owns this attachment."
+          },
+          "filename": {
+            "type": "string",
+            "description": "If you are uploading a file where it is important to keep the original filename, you can provide it here. Otherwise, the Frankie service will assign an arbitrary name based on the attachmentId and an extension based on the MIME type."
+          },
+          "mimeType": {
+            "type": "string",
+            "description": "The standard MIME type of the file being uploaded. This will be verified, but providing it can help speed up processing."
+          },
+          "pageNumber": {
+            "type": "integer",
+            "description": "If uploading multiple pages, this can be used to track page numbers. There is no enforcement of these numbers. You can have multiple page 1's or a page 29 if you wish."
+          },
+          "side": {
+            "$ref": "#/components/schemas/Document-Attachment-Side"
+          },
+          "type": {
+            "$ref": "#/components/schemas/Document-Attachment-Type"
+          },
+          "location": {
+            "description": "Reference to where the data can be retrieved from.",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/Data-URI-Base64"
+          },
+          "lastMalwareScanAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "retrievalStatus": {
+            "$ref": "#/components/schemas/Document-Attachment-Retrieval-Status"
+          }
+        }
+      },
+      "Document-Information": {
+        "type": "object",
+        "required": [
+          "type",
+          "country"
+        ],
+        "properties": {
+          "class": {
+            "$ref": "#/components/schemas/Document-Class"
+          },
+          "documentId": {
+            "$ref": "#/components/schemas/Document-ID"
+          },
+          "entityId": {
+            "$ref": "#/components/schemas/Entity-ID"
+          },
+          "expiryDate": {
+            "$ref": "#/components/schemas/Date",
+            "description": "The expiry date of the document in YYYY-MM-DD format."
+          },
+          "issueDate": {
+            "$ref": "#/components/schemas/Date",
+            "description": "The issue date of the document in YYYY-MM-DD format."
+          },
+          "primaryIdentifier": {
+            "type": "string",
+            "description": "The primary ID number of the document, e.g., the ID number on a driver licence.",
+            "example": "000734130"
+          },
+          "secondaryIdentifier": {
+            "type": "string",
+            "description": "The secondary ID number of the document, e.g., the card number on a driver licence.",
+            "example": "P0001975"
+          },
+          "type": {
+            "$ref": "#/components/schemas/Document-Type"
+          },
+          "subtype": {
+            "type": "string",
+            "description": "The sub-type of the document, if relevant. This can include specific report or attestation types, e.g., FACIAL_COMPARISON (attestation) or KYC (report).",
+            "example": "Photo Comparison"
+          },
+          "subdivision": {
+            "type": "string",
+            "description": "The abbreviated ISO 3166 subdivision/region where the ID was issued, e.g., \"VIC\" for the Australian state of Victoria or \"MA\" for the US state of Massachusetts.",
+            "example": "VIC"
+          },
+          "country": {
+            "type": "string",
+            "maxLength": 3,
+            "description": "The ISO 3166 alpha-3 country code where the document was issued, if relevant.\nFor more information, please refer to: https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes",
+            "example": "AUS"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The date and time when the document record was created, in ISO 8601 format.",
+            "example": "2024-01-15T02:18:11.365Z",
+            "readOnly": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The date and time when the document record was last updated, in ISO 8601 format.",
+            "example": "2025-01-16T02:18:11.365Z",
+            "readOnly": true
+          },
+          "validFrom": {
+            "$ref": "#/components/schemas/Date",
+            "description": "The date when the validity period for this document began, if applicable."
+          },
+          "validTo": {
+            "$ref": "#/components/schemas/Date",
+            "description": "The date when the validity period for this document ended, if applicable."
+          },
+          "sourceId": {
+            "type": "string",
+            "description": "The source from which specific information was sourced. This is a link to an informationSource object in the informationSources map.",
+            "example": "324f15f64-5717-4562-b3fc-2c963f66ffa1",
+            "readOnly": true
+          },
+          "supplementaryData": {
+            "$ref": "#/components/schemas/Document-Supplementary-Data"
+          },
+          "customAttributes": {
+            "$ref": "#/components/schemas/Custom-Attributes"
+          },
+          "attachments": {
+            "type": "array",
+            "description": "List of scans, pages, or files for a single document, e.g., front and back images of a driver licence, or page 1, 2, and 3 of a supporting document.\n\nAttachments can be uploaded in a single call or in multiple calls. To upload attachments over multiple calls, include the documentId in the request.",
+            "items": {
+              "$ref": "#/components/schemas/Document-Attachment"
+            }
+          }
+        }
+      },
+      "Entity-Documents": {
+        "type": "object",
+        "properties": {
+          "REPORT": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Document-Information"
+            }
+          },
+          "SUPPORTING": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Document-Information"
+            }
+          },
+          "IDENTITY": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Document-Information"
+            }
+          },
+          "OTHER": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Document-Information"
+            }
+          }
+        }
+      },
+      "Entity": {
+        "type": "object",
+        "properties": {
+          "entityId": {
+            "$ref": "#/components/schemas/Entity-ID"
+          },
+          "entityType": {
+            "$ref": "#/components/schemas/Entity-Type"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "schemaVersion": {
+            "type": "integer",
+            "description": "The schema version of this entity.",
+            "example": 2,
+            "readOnly": true
+          },
+          "addresses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Address"
+            },
+            "description": "A list of all address information associated with the entity."
+          },
+          "phoneNumbers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Phone-Number"
+            },
+            "description": "A list of all phone numbers associated with the entity."
+          },
+          "emailAddresses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Email"
+            },
+            "description": "A list of all email addresses associated with the entity."
+          },
+          "customAttributes": {
+            "$ref": "#/components/schemas/Custom-Attributes"
+          },
+          "externalReferences": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/External-Reference"
+            },
+            "description": "A list of all external references associated with the entity."
+          },
+          "documents": {
+            "$ref": "#/components/schemas/Entity-Documents"
+          },
+          "sourceId": {
+            "type": "string",
+            "description": "The source from which specific information was sourced. This is a link to an informationSource object in the informationSources map.",
+            "readOnly": true
+          }
+        }
+      },
+      "Website-URL": {
+        "title": "Website URL",
+        "type": "object",
+        "properties": {
+          "websiteUrl": {
+            "type": "string",
+            "description": "The website URL."
+          },
+          "sourceId": {
+            "type": "string",
+            "description": "Reference to the information source where this data was obtained.\nThis should correspond to an informationSource object in the informationSources map.\n"
+          }
+        }
+      },
+      "Code-Description": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "description": "Short standard code or normalized representation of the information",
+            "type": "string"
+          },
+          "description": {
+            "description": "The information relevant to the code, could be a more descriptive information",
+            "type": "string"
+          }
+        }
+      },
+      "Code-Description-Source-ID": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Code-Description"
+          },
+          {
+            "properties": {
+              "sourceId": {
+                "type": "string",
+                "description": "Where specific information was sourced. This is a reference to an informationSource object in the informationSources map."
+              }
+            }
+          }
+        ]
+      },
+      "Organization-Registry": {
+        "type": "object",
+        "properties": {
+          "registry": {
+            "description": "Registry the organization is registered at",
+            "type": "string"
+          },
+          "registryDescription": {
+            "description": "The description of the registry",
+            "type": "string"
+          }
+        }
+      },
+      "Organization-Status": {
+        "type": "object",
+        "properties": {
+          "normalized": {
+            "$ref": "#/components/schemas/Code-Description",
+            "description": "normalized status form"
+          },
+          "unstructured": {
+            "$ref": "#/components/schemas/Code-Description",
+            "description": "raw status form"
+          },
+          "sourceId": {
+            "type": "string",
+            "description": "Where specific information was sourced. This is a reference to an informationSource object in the informationSources map."
+          }
+        }
+      },
+      "Organization-Name": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "description": "The organization's name",
+            "type": "string"
+          },
+          "type": {
+            "description": "The type of name",
+            "type": "string"
+          },
+          "validFrom": {
+            "$ref": "#/components/schemas/Date",
+            "description": "The date from which this name will be in effect"
+          },
+          "validTo": {
+            "$ref": "#/components/schemas/Date",
+            "description": "The date until which this name will be in effect"
+          },
+          "sourceId": {
+            "type": "string",
+            "description": "Where specific information was sourced. This is a reference to an informationSource object in the informationSources map."
+          }
+        }
+      },
+      "Organization-Registration-Details": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Organization-Registry"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "$ref": "#/components/schemas/Code-Description-Source-ID"
+              },
+              "class": {
+                "$ref": "#/components/schemas/Code-Description-Source-ID"
+              },
+              "subClass": {
+                "$ref": "#/components/schemas/Code-Description-Source-ID"
+              },
+              "subType": {
+                "$ref": "#/components/schemas/Code-Description-Source-ID"
+              },
+              "status": {
+                "description": "The status of the organization based on its primary registry",
+                "$ref": "#/components/schemas/Organization-Status"
+              },
+              "isCurrent": {
+                "description": "Indicates that the registration is current",
+                "type": "boolean"
+              },
+              "registeredName": {
+                "description": "The name of organization in the registry",
+                "$ref": "#/components/schemas/Organization-Name"
+              },
+              "registeredDate": {
+                "description": "The date the organization was registered on",
+                "$ref": "#/components/schemas/Date"
+              },
+              "extractedDate": {
+                "description": "The date when the organization details were extracted from the registry",
+                "$ref": "#/components/schemas/Date"
+              },
+              "registeredSubdivision": {
+                "description": "The subdivision that the organization was registered at. The registered state for jurisdictions like Australia will be available in this field.",
+                "type": "string"
+              },
+              "registeredCountry": {
+                "description": "The country that the organization was registered at",
+                "type": "string"
+              },
+              "registrationStatus": {
+                "$ref": "#/components/schemas/Organization-Status"
+              },
+              "registrationNumber": {
+                "description": "The registration number of the organization in the registry",
+                "type": "string"
+              },
+              "registrationNumberType": {
+                "description": "The type of the registration number, e.g. ACN, ABN, etc.",
+                "type": "string"
+              },
+              "registrationNumberDescription": {
+                "description": "The description of type of the registration number, e.g. Australian Company Number, Australian Business Number, etc.",
+                "type": "string"
+              },
+              "updatedDate": {
+                "description": "The date on which the registration was last updated",
+                "$ref": "#/components/schemas/Date"
+              },
+              "reviewDate": {
+                "description": "The future date when the registration needs to be reviewed",
+                "$ref": "#/components/schemas/Date"
+              },
+              "foundationDate": {
+                "description": "In some registries the foundation date (when the organization was registered or founded) is provided",
+                "$ref": "#/components/schemas/Date"
+              },
+              "isSuppressed": {
+                "description": "Denotes whether the information in the registry is suppressed",
+                "type": "boolean"
+              },
+              "validFrom": {
+                "description": "The date on which the registration started",
+                "$ref": "#/components/schemas/Date"
+              },
+              "validTo": {
+                "description": "The date on which the registration ended",
+                "$ref": "#/components/schemas/Date"
+              },
+              "governance": {
+                "description": "The governance structure of the organization.",
+                "$ref": "#/components/schemas/Code-Description"
+              },
+              "sourceId": {
+                "type": "string",
+                "description": "The source from where a specific information was sourced from. This is a link to an informationSource object in the informationSources map."
+              }
+            },
+            "required": [
+              "registrationNumber"
+            ]
+          }
+        ]
+      },
+      "Organization-Region": {
+        "type": "object",
+        "required": [
+          "country"
+        ],
+        "properties": {
+          "country": {
+            "type": "string",
+            "description": "The ISO-3166-1 country. You must use the alpha3 country code (e.g.\nAUS, USA, IDR, KOR, etc). \n\nFor more details refer to: [https://en.wikipedia.org/wiki/ISO_3166-1](https://en.wikipedia.org/wiki/ISO_3166-1)"
+          },
+          "subdivision": {
+            "type": "string",
+            "description": "The ISO-3166-2 subdivision code referring to state or province or other regional division. \n\nFor more details refer to: [https://en.wikipedia.org/wiki/ISO_3166-2](https://en.wikipedia.org/wiki/ISO_3166-2)"
+          }
+        }
+      },
+      "Organization-Jurisdiction": {
+        "title": "Organization-Jurisdiction",
+        "type": "object",
+        "description": "Details of the country and jurisdiction that the organization is operating in, both retrieved from the registry",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Organization-Registry"
+          },
+          {
+            "$ref": "#/components/schemas/Organization-Region"
+          }
+        ]
+      },
+      "Industry-Declaration": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Code-Description"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "language": {
+                "description": "The language in which the information was filed",
+                "type": "string"
+              },
+              "sourceId": {
+                "type": "string",
+                "description": "The source from where a specific information was sourced from. This is a link to an informationSource object in the informationSources map."
+              }
+            }
+          }
+        ]
+      },
+      "Industry-Code": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Code-Description"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "description": "Determines the type of the industry code.",
+                "type": "string"
+              },
+              "sourceId": {
+                "description": "Where specific information was sourced. This is a reference to an informationSource object in the informationSources map.",
+                "type": "string"
+              }
+            }
+          }
+        ]
+      },
+      "Organization-Details": {
+        "type": "object",
+        "description": "organization details for entities. Returned from a registry.",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/Code-Description-Source-ID"
+          },
+          "class": {
+            "$ref": "#/components/schemas/Code-Description-Source-ID"
+          },
+          "subClass": {
+            "$ref": "#/components/schemas/Code-Description-Source-ID"
+          },
+          "subType": {
+            "$ref": "#/components/schemas/Code-Description-Source-ID"
+          },
+          "registrationDetails": {
+            "description": "This will contain a list of different registries the organization is registered in",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Organization-Registration-Details"
+            }
+          },
+          "alternateNames": {
+            "description": "This will contain all the other names apart from the registered name of the organization. Examples - name in other languages, trading name, older names, etc.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Organization-Name"
+            }
+          },
+          "name": {
+            "description": "The name as registered in the primary registry of the organization",
+            "$ref": "#/components/schemas/Organization-Name"
+          },
+          "status": {
+            "description": "The status of the organization based on its primary registry",
+            "$ref": "#/components/schemas/Organization-Status"
+          },
+          "jurisdiction": {
+            "$ref": "#/components/schemas/Organization-Jurisdiction"
+          },
+          "industryDeclarations": {
+            "description": "An array of declarations made by the organization as in the registry",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Industry-Declaration"
+            }
+          },
+          "industryCodes": {
+            "description": "An array of industry codes assigned to the organization as in the registry",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Industry-Code"
+            }
+          }
+        }
+      },
+      "Organization-Interest-Type": {
+        "type": "string",
+        "enum": [
+          "UNIT",
+          "TRUST",
+          "OTHER"
+        ],
+        "description": "Type of share interest. This can either be \"UNIT\", \"TRUST\" or \"OTHER\""
+      },
+      "Organization-Share-Structure": {
+        "type": "object",
+        "properties": {
+          "shareInterestType": {
+            "$ref": "#/components/schemas/Organization-Interest-Type"
+          },
+          "class": {
+            "description": "The class of the shares in the interest",
+            "type": "string"
+          },
+          "classDescription": {
+            "description": "The description of class of shares",
+            "type": "string"
+          },
+          "shares": {
+            "description": "The number of shares that are included in this specific interest",
+            "type": "number",
+            "format": "double"
+          },
+          "nominalValue": {
+            "type": "string",
+            "description": "This will be available only in specific registries, where available"
+          },
+          "isFullyPaid": {
+            "description": "Flag to show whether the shares are fully paid",
+            "type": "boolean"
+          },
+          "amountPaid": {
+            "description": "The amount paid",
+            "type": "string"
+          },
+          "amountDue": {
+            "description": "The amount due",
+            "type": "string"
+          },
+          "amount": {
+            "description": "The total amount",
+            "type": "string"
+          },
+          "unstructuredAmount": {
+            "description": "The total amount in an unstructured format",
+            "type": "string"
+          },
+          "currency": {
+            "description": "The currency in which the shares are registered at",
+            "type": "string"
+          },
+          "sourceId": {
+            "type": "string",
+            "description": "Where specific information was sourced. This is a reference to an informationSource object in the informationSources map."
+          },
+          "type": {
+            "description": "The type of shares that are included in the description",
+            "type": "string"
+          },
+          "status": {
+            "description": "The status of information like current, historical, etc",
+            "$ref": "#/components/schemas/Organization-Status"
+          }
+        }
+      },
+      "Organization-Ownership-TypeEnum": {
+        "type": "string",
+        "enum": [
+          "SHARE",
+          "UNIT"
+        ]
+      },
+      "Organization-Shareholder-Shareholding": {
+        "description": "The details of shares or any other types of equity units issued by a company to its holders.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Organization-Share-Structure"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "percentage": {
+                "description": "The percentage of shares",
+                "type": "number",
+                "format": "double"
+              },
+              "isNonBeneficiallyHeld": {
+                "description": "Flag to show whether this is non beneficially held",
+                "type": "boolean"
+              },
+              "isJointlyHeld": {
+                "description": "Flag to show whether this is jointly held",
+                "type": "boolean"
+              },
+              "holdingType": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Organization-Ownership-TypeEnum"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Organization-Shareholder": {
+        "description": "Individuals or entities that own traditional shares or other equity units in a company. Details include the names of the holders, the number of shares or units held, and ownership percentages.",
+        "allOf": [
+          {
+            "type": "object",
+            "properties": {
+              "entityId": {
+                "$ref": "#/components/schemas/Entity-ID"
+              },
+              "entityType": {
+                "$ref": "#/components/schemas/Entity-Type"
+              },
+              "shareholderType": {
+                "description": "The type of shareholder",
+                "type": "string"
+              },
+              "totalShares": {
+                "type": "number",
+                "format": "double",
+                "description": "The total number of shares held by this shareholder"
+              },
+              "totalPercentage": {
+                "type": "number",
+                "format": "double",
+                "description": "The total percentage of shares held by this shareholder"
+              },
+              "shareholdings": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Organization-Shareholder-Shareholding"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Organization-Share-Interest-Member": {
+        "type": "object",
+        "description": "The entities that are a part of the interest",
+        "properties": {
+          "entityId": {
+            "$ref": "#/components/schemas/Entity-ID"
+          },
+          "entityType": {
+            "$ref": "#/components/schemas/Entity-Type"
+          }
+        }
+      },
+      "Organization-Share-Interest": {
+        "description": "Denotes the ownership stakes in a company, including shares and units. Details may include type of shares or units, and the number of shares or units held by holders.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Organization-Share-Structure"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "percentage": {
+                "description": "The percentage of shares",
+                "type": "number",
+                "format": "double"
+              },
+              "isNonBeneficiallyHeld": {
+                "description": "Flag to show whether this is non beneficially held",
+                "type": "boolean"
+              },
+              "isJointlyHeld": {
+                "description": "Flag to show whether this is jointly held",
+                "type": "boolean"
+              },
+              "members": {
+                "description": "The entities that are a part of the interest",
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Organization-Share-Interest-Member"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Organization-Official-Type": {
+        "description": "The type of role in the organization.",
+        "type": "string",
+        "enum": [
+          "OFFICIAL",
+          "PSC",
+          "US_AGENT",
+          "US_OFFICER"
+        ]
+      },
+      "Organization-Official-Identification": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "DIRECTOR_IDENTIFICATION_NUMBER"
+            ]
+          },
+          "idNumber": {
+            "type": "string"
+          },
+          "jurisdiction": {
+            "$ref": "#/components/schemas/Organization-Jurisdiction"
+          }
+        }
+      },
+      "Official-Organization": {
+        "type": "object",
+        "properties": {
+          "organizationName": {
+            "type": "string"
+          },
+          "registrationNumber": {
+            "type": "string"
+          },
+          "organizationStatus": {
+            "$ref": "#/components/schemas/Organization-Status"
+          }
+        }
+      },
+      "Organization-Official-Directorship": {
+        "type": "object",
+        "description": "Information on roles of the official in other organizations.  Available in some jurisdictions.",
+        "properties": {
+          "organization": {
+            "description": "Details of the organization in which the official holds a role",
+            "$ref": "#/components/schemas/Official-Organization"
+          },
+          "role": {
+            "description": "The role of the official in the organization.  '''code''' is the normalized code for the role.",
+            "$ref": "#/components/schemas/Code-Description"
+          },
+          "sourceId": {
+            "type": "string",
+            "description": "Where specific information was sourced. This is a reference to an informationSource object in the informationSources map."
+          },
+          "appointmentDate": {
+            "description": "The date when the official was appointed for the organization",
+            "$ref": "#/components/schemas/Date"
+          },
+          "nationality": {
+            "type": "string"
+          }
+        }
+      },
+      "Organization-Official": {
+        "type": "object",
+        "description": "The individuals who hold official positions or roles within a company, such as directors or company secretaries. It includes details such as their names, positions, appointment dates, and other relevant information.",
+        "properties": {
+          "entityId": {
+            "$ref": "#/components/schemas/Entity-ID"
+          },
+          "entityType": {
+            "$ref": "#/components/schemas/Entity-Type"
+          },
+          "officialId": {
+            "description": "The unique identifier for the official in the organization",
+            "type": "string"
+          },
+          "isFromRelationship": {
+            "type": "boolean",
+            "readOnly": true,
+            "description": "Indicates if this official was added via relationship operations, rather than automatically from an ownership report. If true, then this official can only be updated and deleted via the relationship operations."
+          },
+          "officialType": {
+            "$ref": "#/components/schemas/Organization-Official-Type"
+          },
+          "role": {
+            "description": "The role of the official in the organization.  '''code''' is the normalized code for the role.",
+            "$ref": "#/components/schemas/Code-Description"
+          },
+          "identification": {
+            "type": "array",
+            "description": "Relevant for Official. The identification number of official such as Director identification number",
+            "items": {
+              "$ref": "#/components/schemas/Organization-Official-Identification"
+            }
+          },
+          "status": {
+            "description": "The status of information like current, ceased, etc",
+            "$ref": "#/components/schemas/Organization-Status"
+          },
+          "sourceId": {
+            "type": "string",
+            "description": "The source from where a specific information was sourced from. This is a link to an informationSource object in the informationSources map."
+          },
+          "appointmentDate": {
+            "description": "Relevant for Official and US Officer. The date when the official or US Officer was appointed/assigned to the organization",
+            "$ref": "#/components/schemas/Date"
+          },
+          "title": {
+            "description": "Relevant for US Officer. The title of the official in the organization (Mr/Mrs).",
+            "type": "string"
+          },
+          "directorships": {
+            "type": "array",
+            "description": "Information on roles of the official in other organizations. Available in some jurisdictions.",
+            "items": {
+              "$ref": "#/components/schemas/Organization-Official-Directorship"
+            }
+          },
+          "cessationDate": {
+            "description": "Relevant for Official and PSC. The date when the official or PSC ceased their relation with the organization",
+            "$ref": "#/components/schemas/Date"
+          },
+          "nationality": {
+            "description": "Relevant for PSC and Official. Nationality of the PSC or Official resides.",
+            "type": "string"
+          },
+          "countryOfResidence": {
+            "description": "Relevant for PSC and Official. The Country in which the PSC or Official resides.",
+            "type": "string"
+          },
+          "kind": {
+            "description": "Relevant for PSC. The type of control as declared by the organization in the registry.",
+            "type": "string"
+          },
+          "natureOfControl": {
+            "description": "Relevant for PSC. The nature of control as declared, this can contain multiple types of control progressively added or added together",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "notifiedOn": {
+            "description": "Relevant for PSC. The date on which the registry was notified of the PSC by the organization.",
+            "$ref": "#/components/schemas/Date"
+          }
+        }
+      },
+      "Organization-Share-Capital": {
+        "type": "object",
+        "description": "The total value of shares issued by the company to its holders. It typically includes both the nominal value of the shares as well as any premium paid by the shareholders.",
+        "properties": {
+          "totalShareCount": {
+            "type": "number",
+            "format": "double",
+            "description": "The total number of shares issued by the company to its shareholders"
+          },
+          "shareStructure": {
+            "type": "array",
+            "description": "The share capital of a company, which refers to the total value of shares issued by the company to its shareholders. It typically includes both the nominal value of the shares as well as any premium paid by the shareholders",
+            "items": {
+              "$ref": "#/components/schemas/Organization-Share-Structure"
+            }
+          },
+          "capitalType": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Organization-Ownership-TypeEnum"
+            }
+          },
+          "sourceId": {
+            "type": "string",
+            "description": "The source from where a specific information was sourced from. This is a link to an informationSource object in the informationSources map."
+          }
+        }
+      },
+      "Indicator-2": {
+        "type": "object",
+        "description": "Highlights areas within the data that require review or attention.",
+        "properties": {
+          "flag": {
+            "type": "string",
+            "description": "The name or type of the flag. (Deprecated)",
+            "deprecated": true
+          },
+          "value": {
+            "type": "string",
+            "description": "Identifies the area requiring attention."
+          },
+          "indicator": {
+            "type": "string",
+            "description": "Specifies the condition of an area requiring attention.\n\nNot an enum. Possible values are:\n  - REGISTRATION_NOT_FOUND: Registration has not been found.\n  - PROVIDER_FETCH_ERROR: There was a provider fetch error.\n  - OFFICIALS_OUTDATED: The direct official is outdated.\n  - SHARE_CAPITAL_OUTDATED: The direct share capital is outdated.\n  - SHAREHOLDERS_OUTDATED: The direct shareholder is outdated.\n  - INDIRECT_SHAREHOLDERS_OUTDATED: An issue exists somewhere lower in the ownership tree.\n  - INDIRECT_OFFICIALS_OUTDATED: An issue exists somewhere lower in the ownership tree.\n  - INDIRECT_SHARE_CAPITAL_OUTDATED: An issue exists somewhere lower in the ownership tree.\n  - OWNERSHIP_DOES_NOT_SUPPORT_COUNTRY: Ownership does not support country but Profile does.\n  - OWNERSHIP_INSIGHTS_FAILED: Ownership Insights failed."
+          },
+          "type": {
+            "type": "string",
+            "description": "Data type of the value. Can be boolean, string, object, etc."
+          },
+          "description": {
+            "type": "string",
+            "description": "Provides additional information about the area requiring attention."
+          }
+        }
+      },
+      "ABR-Information": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "description": "The type of information",
+            "type": "string"
+          },
+          "name": {
+            "description": "The name assigned by the registry to the information",
+            "type": "string"
+          },
+          "validFrom": {
+            "description": "The date from which the information is valid from",
+            "$ref": "#/components/schemas/Date"
+          },
+          "validTo": {
+            "description": "The date until which the information is valid",
+            "$ref": "#/components/schemas/Date"
+          }
+        }
+      },
+      "Jurisdictional-Superannuation": {
+        "type": "object",
+        "properties": {
+          "complyingCode": {
+            "type": "string"
+          },
+          "complyingDescription": {
+            "type": "string"
+          },
+          "regulator": {
+            "type": "string"
+          },
+          "exceptionMessage": {
+            "type": "string"
+          }
+        }
+      },
+      "Jurisdictional-Acnc": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "validFrom": {
+            "$ref": "#/components/schemas/Date"
+          },
+          "validTo": {
+            "$ref": "#/components/schemas/Date"
+          }
+        }
+      },
+      "Jurisdictional-Dgr": {
+        "type": "object",
+        "properties": {
+          "dgrEntityEndorsement": {
+            "type": "string"
+          },
+          "dgrItemNumber": {
+            "type": "string"
+          },
+          "validFrom": {
+            "description": "The date from which this DGR endorsement is valid.",
+            "$ref": "#/components/schemas/Date"
+          },
+          "validTo": {
+            "description": "The date to which this DGR endorsement is valid.",
+            "$ref": "#/components/schemas/Date"
+          }
+        }
+      },
+      "Jurisdictional-Registry-Information": {
+        "type": "object",
+        "properties": {
+          "abnReplacedFrom": {
+            "description": "This is the date from which the ABN was replaced",
+            "$ref": "#/components/schemas/Date"
+          },
+          "charityInformation": {
+            "description": "Charity information retrieved from ABR",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ABR-Information"
+            }
+          },
+          "gst": {
+            "description": "GST information retrieved from ABR",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ABR-Information"
+            }
+          },
+          "superannuationStatus": {
+            "description": "Superannuation status retrieved from ABR",
+            "$ref": "#/components/schemas/Jurisdictional-Superannuation"
+          },
+          "acncRegistrations": {
+            "description": "ACNC registration information retrieved from ABR",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Jurisdictional-Acnc"
+            }
+          },
+          "dgr": {
+            "description": "DGR information retrieved from ABR",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Jurisdictional-Dgr"
+            }
+          },
+          "disclosingEntity": {
+            "description": "Indicates if the organization is a disclosing entity as per ASIC registry",
+            "type": "boolean"
+          },
+          "sourceId": {
+            "type": "string",
+            "description": "The source from where a specific information was sourced from. This is a link to an informationSource object in the informationSources map."
+          }
+        }
+      },
+      "Jurisdictional-Alias": {
+        "description": "This contains information that is very specific to certain jurisdictions and is not available in other jurisdictions",
+        "type": "object",
+        "properties": {
+          "alias": {
+            "type": "string"
+          },
+          "sourceId": {
+            "type": "string",
+            "description": "Where specific information was sourced. This is a reference to an informationSource object in the informationSources map."
+          }
+        }
+      },
+      "Value-Source-ID": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          },
+          "sourceId": {
+            "type": "string",
+            "description": "Where specific information was sourced. This is a reference to an informationSource object in the informationSources map."
+          }
+        }
+      },
+      "Jurisdictional-Legal-Form-Details": {
+        "type": "object",
+        "properties": {
+          "basis": {
+            "type": "string"
+          },
+          "capital": {
+            "type": "string"
+          },
+          "comments": {
+            "type": "string"
+          },
+          "control": {
+            "type": "string"
+          },
+          "incorp": {
+            "type": "string"
+          },
+          "partner": {
+            "type": "string"
+          },
+          "responsibility": {
+            "type": "string"
+          },
+          "stocks": {
+            "type": "string"
+          },
+          "sourceId": {
+            "type": "string",
+            "description": "Where specific information was sourced. This is a reference to an informationSource object in the informationSources map."
+          }
+        }
+      },
+      "Jurisdictional-Annual-Account": {
+        "type": "object",
+        "properties": {
+          "lastAnnualAccountDate": {
+            "$ref": "#/components/schemas/Date"
+          },
+          "sourceId": {
+            "type": "string",
+            "description": "Where specific information was sourced. This is a reference to an informationSource object in the informationSources map."
+          }
+        }
+      },
+      "Jurisdictional-Information": {
+        "description": "This contains information that is very specific to certain jurisdictions and is not available in other jurisdictions",
+        "type": "object",
+        "properties": {
+          "registryInformation": {
+            "description": "This includes information that specific registries have available for organizations",
+            "$ref": "#/components/schemas/Jurisdictional-Registry-Information"
+          },
+          "aliases": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Jurisdictional-Alias"
+            }
+          },
+          "taxpayerIdentificationNumber": {
+            "$ref": "#/components/schemas/Value-Source-ID"
+          },
+          "vatNumber": {
+            "$ref": "#/components/schemas/Value-Source-ID"
+          },
+          "virtualId": {
+            "$ref": "#/components/schemas/Value-Source-ID"
+          },
+          "fiscalCode": {
+            "description": "Fiscal information. Available for certain jurisdictions",
+            "$ref": "#/components/schemas/Code-Description-Source-ID"
+          },
+          "legalFormDetails": {
+            "description": "Legal Form Details. Available for certain jurisdictions",
+            "$ref": "#/components/schemas/Jurisdictional-Legal-Form-Details"
+          },
+          "annualAccount": {
+            "description": "Annual Account. Available for certain jurisdictions",
+            "$ref": "#/components/schemas/Jurisdictional-Annual-Account"
+          }
+        }
+      },
+      "Organization-Summary": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Entity"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "websiteUrls": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Website-URL"
+                }
+              },
+              "details": {
+                "$ref": "#/components/schemas/Organization-Details"
+              },
+              "shareholders": {
+                "type": "array",
+                "description": "The shareholders of a company. It includes details such as the names of the shareholders, the number of shares held by each shareholder, and their ownership percentages",
+                "items": {
+                  "$ref": "#/components/schemas/Organization-Shareholder"
+                }
+              },
+              "shareInterests": {
+                "description": "The specific interests or holdings of shareholders in a company. It may include information about different classes or types of shares held by shareholders, such as ordinary shares, preference shares, or options",
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Organization-Share-Interest"
+                }
+              },
+              "officials": {
+                "type": "array",
+                "description": "The individuals who hold official positions or roles within a company, such as directors or company secretaries. It includes details such as their names, positions, appointment dates, and other relevant information",
+                "items": {
+                  "$ref": "#/components/schemas/Organization-Official"
+                }
+              },
+              "shareCapital": {
+                "description": "The total value of shares issued by the company to its holders. It typically includes both the nominal value of the shares as well as any premium paid by the shareholders.",
+                "$ref": "#/components/schemas/Organization-Share-Capital"
+              },
+              "indicators": {
+                "description": "The indicators that contribute to the risk of an organization or other parameters that needs to be looked at",
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Indicator-2"
+                }
+              },
+              "jurisdictionalInformation": {
+                "$ref": "#/components/schemas/Jurisdictional-Information"
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time",
+                "description": "The date and time when the organization is last updated."
+              }
+            }
+          }
+        ]
+      },
+      "Individual-Name-Alternate": {
+        "type": "object",
+        "required": [
+          "familyName"
+        ],
+        "x-examples": {
+          "Example 1": {
+            "givenName": "John",
+            "middleName": "Jacob",
+            "familyName": "Smith"
+          }
+        },
+        "properties": {
+          "nameId": {
+            "type": "string",
+            "example": "87654321-4321-4321-4321-210987654321",
+            "description": "Include the nameId of an existing name for this individual to modify it."
+          },
+          "language": {
+            "type": "string",
+            "example": "eng",
+            "description": "The ISO-639-3 standard code that best represents the language and character set of the individual's name.",
+            "default": "eng"
+          },
+          "givenName": {
+            "type": "string",
+            "example": "John",
+            "description": "First name or given name."
+          },
+          "middleName": {
+            "type": "string",
+            "example": "R",
+            "description": "Middle name(s) or middle initial(s)."
+          },
+          "familyName": {
+            "type": "string",
+            "example": "Doe",
+            "description": "Last name, family name, or surname."
+          },
+          "otherName": {
+            "type": "string",
+            "example": null,
+            "description": "Other names to be stored with the entity."
+          },
+          "prefix": {
+            "type": "string",
+            "example": "Dr.",
+            "description": "Element or series of letters that precede the individual's full name (e.g., title or honorific)."
+          },
+          "suffix": {
+            "type": "string",
+            "example": "Jr.",
+            "description": "Element or series of letters that follow the individual's full name (e.g., generational suffix)."
+          },
+          "sourceId": {
+            "type": "string",
+            "example": "87654321-4321-4321-4321-210987654322",
+            "description": "The source from which specific information was sourced. This is a link to an informationSource object in the informationSources map.",
+            "readOnly": true
+          },
+          "displayName": {
+            "type": "string",
+            "example": "John Doe",
+            "description": "Long format of the individual's full name, including any prefix, suffix, middle, or other names. Best used when the proper structure of the individual's name is unknown."
+          },
+          "type": {
+            "type": "string",
+            "example": "OTHER",
+            "enum": [
+              "OTHER",
+              "ALIAS",
+              "PREVIOUS"
+            ],
+            "description": "Classification of the individual's name in relation to any of their alternative names."
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true,
+            "description": "The date and time the name was last updated. ISO 8601 format."
+          }
+        }
+      },
+      "Date-Of-Birth-Alternate": {
+        "type": "object",
+        "allOf": [
+          {
+            "type": "object",
+            "properties": {
+              "dateOfBirthId": {
+                "type": "string",
+                "description": "As dates of birth are added to an entity, they are assigned a unique identifier to assist with modification and reference.\nTo modify a date of birth, include the dateOfBirthId in an update request for the individual."
+              },
+              "sourceId": {
+                "type": "string",
+                "description": "The source from which specific information was sourced. This is a link to an informationSource object in the informationSources map.",
+                "readOnly": true
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time",
+                "readOnly": true,
+                "description": "The date and time the date of birth was last updated. ISO 8601 format."
+              }
+            }
+          },
+          {
+            "$ref": "#/components/schemas/Date"
+          }
+        ]
+      },
+      "Gender": {
+        "type": "object",
+        "properties": {
+          "genderId": {
+            "type": "string",
+            "readOnly": true,
+            "deprecated": true
+          },
+          "gender": {
+            "$ref": "#/components/schemas/GenderEnum"
+          },
+          "sourceId": {
+            "type": "string",
+            "readOnly": true,
+            "description": "The source from which specific information was sourced. This is a link to an informationSource object in the informationSources map."
+          }
+        }
+      },
+      "Address-Place-Of-Birth": {
+        "type": "object",
+        "required": [
+          "country"
+        ],
+        "description": "The country or address where the individual was born.",
+        "properties": {
+          "addressId": {
+            "type": "string",
+            "description": "As addresses are added to an entity, they are assigned an ID to assist with tracking.",
+            "example": "6ad15f64-5717-4562-b3fc-2c963f66abf9",
+            "readOnly": true
+          },
+          "sourceId": {
+            "type": "string",
+            "readOnly": true,
+            "description": "The source from which specific information was sourced. This is a link to an informationSource object in the informationSources map.",
+            "example": "1da65f64-5717-4562-b3fc-2c963f669fba"
+          },
+          "longForm": {
+            "type": "string",
+            "description": "In some cases, the address will need to be supplied in \"long form\", such as when it is determined from a document scan, or is unparsable in some way.\nThe service will attempt to convert it to its constituent parts where possible.\nWARNING: Use of longForm is not guaranteed to produce perfect results, due to the variety of potential formats. You have been warned.\nFailure to break down or disambiguate the address will result in an error.",
+            "example": "525 Kent Dr, Harlem NY 10037, USA"
+          },
+          "unstructuredLongForm": {
+            "type": "string",
+            "readOnly": true,
+            "description": "Raw, unformatted address as provided by the source. Not normalized or standardized.",
+            "example": "3A/525 KENT DRIVE HARLEM NEW YORK 10036 USA"
+          },
+          "unitNumber": {
+            "type": "string",
+            "description": "Unit/Apartment/Flat/Suite/etc. number",
+            "example": "3A"
+          },
+          "buildingName": {
+            "type": "string",
+            "description": "The name of the building, apartment block, condominium, etc.",
+            "example": "EQ Tower"
+          },
+          "streetName": {
+            "type": "string",
+            "description": "The name of the street.\nThis field should ideally contain only the street name, without the street number or street type. In some cases, especially when auto-populated by external services (e.g., Google), it may include additional address components.\nFor best results, keep the street name separate from the street number and street type. See https://docs.frankieone.com/docs/working-with-addresses for more details.",
+            "example": "Kent"
+          },
+          "streetNumber": {
+            "type": "string",
+            "description": "The number assigned to the property on the street. Typically a number, but can also be alphanumeric (e.g., 3A).",
+            "example": "525"
+          },
+          "streetType": {
+            "type": "string",
+            "description": "The street type, such as Road, Street, Avenue, Circuit, etc.",
+            "example": "Dr"
+          },
+          "neighborhood": {
+            "type": "string",
+            "description": "The neighborhood or suburb within the town or city. Use this only if you require both a suburb and a locality/town/city; otherwise, use the \"locality\" parameter.",
+            "example": "Harlem"
+          },
+          "locality": {
+            "type": "string",
+            "description": "The locality, borough, town, village, or city.",
+            "example": "Manhattan"
+          },
+          "district": {
+            "type": "string",
+            "description": "The district, region, county, province, or cantonment.",
+            "example": "New York County"
+          },
+          "subdivision": {
+            "type": "string",
+            "description": "The ISO 3166-2 alphanumeric code of the administrative area/state/sub-division, minus the country code, e.g., VIC (Victoria) or TX (Texas).",
+            "example": "NY"
+          },
+          "country": {
+            "type": "string",
+            "description": "The ISO 3166-1 alphanumeric three-letter code of the country, e.g., AUS, USA, IDR, KOR, etc.\nFor more details, refer to: https://en.wikipedia.org/wiki/ISO_3166-1",
+            "example": "USA"
+          },
+          "postalCode": {
+            "type": "string",
+            "description": "The postal, zip, or pin code of the address.",
+            "example": "10037"
+          }
+        }
+      },
+      "Consent": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "The type of consent given by an entity",
+            "example": "UNDER18",
+            "enum": [
+              "GENERAL",
+              "DOCS",
+              "CREDITHEADER",
+              "UNDER18",
+              "PAYROLL",
+              "INSURANCE",
+              "SUPERANNUATION"
+            ]
+          },
+          "schemaVersion": {
+            "type": "integer",
+            "readOnly": true
+          },
+          "sourceId": {
+            "type": "string",
+            "description": "The source from which specific information was obtained. This is a link to an informationSource object in the informationSources map.",
+            "example": "93da15f64-5717-4562-b3fc-2c963f6663fe",
+            "readOnly": true
+          }
+        }
+      },
+      "Base-Individual": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Entity"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "name": {
+                "$ref": "#/components/schemas/Individual-Name"
+              },
+              "alternateNames": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Individual-Name-Alternate"
+                },
+                "description": "Other names that are legally registered or otherwise recorded, differing from the individual's primary English name (e.g., \"李小龍\"). Non-English names may be created as a conversion from the original format to complete the verification process."
+              },
+              "dateOfBirth": {
+                "$ref": "#/components/schemas/Date-Of-Birth"
+              },
+              "alternateDatesOfBirth": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Date-Of-Birth-Alternate"
+                },
+                "description": "Other dates that are registered or otherwise recorded, differing from the individual's primary Gregorian date of birth (e.g., Islamic dates like \"29 Jumada Al-Akhirah 1445\"). Non-Gregorian date formats will be maintained; however, additional Gregorian dates of birth may be created as a conversion from the original format to complete the verification process."
+              },
+              "gender": {
+                "$ref": "#/components/schemas/Gender"
+              },
+              "placeOfBirth": {
+                "$ref": "#/components/schemas/Address-Place-Of-Birth",
+                "description": "The address where the individual was born."
+              },
+              "nationality": {
+                "type": "string",
+                "description": "ISO-3166-1 alpha-3 code of the individual's legal membership or affiliation with a nation.",
+                "example": "AUS"
+              },
+              "consents": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Consent"
+                },
+                "description": "List of consent types that have been given for this entity."
+              }
+            }
+          }
+        ]
+      },
+      "Organization-Linked-Individual": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Base-Individual"
+          }
+        ]
+      },
+      "Unknown-Entity": {
+        "type": "object",
+        "properties": {
+          "entityId": {
+            "$ref": "#/components/schemas/Entity-ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the organization or the individual entity"
+          },
+          "addresses": {
+            "type": "array",
+            "description": "Collection of address objects",
+            "items": {
+              "$ref": "#/components/schemas/Address"
+            }
+          },
+          "country": {
+            "type": "string",
+            "description": "The nationality or country of the entity"
+          },
+          "shareholders": {
+            "type": "array",
+            "description": "The shareholders of a company. It includes details such as the names of the shareholders, the number of shares held by each shareholder, and their ownership percentages",
+            "items": {
+              "$ref": "#/components/schemas/Organization-Shareholder"
+            }
+          },
+          "shareInterests": {
+            "description": "The specific interests or holdings of shareholders in a company. It may include information about different classes or types of shares held by shareholders, such as ordinary shares, preference shares, or options",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Organization-Share-Interest"
+            }
+          },
+          "officials": {
+            "type": "array",
+            "description": "The individuals who hold official positions or roles within a company, such as directors or company secretaries. It includes details such as their names, positions, appointment dates, and other relevant information",
+            "items": {
+              "$ref": "#/components/schemas/Organization-Official"
+            }
+          },
+          "shareCapital": {
+            "description": "The total value of shares issued by the company to its holders. It typically includes both the nominal value of the shares as well as any premium paid by the shareholders.",
+            "$ref": "#/components/schemas/Organization-Share-Capital"
+          },
+          "indicators": {
+            "description": "The indicators that contribute to the risk of an organization or other parameters that needs to be looked at",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Indicator-2"
+            }
+          },
+          "sourceId": {
+            "type": "string",
+            "description": "The source from where a specific information was sourced from. This is a link to an informationSource object in the informationSources map."
+          }
+        }
+      },
+      "Percentage-Owned": {
+        "description": "The percentage of ownership of the entity",
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "number",
+            "format": "double"
+          },
+          "isTotalNearZero": {
+            "type": "boolean",
+            "description": "Indicates if the total percentage is negligible."
+          },
+          "beneficially": {
+            "type": "number",
+            "format": "double"
+          },
+          "isBeneficialNearZero": {
+            "type": "boolean",
+            "description": "Indicates if the beneficially held percentage is negligible."
+          },
+          "nonBeneficially": {
+            "type": "number",
+            "format": "double"
+          },
+          "isNonBeneficialNearZero": {
+            "type": "boolean",
+            "description": "Indicates if the non-beneficially held percentage is negligible."
+          },
+          "isContainingJointOwnership": {
+            "description": "Indicates if the percentage held contains a jointly held percentage.\n",
+            "type": "boolean"
+          }
+        }
+      },
+      "Organization-Blocking-Candidates": {
+        "type": "object",
+        "properties": {
+          "address": {
+            "description": "The address or location of company including building, street, city and state.",
+            "type": "string"
+          },
+          "country": {
+            "description": "The jurisdiction or country where the company is located.",
+            "type": "string"
+          },
+          "registeredName": {
+            "description": "The registered name of the company.",
+            "type": "string"
+          },
+          "registryDescription": {
+            "description": "The entity responsible for business registration in the given jurisdiction.",
+            "type": "string"
+          },
+          "subdivision": {
+            "description": "The state within the country where the company is located.",
+            "type": "string"
+          }
+        }
+      },
+      "Blocking-Reason": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "circularEntities": {
+            "description": "Entities identified as part of circular reference, with the Blocking Entity as the last link before the detection of circular.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Entity-ID"
+            }
+          },
+          "candidates": {
+            "description": "Potential matches of the requested business entity.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Organization-Blocking-Candidates"
+            }
+          }
+        }
+      },
+      "Blocking-Entity": {
+        "type": "object",
+        "properties": {
+          "entityId": {
+            "description": "Details of this organization would be available in the linkedOrganizations or linkedIndividuals",
+            "$ref": "#/components/schemas/Entity-ID"
+          },
+          "entityType": {
+            "$ref": "#/components/schemas/Entity-Type"
+          },
+          "percentageOwned": {
+            "$ref": "#/components/schemas/Percentage-Owned"
+          },
+          "blockingReasons": {
+            "description": "The reasons why the entity is categorized as blocking the parent entity",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Blocking-Reason"
+            }
+          },
+          "sourceId": {
+            "type": "string",
+            "description": "The source from where a specific information was sourced from. This is a link to an informationSource object in the informationSources map."
+          }
+        }
+      },
+      "UBO": {
+        "description": "UBO stands for \"Ultimate Beneficial Owner.\" UBO(s) are the ultimate natural person(s) who ultimately owns or controls a company. It provides information about the individuals who have a significant level of control or ownership in a company, either directly or indirectly.",
+        "type": "object",
+        "properties": {
+          "entityId": {
+            "$ref": "#/components/schemas/Entity-ID"
+          },
+          "entityType": {
+            "$ref": "#/components/schemas/Entity-Type"
+          },
+          "percentageOwned": {
+            "$ref": "#/components/schemas/Percentage-Owned"
+          },
+          "reasons": {
+            "description": "The reason(s) as to why the entity was classified as an UBO",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Code-Description"
+            }
+          },
+          "sourceId": {
+            "type": "string",
+            "description": "The source from where a specific information was sourced from. This is a link to an informationSource object in the informationSources map."
+          }
+        }
+      },
+      "Other-Owner": {
+        "description": "Owners that do not meet the threshold to be classified as UBOs or Blocking Entities",
+        "type": "object",
+        "properties": {
+          "entityId": {
+            "$ref": "#/components/schemas/Entity-ID"
+          },
+          "entityType": {
+            "$ref": "#/components/schemas/Entity-Type"
+          },
+          "percentageOwned": {
+            "$ref": "#/components/schemas/Percentage-Owned"
+          },
+          "sourceId": {
+            "type": "string",
+            "description": "The source from where a specific information was sourced from. This is a link to an informationSource object in the informationSources map."
+          }
+        }
+      },
+      "Information-Source": {
+        "type": "object",
+        "properties": {
+          "sourceId": {
+            "type": "string",
+            "description": "As sources are added to an entity, they're assigned a unique identifier to assist with modification and reference.\nTo modify a source, include the sourceId in an update request call."
+          },
+          "source": {
+            "description": "The source of information like document number, website, etc.",
+            "type": "string",
+            "example": "Client"
+          },
+          "sourceNormalized": {
+            "description": "The result of converting the raw source name to a normalized result.",
+            "type": "string",
+            "readOnly": true
+          },
+          "description": {
+            "description": "The type or details of the source of information.",
+            "type": "string",
+            "example": ""
+          },
+          "provider": {
+            "description": "The provider of the information, e.g., Equifax.",
+            "type": "string",
+            "example": "equifax-au"
+          },
+          "providerReference": {
+            "description": "Reference linking to the provider for this information.",
+            "type": "string",
+            "example": ""
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The date and time this information was first created in the system.",
+            "example": "2024-01-15T02:18:11.365Z"
+          },
+          "requestedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The date and time FrankieOne requested this information from the external source provider.",
+            "example": "2024-01-15T02:18:11.365Z"
+          },
+          "retrievedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The date and time FrankieOne retrieved this information from the external source provider.",
+            "example": "2024-01-15T02:18:11.365Z"
+          },
+          "isAuthoritative": {
+            "type": "boolean",
+            "description": "Indicates whether this information is from an authoritative source, e.g., a company registry.",
+            "example": false
+          }
+        },
+        "readOnly": true
+      },
+      "Organization-Blocking-Definition": {
+        "type": "string",
+        "enum": [
+          "ORGANIZATION_NOT_FOUND",
+          "NO_SHAREHOLDERS_FOUND",
+          "COUNTRY_NOT_SUPPORTED",
+          "NON_BENEFICIAL_INDIVIDUAL",
+          "NON_BENEFICIAL_ORGANIZATION",
+          "NON_BENEFICIAL_UNKNOWN",
+          "CIRCULAR_REFERENCE",
+          "ENTITY_TYPE_UNKNOWN",
+          "INSUFFICIENT_MAX_CREDIT_COST",
+          "INACTIVE_ORGANIZATION",
+          "OTHER"
+        ],
+        "description": "Indicates the type of the blocking entity"
+      },
+      "Ownership-Policy": {
+        "description": "Defines the configuration and specific threshold values that allows to identify Blocking Entities, UBOs and Other Owners.",
+        "type": "object",
+        "properties": {
+          "uboThreshold": {
+            "description": "The minimum percentage of total ownership (Beneficial and Non-Beneficial) that an entity needs to be defined as a UBO.",
+            "type": "number",
+            "format": "float"
+          },
+          "blockingThreshold": {
+            "description": "The minimum percentage of total ownership (Beneficial and Non-Beneficial) that an entity needs to be defined as a Blocking Entity.",
+            "type": "number",
+            "format": "float"
+          },
+          "blockingDefinitions": {
+            "description": "The collection of reasons that define an entity as being a blocking entity.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Organization-Blocking-Definition"
+            }
+          }
+        }
+      },
+      "Organization": {
+        "type": "object",
+        "description": "This is the complete Organization Model",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Organization-Summary"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "linkedIndividuals": {
+                "type": "object",
+                "description": "The additional details of the individuals that is linked to the parent entity",
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/Organization-Linked-Individual"
+                }
+              },
+              "linkedOrganizations": {
+                "type": "object",
+                "description": "The additional details of the organization that is linked to the parent entity",
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/Organization-Summary"
+                }
+              },
+              "linkedUnknownEntities": {
+                "type": "object",
+                "description": "The additional details of an entity that is linked to the parent entity",
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/Unknown-Entity"
+                }
+              },
+              "blockingEntities": {
+                "type": "object",
+                "description": "The details of the entities that are linked to the parent entity that have resulted in not getting a complete picture of the focus entity",
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/Blocking-Entity"
+                }
+              },
+              "ultimateBeneficialOwners": {
+                "description": "UBO stands for \"Ultimate Beneficial Owner.\" UBO(s) are the ultimate natural person(s) who ultimately owns or controls a company. It provides information about the individuals who have a significant level of control or ownership in a company, either directly or indirectly",
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/UBO"
+                }
+              },
+              "otherOwners": {
+                "description": "The other owners of the company, who aren't necessarily UBO's",
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Other-Owner"
+                }
+              },
+              "informationSources": {
+                "type": "object",
+                "description": "Map of Information sources which are used across the response",
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/Information-Source"
+                }
+              },
+              "ownershipPolicy": {
+                "$ref": "#/components/schemas/Ownership-Policy"
+              }
+            }
+          }
+        ]
+      },
       "Supplementary-Data-KYB-Organization": {
         "type": "object",
-        "description": "Defines OQRO (Ownership Query Result Object) at various stages in the KYB (Know Your Business) flow.\nThe 'oqro' property temporarily stores the V1 OQRO and will be used until the V2 OQRO is defined.\n",
+        "description": "Defines OQRO (Ownership Query Result Object) at various stages in the KYB (Know Your Business) flow.\n",
         "allOf": [
           {
             "$ref": "#/components/schemas/Supplementary-Data-Base"
@@ -3922,15 +6192,7 @@
             "type": "object",
             "properties": {
               "organization": {
-                "description": "V2 OQRO; to be defined in the future.\n",
-                "properties": {
-                  "entityId": {
-                    "$ref": "#/components/schemas/Entity-ID"
-                  },
-                  "entityType": {
-                    "$ref": "#/components/schemas/Entity-Type"
-                  }
-                }
+                "$ref": "#/components/schemas/Organization"
               }
             }
           }
@@ -4221,59 +6483,6 @@
             }
           }
         ]
-      },
-      "Document-Type": {
-        "type": "string",
-        "enum": [
-          "OTHER",
-          "DRIVERS_LICENSE",
-          "PASSPORT",
-          "VISA",
-          "IMMIGRATION",
-          "NATIONAL_ID",
-          "TAX_ID",
-          "NATIONAL_HEALTH_ID",
-          "CONCESSION",
-          "HEALTH_CONCESSION",
-          "PENSION",
-          "MILITARY_ID",
-          "BIRTH_CERT",
-          "CITIZENSHIP",
-          "MARRIAGE_CERT",
-          "DEATH_CERT",
-          "NAME_CHANGE",
-          "UTILITY_BILL",
-          "BANK_STATEMENT",
-          "BANK_ACCOUNT",
-          "INTENT_PROOF",
-          "ATTESTATION",
-          "SELF_IMAGE",
-          "DEVICE",
-          "VEHICLE_REGISTRATION",
-          "PROOF_OF_ADDRESS",
-          "HOUSE_REGISTRATION",
-          "YELLOW_HOUSE_REGISTRATION",
-          "WORK_PERMIT",
-          "EMPLOYMENT_CERTIFICATE",
-          "NOTARY_PUBLIC_ID",
-          "EXTERNAL_ADMIN",
-          "CHARGES",
-          "PRE_ASIC",
-          "ANNUAL_RETURN",
-          "REPORT",
-          "TRUST_DEED",
-          "DEED_OF_VARIATION",
-          "REGISTER_OF_UNIT_HOLDERS",
-          "PARTNERSHIP_AGREEMENT",
-          "ADMIN_CHANGE",
-          "COMPANY_REPORT",
-          "CHECK_RESULTS",
-          "AVIATION_SECURITY_ID",
-          "MARITIME_SECURITY_ID",
-          "ORGANIZATION_PROFILE",
-          "ORGANIZATION_OWNERSHIP"
-        ],
-        "description": "Valid document ID types.\n\n  - \"OTHER\": Generic document type. Unspecified.\n  - \"DRIVERS_LICENSE\": Driver's license.\n  - \"PASSPORT\": Passport.\n  - \"VISA\": Visa document (not Visa payment card).\n  - \"IMMIGRATION\": Immigration card.\n  - \"NATIONAL_ID\": Any national ID card.\n  - \"TAX_ID\": Any national tax identifier.\n  - \"NATIONAL_HEALTH_ID\": Any national health program ID card (e.g., Medicare, NHS).\n  - \"CONCESSION\": State-issued concession card.\n  - \"HEALTH_CONCESSION\": State-issued health-specific concession card.\n  - \"PENSION\": State-issued pension ID.\n  - \"MILITARY_ID\": Military ID.\n  - \"BIRTH_CERT\": Birth certificate.\n  - \"CITIZENSHIP\": Citizenship certificate.\n  - \"MARRIAGE_CERT\": Marriage certificate.\n  - \"DEATH_CERT\": Death certificate.\n  - \"NAME_CHANGE\": Name change confirmation.\n  - \"UTILITY_BILL\": Regulated utility bill, such as electricity, gas, etc.\n  - \"BANK_STATEMENT\": Bank/card statement.\n  - \"BANK_ACCOUNT\": Bank account.\n  - \"INTENT_PROOF\": Proof of intent, generally a photo/video or a scanned letter.\n  - \"ATTESTATION\": Document of attestation (e.g., Statutory Declaration).\n\n  NOTE: These cannot be used as a supporting document:\n  - \"SELF_IMAGE\": A \"selfie\" used for comparisons.\n  - \"DEVICE\": Device ID.\n  - \"VEHICLE_REGISTRATION\": Vehicle registration number.\n  - \"PROOF_OF_ADDRESS\": Any document that provides proof of address.\n  - \"HOUSE_REGISTRATION\": House registration document.\n  - \"YELLOW_HOUSE_REGISTRATION\": Yellow House Registration Thor Ror 13.\n  - \"WORK_PERMIT\": Work permit.\n  - \"EMPLOYMENT_CERTIFICATE\": Certificate of employment.\n  - \"NOTARY_PUBLIC_ID\": Notary Public Identification.\n\n  Business-related documentation:\n\n  - \"EXTERNAL_ADMIN\": Details of appointed administrator.\n  - \"CHARGES\": Details of any charges laid against a company or director.\n  - \"PRE_ASIC\": Any documents that are Pre-ASIC.\n  - \"ANNUAL_RETURN\": Details of a company's annual return.\n  - \"REPORT\": Frankie-generated report.\n  - \"TRUST_DEED\": Corporate trust deed.\n  - \"DEED_OF_VARIATION\": Deed of variation document.\n  - \"REGISTER_OF_UNIT_HOLDERS\": Register of unit holders document.\n  - \"PARTNERSHIP_AGREEMENT\": Partnership agreement documents.\n  - \"ADMIN_CHANGE\": Change of administrator.\n  - \"COMPANY_REPORT\": Registry-filed company reports.\n  - \"ORGANIZATION_PROFILE\": Organization profile document.\n  - \"ORGANIZATION_OWNERSHIP\": Organization ownership document.\n\n  Special document types:\n\n  - \"CHECK_RESULTS\": Special document type for specifying results of checks completed other than through Frankie.\n  - \"AVIATION_SECURITY_ID\": Aviation Security Identification Card.\n  - \"MARITIME_SECURITY_ID\": Maritime Security Identification Card."
       },
       "Supplementary-Data-IDV-Document": {
         "type": "object",
