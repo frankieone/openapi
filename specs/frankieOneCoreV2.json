@@ -3471,9 +3471,11 @@
           "WORKFLOW_COMPLETE",
           "WORKFLOW_RISK_CHANGE",
           "WORKFLOW_STATUS_CHANGE",
-          "OTHER"
+          "OTHER",
+          "PROVIDER_NOTIFICATION",
+          "PROVIDER_STATUS_SYNC"
         ],
-        "description": "Type of the audit event.\n- CUSTOMER_SETUP: Audit event for customer setup.\n- CUSTOMER_UPDATE: Audit event for updating a customer.\n- ENTITY_CREATE: Create entity.\n- ENTITY_LOOKUP: Lookup entity.\n- ENTITY_PURGE: Delete entity and all associated information.\n- ENTITY_RESULT_UPDATE: Manual result update.\n- ENTITY_RESULT_INVALIDATE: Invalidate result.\n- ENTITY_UPDATE: Update entity.\n- GENERATE_REPORT: Generate a report.\n- LEGACY_AUDIT: Audit event from V1.\n- MATCHLIST_ENTRY: Matchlist entry operations.\n- PORTAL_ACTION: Portal events.\n- RISK_OVERRIDE: Risk override.\n- SERVICE_PROFILE_CREATE: Create service profile.\n- SERVICE_PROFILE_UPDATE: Update service profile.\n- SERVICE_PROFILE_STATE_CHANGE: Service profile state change.\n- WORKFLOW_EVENT: Generic event in a workflow other than status, risk, or complete.\n- WORKFLOW_COMPLETE: Workflow is complete.\n- WORKFLOW_RISK_CHANGE: Workflow risk change.\n- WORKFLOW_STATUS_CHANGE: Workflow status change.\n- OTHER: Other event type."
+        "description": "Type of the audit event.\n- CUSTOMER_SETUP: Audit event for customer setup.\n- CUSTOMER_UPDATE: Audit event for updating a customer.\n- ENTITY_CREATE: Create entity.\n- ENTITY_LOOKUP: Lookup entity.\n- ENTITY_PURGE: Delete entity and all associated information.\n- ENTITY_RESULT_UPDATE: Manual result update.\n- ENTITY_RESULT_INVALIDATE: Invalidate result.\n- ENTITY_UPDATE: Update entity.\n- GENERATE_REPORT: Generate a report.\n- LEGACY_AUDIT: Audit event from V1.\n- MATCHLIST_ENTRY: Matchlist entry operations.\n- PORTAL_ACTION: Portal events.\n- RISK_OVERRIDE: Risk override.\n- SERVICE_PROFILE_CREATE: Create service profile.\n- SERVICE_PROFILE_UPDATE: Update service profile.\n- SERVICE_PROFILE_STATE_CHANGE: Service profile state change.\n- WORKFLOW_EVENT: Generic event in a workflow other than status, risk, or complete.\n- WORKFLOW_COMPLETE: Workflow is complete.\n- WORKFLOW_RISK_CHANGE: Workflow risk change.\n- WORKFLOW_STATUS_CHANGE: Workflow status change.\n- OTHER: Other event type.\n- PROVIDER_NOTIFICATION: Audit event for a notification received from a provider.\n- PROVIDER_STATUS_SYNC: Audit event for a status sync from a provider."
       },
       "Object-Type": {
         "description": "The type of object being annotated.",
@@ -3690,7 +3692,10 @@
               "DOCUMENT_REVIEW",
               "DOCUMENT",
               "PORTAL_ACTION",
-              "WORKFLOW_COMPLETED"
+              "WORKFLOW_COMPLETED",
+              "MONITORING",
+              "ACTIVITY_ALERT_NOTIFICATION",
+              "ACTIVITY_ALERT_SYNC"
             ]
           },
           "origin": {
@@ -5036,6 +5041,96 @@
           }
         ]
       },
+      "Subscription-Type": {
+        "type": "string",
+        "description": "Specifies the type of service profile subscription. This value determines the category of the service profile subscription.",
+        "enum": [
+          "AML",
+          "ACTIVITY"
+        ]
+      },
+      "Monitoring-Type": {
+        "type": "string",
+        "description": "The type of workflow subscription. This determines which types are subscribing to a workflow.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Subscription-Type"
+          }
+        ]
+      },
+      "Supplementary-Data-AuditEvent-Monitoring": {
+        "type": "object",
+        "description": "Contains details relevant to entity monitoring subscription changes for an audit event.\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-AuditEvent-Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "monitoringType": {
+                "$ref": "#/components/schemas/Monitoring-Type"
+              },
+              "isEnabled": {
+                "type": "boolean",
+                "description": "Indicates whether monitoring was enabled (true) or disabled (false)."
+              }
+            }
+          }
+        ]
+      },
+      "Supplementary-Data-AuditEvent-Activity-Alert-Notification": {
+        "type": "object",
+        "description": "Contains details relevant to a provider alert notification received for an audit event.\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-AuditEvent-Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "providerName": {
+                "type": "string",
+                "description": "The name of the provider that sent the alert notification."
+              },
+              "alertIdentifier": {
+                "type": "string",
+                "description": "The unique identifier of the alert from the provider."
+              },
+              "providerQueueName": {
+                "type": "string",
+                "description": "The name of the provider queue the alert was received from."
+              }
+            }
+          }
+        ]
+      },
+      "Supplementary-Data-AuditEvent-Activity-Alert-Sync": {
+        "type": "object",
+        "description": "Contains details relevant to a provider alert status sync for an audit event.\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-AuditEvent-Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "providerName": {
+                "type": "string",
+                "description": "The name of the provider that sent the alert sync."
+              },
+              "alertIdentifier": {
+                "type": "string",
+                "description": "The unique identifier of the alert from the provider."
+              },
+              "providerQueueName": {
+                "type": "string",
+                "description": "The name of the provider queue the alert sync was received from."
+              }
+            }
+          }
+        ]
+      },
       "Audit": {
         "type": "object",
         "required": [
@@ -5250,6 +5345,15 @@
               },
               {
                 "$ref": "#/components/schemas/Supplementary-Data-AuditEvent-Fraud"
+              },
+              {
+                "$ref": "#/components/schemas/Supplementary-Data-AuditEvent-Monitoring"
+              },
+              {
+                "$ref": "#/components/schemas/Supplementary-Data-AuditEvent-Activity-Alert-Notification"
+              },
+              {
+                "$ref": "#/components/schemas/Supplementary-Data-AuditEvent-Activity-Alert-Sync"
               }
             ],
             "discriminator": {
@@ -5276,7 +5380,10 @@
                 "DUPLICATE": "#/components/schemas/Supplementary-Data-AuditEvent-Duplicate",
                 "ENTITY_PROFILE_STATE_UPDATE": "#/components/schemas/Supplementary-Data-AuditEvent-Entity-Profile-State-Change",
                 "ACTIVITY": "#/components/schemas/Supplementary-Data-AuditEvent-Activity",
-                "FRAUD": "#/components/schemas/Supplementary-Data-AuditEvent-Fraud"
+                "FRAUD": "#/components/schemas/Supplementary-Data-AuditEvent-Fraud",
+                "MONITORING": "#/components/schemas/Supplementary-Data-AuditEvent-Monitoring",
+                "ACTIVITY_ALERT_NOTIFICATION": "#/components/schemas/Supplementary-Data-AuditEvent-Activity-Alert-Notification",
+                "ACTIVITY_ALERT_SYNC": "#/components/schemas/Supplementary-Data-AuditEvent-Activity-Alert-Sync"
               }
             }
           }
@@ -5363,23 +5470,6 @@
             "$ref": "#/components/schemas/Comment"
           }
         }
-      },
-      "Subscription-Type": {
-        "type": "string",
-        "description": "Specifies the type of service profile subscription. This value determines the category of the service profile subscription.",
-        "enum": [
-          "AML",
-          "ACTIVITY"
-        ]
-      },
-      "Monitoring-Type": {
-        "type": "string",
-        "description": "The type of workflow subscription. This determines which types are subscribing to a workflow.",
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Subscription-Type"
-          }
-        ]
       },
       "Workflow-Step-Type": {
         "type": "string",
@@ -6159,6 +6249,7 @@
           "VISA",
           "WATCHLIST",
           "ACTIVITY",
+          "SUPPORTING_DOC",
           "RISK"
         ],
         "description": "General category of issue found:\n  - AML: Anti-Money Laundering issues.\n  - BAD_DATA: Indicates that the data provided is invalid or incorrect.\n  - BIOMETRICS: Issues found during a biometrics check.\n  - BLOCKLISTED: The entity has a hit on a blocklist.\n  - DECEASED: Indicates that the entity is deceased.\n  - DEVICE: Issues found during device checks.\n  - DOCUMENT: Issues found during a document check.\n  - DUPLICATE: Indicates that the entity has duplicates.\n  - EXPIRY: Indicates that a process or document for the entity has expired.\n  - FRAUD: Possible fraud detected.\n  - IDV: Issues found during an Identity Verification (IDV) process.\n  - INFORMATIONAL: Informational messages that are not issues but are required to be returned.\n  - KYC: Issues found during a Know Your Customer (KYC) process.\n  - SYSTEM: System-level issues.\n  - VERIFY: Issues found during a verification process.\n  - VISA: Issues found during a visa check.\n  - WATCHLIST: Issues found during a watchlist check.\n  - ACTIVITY: Issues found during an activity process.\n  - SUPPORTING_DOC: Issues found during a supporting document check.\n  - RISK: Issues related to risk assessment."
@@ -6181,6 +6272,7 @@
           "AML_ISSUE",
           "BAD_DATA_ADDRESS",
           "BAD_DATA_DOB",
+          "BAD_DATA_DOCUMENT",
           "BAD_DATA_EMAIL",
           "BAD_DATA_ID",
           "BAD_DATA_MOBILE",
@@ -6248,7 +6340,7 @@
           "RISK_THRESHOLD_UNACCEPTABLE",
           "RISK_THRESHOLD_MEDIUM"
         ],
-        "description": "For each category, this provides the specific issue type.\n\nAML:\n  - PEP: The entity has Politically Exposed Person (PEP) hits.\n  - SANCTION: The entity has sanction hits.\n  - MEDIA: The entity has adverse media hits.\n  - WATCHLIST: The entity has watchlist hits.\n\nBAD_DATA:\n  - BAD_DATA_NAME: Name is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_DOB: Date of Birth is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_ADDRESS: Address is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_ID: ID is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_EMAIL: Email is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_MOBILE: Mobile is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_DEVICE: Device is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_IP_ADDRESS: IP Address is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_EMAIL_ADDRESS: Email Address is required for verification but is missing or unusable due to data quality issues.\n\nBLOCKLISTED:\n  - MATCHED_INTERNAL: The entity matched an internal blocklist.\n  - MATCHED_SHARED: The entity matched a shared blocklist.\n  - MATCHED_EXTERNAL: The entity matched an external blocklist.\n\nDECEASED:\n  - DECEASED: The person whose data is being verified is deceased.\n\nDEVICE:\n  - DEVICE_FRAUD_MATCH: Fraud detected on the device.\n  - DEVICE_INVALID: The device is invalid.\n\nDUPLICATE:\n  - DUPLICATE: The entity is a duplicate of another entity.\n\nEXPIRY:\n  - REQUIRES_KYC: KYC process needs to be re-initiated.\n  - REQUIRES_IDV: IDV process needs to be re-initiated.\n  - REQUIRES_AML: AML process needs to be re-initiated.\n  - REQUIRES_VISA: Visa process needs to be re-initiated.\n\nFRAUD:\n  - FRAUD_LIST: The entity is on a fraud list.\n  - FRAUD_CHECK: Fraud detected during checks.\n  - FRAUD_DEVICE: Device fraud detected.\n  - FRAUD_IP_ADDRESS: IP address fraud detected.\n  - FRAUD_EMAIL_ADDRESS: Email address fraud detected.\n  - FRAUD_PHONE_NUMBER: Phone number fraud detected.\n\nIDV:\n  - DATA_COMPARISON: Data comparison issue.\n  - DATA_VALIDATION: Data validation issue.\n  - DATA_CONSISTENCY: Data consistency issue.\n  - VISUAL_AUTHENTICITY: Visual authenticity issue.\n  - IMAGE_INTEGRITY: Image integrity issue.\n  - COMPROMISED_DOCUMENT: Document is compromised.\n  - LIVENESS_DETECTION: Liveness detection failed.\n  - DOCUMENT_COMPARISON: Document comparison issue.\n\nINFORMATIONAL:\n  - CREDIT_HEADER: Credit header information was returned as part of a credit agency check.\n\nKYC:\n  - NOT_FOUND: KYC ruleset not met.\n  - PARTIAL: Some matches but insufficient.\n  - NO_GOVID_MATCH: GovID required but no GovID match.\n  - INSUFFICIENT_GOVID_MATCH: GovID required but insufficient matches.\n  - NO_DOB_MATCH: DOB required but no DOB match.\n  - INSUFFICIENT_DOB_MATCH: DOB required but insufficient matches.\n  - NO_ADDRESS_MATCH: Address required but no address match.\n  - INSUFFICIENT_ADDRESS_MATCH: Address required but insufficient matches.\n  - NO_NAME_MATCH: Name required but no name match.\n  - INSUFFICIENT_NAME_MATCH: Name required but insufficient matches.\n  - PARTIAL_MATCH: General partial match.\n\nOCR:\n  - OCR: The OCR data does not match what was entered by the user.\n\nSYSTEM:\n  - SERVICE_TIMEOUT: All providers have timed out.\n  - SERVICE_ERROR: All providers have returned an error or an internal error has occurred.\n\nVISA:\n  - DENY_LIST: The entity matched a visa deny list.\n  - VISA_FAILED: Visa check failed from the provider.\n\nWATCHLIST:\n  - INTERNAL_MATCH: The entity matched an internal watchlist.\n\nACTIVITY:\n  - ACTIVITY_AML: The entity has had an activity that is flagged for AML\n  - ACTIVITY_FRAUD: The entity has had an activity that is flagged for fraud\n  - ACTIVITY_EVENT: The entity has had an activity that is deemed as suspicious, but not exactly classified as either fraud or AML\n\nSUPPORTING_DOC:\n  - DOCUMENT_MISSING: The document is not provided\n  - DOCUMENTS_NOT_APPROVED: The document is not approved\n\nRISK:\n  - RISK_THRESHOLD_HIGH: The risk threshold is too high\n  - RISK_THRESHOLD_MEDIUM: The risk threshold is medium\n  - RISK_THRESHOLD_UNACCEPTABLE: The risk threshold is unacceptable\n  "
+        "description": "For each category, this provides the specific issue type.\n\nAML:\n  - PEP: The entity has Politically Exposed Person (PEP) hits.\n  - SANCTION: The entity has sanction hits.\n  - MEDIA: The entity has adverse media hits.\n  - WATCHLIST: The entity has watchlist hits.\n\nBAD_DATA:\n  - BAD_DATA_NAME: Name is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_DOB: Date of Birth is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_ADDRESS: Address is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_ID: ID is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_EMAIL: Email is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_MOBILE: Mobile is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_DEVICE: Device is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_IP_ADDRESS: IP Address is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_EMAIL_ADDRESS: Email Address is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_DOCUMENT: Document data is required for verification but is missing or unusable due to data quality issues.\n\nBLOCKLISTED:\n  - MATCHED_INTERNAL: The entity matched an internal blocklist.\n  - MATCHED_SHARED: The entity matched a shared blocklist.\n  - MATCHED_EXTERNAL: The entity matched an external blocklist.\n\nDECEASED:\n  - DECEASED: The person whose data is being verified is deceased.\n\nDEVICE:\n  - DEVICE_FRAUD_MATCH: Fraud detected on the device.\n  - DEVICE_INVALID: The device is invalid.\n\nDUPLICATE:\n  - DUPLICATE: The entity is a duplicate of another entity.\n\nEXPIRY:\n  - REQUIRES_KYC: KYC process needs to be re-initiated.\n  - REQUIRES_IDV: IDV process needs to be re-initiated.\n  - REQUIRES_AML: AML process needs to be re-initiated.\n  - REQUIRES_VISA: Visa process needs to be re-initiated.\n\nFRAUD:\n  - FRAUD_LIST: The entity is on a fraud list.\n  - FRAUD_CHECK: Fraud detected during checks.\n  - FRAUD_DEVICE: Device fraud detected.\n  - FRAUD_IP_ADDRESS: IP address fraud detected.\n  - FRAUD_EMAIL_ADDRESS: Email address fraud detected.\n  - FRAUD_PHONE_NUMBER: Phone number fraud detected.\n\nIDV:\n  - DATA_COMPARISON: Data comparison issue.\n  - DATA_VALIDATION: Data validation issue.\n  - DATA_CONSISTENCY: Data consistency issue.\n  - VISUAL_AUTHENTICITY: Visual authenticity issue.\n  - IMAGE_INTEGRITY: Image integrity issue.\n  - COMPROMISED_DOCUMENT: Document is compromised.\n  - LIVENESS_DETECTION: Liveness detection failed.\n  - DOCUMENT_COMPARISON: Document comparison issue.\n\nINFORMATIONAL:\n  - CREDIT_HEADER: Credit header information was returned as part of a credit agency check.\n\nKYC:\n  - NOT_FOUND: KYC ruleset not met.\n  - PARTIAL: Some matches but insufficient.\n  - NO_GOVID_MATCH: GovID required but no GovID match.\n  - INSUFFICIENT_GOVID_MATCH: GovID required but insufficient matches.\n  - NO_DOB_MATCH: DOB required but no DOB match.\n  - INSUFFICIENT_DOB_MATCH: DOB required but insufficient matches.\n  - NO_ADDRESS_MATCH: Address required but no address match.\n  - INSUFFICIENT_ADDRESS_MATCH: Address required but insufficient matches.\n  - NO_NAME_MATCH: Name required but no name match.\n  - INSUFFICIENT_NAME_MATCH: Name required but insufficient matches.\n  - PARTIAL_MATCH: General partial match.\n\nOCR:\n  - OCR: The OCR data does not match what was entered by the user.\n\nSYSTEM:\n  - SERVICE_TIMEOUT: All providers have timed out.\n  - SERVICE_ERROR: All providers have returned an error or an internal error has occurred.\n\nVISA:\n  - DENY_LIST: The entity matched a visa deny list.\n  - VISA_FAILED: Visa check failed from the provider.\n\nWATCHLIST:\n  - INTERNAL_MATCH: The entity matched an internal watchlist.\n\nACTIVITY:\n  - ACTIVITY_AML: The entity has had an activity that is flagged for AML\n  - ACTIVITY_FRAUD: The entity has had an activity that is flagged for fraud\n  - ACTIVITY_EVENT: The entity has had an activity that is deemed as suspicious, but not exactly classified as either fraud or AML\n\nSUPPORTING_DOC:\n  - DOCUMENT_MISSING: The document is not provided\n  - DOCUMENTS_NOT_APPROVED: The document is not approved\n\nRISK:\n  - RISK_THRESHOLD_HIGH: The risk threshold is too high\n  - RISK_THRESHOLD_MEDIUM: The risk threshold is medium\n  - RISK_THRESHOLD_UNACCEPTABLE: The risk threshold is unacceptable"
       },
       "Workflow-Execution-ScopeEnum": {
         "type": "string",

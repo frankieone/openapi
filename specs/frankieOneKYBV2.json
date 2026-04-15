@@ -4144,6 +4144,134 @@
         ]
       }
     },
+    "/v2/organizations/{entityId}/customattributes/{key}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/entityId"
+        },
+        {
+          "$ref": "#/components/parameters/attributeKey"
+        }
+      ],
+      "delete": {
+        "summary": "Delete a custom attribute",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "requestId": {
+                      "$ref": "#/components/schemas/Request-ID"
+                    },
+                    "entityId": {
+                      "$ref": "#/components/schemas/Entity-ID"
+                    },
+                    "key": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "operationId": "deleteOrganizationCustomAttribute",
+        "description": "Delete a single organization custom attribute by key",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Api-Key"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-CustomerID"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-CustomerChildID"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-Channel"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-Username"
+          }
+        ],
+        "tags": [
+          "Organization Custom Attributes"
+        ],
+        "security": [
+          {
+            "Api-Key": []
+          },
+          {
+            "jwt": [
+              "kyb:api"
+            ]
+          }
+        ]
+      }
+    },
     "/v2/organizations/{entityId}/monitor": {
       "parameters": [
         {
@@ -4744,6 +4872,17 @@
         "description": "Unique identifier for an address",
         "required": true
       },
+      "attributeKey": {
+        "name": "key",
+        "in": "path",
+        "schema": {
+          "type": "string",
+          "pattern": "^[a-zA-Z]+(?:[a-zA-Z0-9\\-_.]+)*(?:[a-zA-Z0-9]+)+$",
+          "maxLength": 64
+        },
+        "description": "Unique key for a custom attribute",
+        "required": true
+      },
       "toggle-monitoring": {
         "in": "query",
         "name": "enabled",
@@ -5200,6 +5339,10 @@
               "validTo": {
                 "description": "The date on which the registration ended",
                 "$ref": "#/components/schemas/Date"
+              },
+              "governance": {
+                "description": "The governance structure of the organization.",
+                "$ref": "#/components/schemas/Code-Description"
               },
               "sourceId": {
                 "type": "string",
@@ -6599,7 +6742,10 @@
                 "type": "boolean"
               },
               "holdingType": {
-                "$ref": "#/components/schemas/Organization-Ownership-TypeEnum"
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Organization-Ownership-TypeEnum"
+                }
               }
             }
           }
@@ -6641,17 +6787,6 @@
           }
         ]
       },
-      "Organization-Share-Interest-Member-Careof": {
-        "type": "object",
-        "properties": {
-          "entityId": {
-            "$ref": "#/components/schemas/Entity-ID"
-          },
-          "entityType": {
-            "$ref": "#/components/schemas/Entity-Type"
-          }
-        }
-      },
       "Organization-Share-Interest-Member": {
         "type": "object",
         "description": "The entities that are a part of the interest",
@@ -6661,13 +6796,6 @@
           },
           "entityType": {
             "$ref": "#/components/schemas/Entity-Type"
-          },
-          "careOf": {
-            "type": "array",
-            "description": "Care Of individual or business name if not the same as the name of the entity to which this belongs.",
-            "items": {
-              "$ref": "#/components/schemas/Organization-Share-Interest-Member-Careof"
-            }
           }
         }
       },
@@ -6872,7 +7000,10 @@
             }
           },
           "capitalType": {
-            "$ref": "#/components/schemas/Organization-Ownership-TypeEnum"
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Organization-Ownership-TypeEnum"
+            }
           },
           "sourceId": {
             "type": "string",
@@ -6967,6 +7098,14 @@
           },
           "dgrItemNumber": {
             "type": "string"
+          },
+          "validFrom": {
+            "description": "The date from which this DGR endorsement is valid.",
+            "$ref": "#/components/schemas/Date"
+          },
+          "validTo": {
+            "description": "The date to which this DGR endorsement is valid.",
+            "$ref": "#/components/schemas/Date"
           }
         }
       },
@@ -7826,16 +7965,15 @@
             "type": "string",
             "description": "As sources are added to an entity, they're assigned a unique identifier to assist with modification and reference.\nTo modify a source, include the sourceId in an update request call."
           },
-          "type": {
-            "description": "The type of source information e.g. \"ID number\"",
-            "type": "string",
-            "example": "ID number",
-            "deprecated": true
-          },
           "source": {
             "description": "The source of information like document number, website, etc.",
             "type": "string",
             "example": "Client"
+          },
+          "sourceNormalized": {
+            "description": "The result of converting the raw source name to a normalized result.",
+            "type": "string",
+            "readOnly": true
           },
           "description": {
             "description": "The type or details of the source of information.",
@@ -7864,34 +8002,16 @@
             "description": "The date and time FrankieOne requested this information from the external source provider.",
             "example": "2024-01-15T02:18:11.365Z"
           },
-          "generatedAt": {
-            "type": "string",
-            "format": "date-time",
-            "description": "The date and time FrankieOne generated this information, if applicable.",
-            "example": "2024-01-15T02:18:11.365Z"
-          },
           "retrievedAt": {
             "type": "string",
             "format": "date-time",
             "description": "The date and time FrankieOne retrieved this information from the external source provider.",
             "example": "2024-01-15T02:18:11.365Z"
           },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time",
-            "description": "The date and time this information was last updated in the system.",
-            "example": "2024-01-15T02:18:11.365Z"
-          },
           "isAuthoritative": {
             "type": "boolean",
             "description": "Indicates whether this information is from an authoritative source, e.g., a company registry.",
             "example": false
-          },
-          "isManual": {
-            "description": "Indicates whether this information was added manually by the client rather than by a system or source provider.",
-            "type": "boolean",
-            "example": true,
-            "deprecated": true
           }
         },
         "readOnly": true
@@ -8292,6 +8412,7 @@
           "VISA",
           "WATCHLIST",
           "ACTIVITY",
+          "SUPPORTING_DOC",
           "RISK"
         ],
         "description": "General category of issue found:\n  - AML: Anti-Money Laundering issues.\n  - BAD_DATA: Indicates that the data provided is invalid or incorrect.\n  - BIOMETRICS: Issues found during a biometrics check.\n  - BLOCKLISTED: The entity has a hit on a blocklist.\n  - DECEASED: Indicates that the entity is deceased.\n  - DEVICE: Issues found during device checks.\n  - DOCUMENT: Issues found during a document check.\n  - DUPLICATE: Indicates that the entity has duplicates.\n  - EXPIRY: Indicates that a process or document for the entity has expired.\n  - FRAUD: Possible fraud detected.\n  - IDV: Issues found during an Identity Verification (IDV) process.\n  - INFORMATIONAL: Informational messages that are not issues but are required to be returned.\n  - KYC: Issues found during a Know Your Customer (KYC) process.\n  - SYSTEM: System-level issues.\n  - VERIFY: Issues found during a verification process.\n  - VISA: Issues found during a visa check.\n  - WATCHLIST: Issues found during a watchlist check.\n  - ACTIVITY: Issues found during an activity process.\n  - SUPPORTING_DOC: Issues found during a supporting document check.\n  - RISK: Issues related to risk assessment."
@@ -8302,6 +8423,7 @@
           "AML_ISSUE",
           "BAD_DATA_ADDRESS",
           "BAD_DATA_DOB",
+          "BAD_DATA_DOCUMENT",
           "BAD_DATA_EMAIL",
           "BAD_DATA_ID",
           "BAD_DATA_MOBILE",
@@ -8369,7 +8491,7 @@
           "RISK_THRESHOLD_UNACCEPTABLE",
           "RISK_THRESHOLD_MEDIUM"
         ],
-        "description": "For each category, this provides the specific issue type.\n\nAML:\n  - PEP: The entity has Politically Exposed Person (PEP) hits.\n  - SANCTION: The entity has sanction hits.\n  - MEDIA: The entity has adverse media hits.\n  - WATCHLIST: The entity has watchlist hits.\n\nBAD_DATA:\n  - BAD_DATA_NAME: Name is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_DOB: Date of Birth is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_ADDRESS: Address is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_ID: ID is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_EMAIL: Email is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_MOBILE: Mobile is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_DEVICE: Device is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_IP_ADDRESS: IP Address is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_EMAIL_ADDRESS: Email Address is required for verification but is missing or unusable due to data quality issues.\n\nBLOCKLISTED:\n  - MATCHED_INTERNAL: The entity matched an internal blocklist.\n  - MATCHED_SHARED: The entity matched a shared blocklist.\n  - MATCHED_EXTERNAL: The entity matched an external blocklist.\n\nDECEASED:\n  - DECEASED: The person whose data is being verified is deceased.\n\nDEVICE:\n  - DEVICE_FRAUD_MATCH: Fraud detected on the device.\n  - DEVICE_INVALID: The device is invalid.\n\nDUPLICATE:\n  - DUPLICATE: The entity is a duplicate of another entity.\n\nEXPIRY:\n  - REQUIRES_KYC: KYC process needs to be re-initiated.\n  - REQUIRES_IDV: IDV process needs to be re-initiated.\n  - REQUIRES_AML: AML process needs to be re-initiated.\n  - REQUIRES_VISA: Visa process needs to be re-initiated.\n\nFRAUD:\n  - FRAUD_LIST: The entity is on a fraud list.\n  - FRAUD_CHECK: Fraud detected during checks.\n  - FRAUD_DEVICE: Device fraud detected.\n  - FRAUD_IP_ADDRESS: IP address fraud detected.\n  - FRAUD_EMAIL_ADDRESS: Email address fraud detected.\n  - FRAUD_PHONE_NUMBER: Phone number fraud detected.\n\nIDV:\n  - DATA_COMPARISON: Data comparison issue.\n  - DATA_VALIDATION: Data validation issue.\n  - DATA_CONSISTENCY: Data consistency issue.\n  - VISUAL_AUTHENTICITY: Visual authenticity issue.\n  - IMAGE_INTEGRITY: Image integrity issue.\n  - COMPROMISED_DOCUMENT: Document is compromised.\n  - LIVENESS_DETECTION: Liveness detection failed.\n  - DOCUMENT_COMPARISON: Document comparison issue.\n\nINFORMATIONAL:\n  - CREDIT_HEADER: Credit header information was returned as part of a credit agency check.\n\nKYC:\n  - NOT_FOUND: KYC ruleset not met.\n  - PARTIAL: Some matches but insufficient.\n  - NO_GOVID_MATCH: GovID required but no GovID match.\n  - INSUFFICIENT_GOVID_MATCH: GovID required but insufficient matches.\n  - NO_DOB_MATCH: DOB required but no DOB match.\n  - INSUFFICIENT_DOB_MATCH: DOB required but insufficient matches.\n  - NO_ADDRESS_MATCH: Address required but no address match.\n  - INSUFFICIENT_ADDRESS_MATCH: Address required but insufficient matches.\n  - NO_NAME_MATCH: Name required but no name match.\n  - INSUFFICIENT_NAME_MATCH: Name required but insufficient matches.\n  - PARTIAL_MATCH: General partial match.\n\nOCR:\n  - OCR: The OCR data does not match what was entered by the user.\n\nSYSTEM:\n  - SERVICE_TIMEOUT: All providers have timed out.\n  - SERVICE_ERROR: All providers have returned an error or an internal error has occurred.\n\nVISA:\n  - DENY_LIST: The entity matched a visa deny list.\n  - VISA_FAILED: Visa check failed from the provider.\n\nWATCHLIST:\n  - INTERNAL_MATCH: The entity matched an internal watchlist.\n\nACTIVITY:\n  - ACTIVITY_AML: The entity has had an activity that is flagged for AML\n  - ACTIVITY_FRAUD: The entity has had an activity that is flagged for fraud\n  - ACTIVITY_EVENT: The entity has had an activity that is deemed as suspicious, but not exactly classified as either fraud or AML\n\nSUPPORTING_DOC:\n  - DOCUMENT_MISSING: The document is not provided\n  - DOCUMENTS_NOT_APPROVED: The document is not approved\n\nRISK:\n  - RISK_THRESHOLD_HIGH: The risk threshold is too high\n  - RISK_THRESHOLD_MEDIUM: The risk threshold is medium\n  - RISK_THRESHOLD_UNACCEPTABLE: The risk threshold is unacceptable\n  "
+        "description": "For each category, this provides the specific issue type.\n\nAML:\n  - PEP: The entity has Politically Exposed Person (PEP) hits.\n  - SANCTION: The entity has sanction hits.\n  - MEDIA: The entity has adverse media hits.\n  - WATCHLIST: The entity has watchlist hits.\n\nBAD_DATA:\n  - BAD_DATA_NAME: Name is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_DOB: Date of Birth is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_ADDRESS: Address is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_ID: ID is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_EMAIL: Email is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_MOBILE: Mobile is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_DEVICE: Device is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_IP_ADDRESS: IP Address is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_EMAIL_ADDRESS: Email Address is required for verification but is missing or unusable due to data quality issues.\n  - BAD_DATA_DOCUMENT: Document data is required for verification but is missing or unusable due to data quality issues.\n\nBLOCKLISTED:\n  - MATCHED_INTERNAL: The entity matched an internal blocklist.\n  - MATCHED_SHARED: The entity matched a shared blocklist.\n  - MATCHED_EXTERNAL: The entity matched an external blocklist.\n\nDECEASED:\n  - DECEASED: The person whose data is being verified is deceased.\n\nDEVICE:\n  - DEVICE_FRAUD_MATCH: Fraud detected on the device.\n  - DEVICE_INVALID: The device is invalid.\n\nDUPLICATE:\n  - DUPLICATE: The entity is a duplicate of another entity.\n\nEXPIRY:\n  - REQUIRES_KYC: KYC process needs to be re-initiated.\n  - REQUIRES_IDV: IDV process needs to be re-initiated.\n  - REQUIRES_AML: AML process needs to be re-initiated.\n  - REQUIRES_VISA: Visa process needs to be re-initiated.\n\nFRAUD:\n  - FRAUD_LIST: The entity is on a fraud list.\n  - FRAUD_CHECK: Fraud detected during checks.\n  - FRAUD_DEVICE: Device fraud detected.\n  - FRAUD_IP_ADDRESS: IP address fraud detected.\n  - FRAUD_EMAIL_ADDRESS: Email address fraud detected.\n  - FRAUD_PHONE_NUMBER: Phone number fraud detected.\n\nIDV:\n  - DATA_COMPARISON: Data comparison issue.\n  - DATA_VALIDATION: Data validation issue.\n  - DATA_CONSISTENCY: Data consistency issue.\n  - VISUAL_AUTHENTICITY: Visual authenticity issue.\n  - IMAGE_INTEGRITY: Image integrity issue.\n  - COMPROMISED_DOCUMENT: Document is compromised.\n  - LIVENESS_DETECTION: Liveness detection failed.\n  - DOCUMENT_COMPARISON: Document comparison issue.\n\nINFORMATIONAL:\n  - CREDIT_HEADER: Credit header information was returned as part of a credit agency check.\n\nKYC:\n  - NOT_FOUND: KYC ruleset not met.\n  - PARTIAL: Some matches but insufficient.\n  - NO_GOVID_MATCH: GovID required but no GovID match.\n  - INSUFFICIENT_GOVID_MATCH: GovID required but insufficient matches.\n  - NO_DOB_MATCH: DOB required but no DOB match.\n  - INSUFFICIENT_DOB_MATCH: DOB required but insufficient matches.\n  - NO_ADDRESS_MATCH: Address required but no address match.\n  - INSUFFICIENT_ADDRESS_MATCH: Address required but insufficient matches.\n  - NO_NAME_MATCH: Name required but no name match.\n  - INSUFFICIENT_NAME_MATCH: Name required but insufficient matches.\n  - PARTIAL_MATCH: General partial match.\n\nOCR:\n  - OCR: The OCR data does not match what was entered by the user.\n\nSYSTEM:\n  - SERVICE_TIMEOUT: All providers have timed out.\n  - SERVICE_ERROR: All providers have returned an error or an internal error has occurred.\n\nVISA:\n  - DENY_LIST: The entity matched a visa deny list.\n  - VISA_FAILED: Visa check failed from the provider.\n\nWATCHLIST:\n  - INTERNAL_MATCH: The entity matched an internal watchlist.\n\nACTIVITY:\n  - ACTIVITY_AML: The entity has had an activity that is flagged for AML\n  - ACTIVITY_FRAUD: The entity has had an activity that is flagged for fraud\n  - ACTIVITY_EVENT: The entity has had an activity that is deemed as suspicious, but not exactly classified as either fraud or AML\n\nSUPPORTING_DOC:\n  - DOCUMENT_MISSING: The document is not provided\n  - DOCUMENTS_NOT_APPROVED: The document is not approved\n\nRISK:\n  - RISK_THRESHOLD_HIGH: The risk threshold is too high\n  - RISK_THRESHOLD_MEDIUM: The risk threshold is medium\n  - RISK_THRESHOLD_UNACCEPTABLE: The risk threshold is unacceptable"
       },
       "Workflow-Issue-Severity": {
         "type": "string",
@@ -10291,6 +10413,9 @@
           "DUPLICATE",
           "BLOCKLIST",
           "SUPPORTING_DOC",
+          "ORGANIZATION_PROFILE",
+          "ORGANIZATION_VERIFICATION",
+          "ORGANIZATION_OWNERSHIP",
           "MATCHLIST",
           "VISA",
           "ACTIVITY"
@@ -11239,7 +11364,7 @@
       },
       "Supplementary-Data-KYB-Organization": {
         "type": "object",
-        "description": "Defines OQRO (Ownership Query Result Object) at various stages in the KYB (Know Your Business) flow.\nThe 'oqro' property temporarily stores the V1 OQRO and will be used until the V2 OQRO is defined.\n",
+        "description": "Defines OQRO (Ownership Query Result Object) at various stages in the KYB (Know Your Business) flow.\n",
         "allOf": [
           {
             "$ref": "#/components/schemas/Supplementary-Data-Base"
@@ -11248,15 +11373,7 @@
             "type": "object",
             "properties": {
               "organization": {
-                "description": "V2 OQRO; to be defined in the future.\n",
-                "properties": {
-                  "entityId": {
-                    "$ref": "#/components/schemas/Entity-ID"
-                  },
-                  "entityType": {
-                    "$ref": "#/components/schemas/Entity-Type"
-                  }
-                }
+                "$ref": "#/components/schemas/Organization"
               }
             }
           }
@@ -14014,6 +14131,11 @@
           },
           "role": {
             "$ref": "#/components/schemas/Relationship-Role"
+          },
+          "sourceId": {
+            "type": "string",
+            "readOnly": true,
+            "description": "This is a link to an informationSource object in the informationSources map. For relationships this will be very basic and just contains the creation date, and a provider set to \"MANUAL\"."
           }
         }
       },
