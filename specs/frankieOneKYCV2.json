@@ -18448,6 +18448,10 @@
             "description": "if provider sdk fails, redirect to this url",
             "type": "string"
           },
+          "pendingRedirectURL": {
+            "description": "if the process is still pending, redirect to this url",
+            "type": "string"
+          },
           "oneSDKFlowId": {
             "type": "string",
             "description": "Flow id to use for OneSDK, to determine what data needs to be captured from the user, for example :\"idv\" or \"ocr_only\""
