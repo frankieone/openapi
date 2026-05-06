@@ -53,6 +53,10 @@
     {
       "name": "Organization Monitoring",
       "description": "Manage AML monitoring for organizations"
+    },
+    {
+      "name": "Organization Results",
+      "description": "Manage results for organizations"
     }
   ],
   "paths": {
@@ -1670,6 +1674,180 @@
           },
           {
             "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/subClasses"
+          }
+        ],
+        "tags": [
+          "Organization Results"
+        ],
+        "security": [
+          {
+            "Api-Key": []
+          },
+          {
+            "jwt": [
+              "kyb:api"
+            ]
+          }
+        ]
+      }
+    },
+    "/v2/organizations/{entityId}/results/{processResultId}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/entityId"
+        },
+        {
+          "$ref": "#/components/parameters/path_process_result_id"
+        }
+      ],
+      "get": {
+        "summary": "Get a process result",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "requestId": {
+                      "$ref": "#/components/schemas/Request-ID"
+                    },
+                    "processResult": {
+                      "$ref": "#/components/schemas/Process-Result-Object"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "Invalid EntityId": {
+                    "value": {
+                      "errorCode": "API-0400,",
+                      "errorMsg": "Multiple Errors: See Issues list",
+                      "details": [
+                        {
+                          "issue": "entityId in path must be of type uuid: \"test\"",
+                          "issueLocation": "VALIDATE-entityId"
+                        }
+                      ],
+                      "requestId": "01HM5XJ7VASZ3EJMB1VQGTBFJ4"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "Invalid authentication": {
+                    "value": {
+                      "errorCode": "AUTH-0002,",
+                      "errorMsg": "Unauthorized",
+                      "details": [
+                        {
+                          "issue": "Invalid Authentication provided. Access denied.",
+                          "issueLocation": "request"
+                        }
+                      ],
+                      "requestId": "00000000S6MNG7624K2TDXT1E3"
+                    }
+                  },
+                  "No Api-Key": {
+                    "value": {
+                      "errorCode": "AUTH-0401",
+                      "errorMsg": "Unauthorized",
+                      "details": [
+                        {
+                          "issue": "No api key provided. Access denied.",
+                          "issueLocation": "request"
+                        }
+                      ],
+                      "requestId": "00000001S6MNG7624K2TDXT1E3"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getOrganizationPRO",
+        "description": "Get process result using process result id for a given organization entity",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Api-Key"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-CustomerID"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-CustomerChildID"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-Channel"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-Username"
+          },
+          {
+            "$ref": "#/components/parameters/entityId"
           }
         ],
         "tags": [
@@ -4828,6 +5006,28 @@
           }
         },
         "description": "List of result value that the Process Result will be filtered with\nAvailable values : MATCH, PARTIAL_MATCH, INVALID_MATCH, NO_MATCH, CLEAR, HIT, BAD_DATA, CREATED, UPDATED, DELETED, FAIL"
+      },
+      "subClasses": {
+        "in": "query",
+        "name": "subClasses",
+        "style": "form",
+        "explode": false,
+        "schema": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/Process-Result-SubClass"
+          }
+        },
+        "description": "List of subClasses to filter results with"
+      },
+      "path_process_result_id": {
+        "name": "processResultId",
+        "in": "path",
+        "schema": {
+          "$ref": "#/components/schemas/Process-Result-ID"
+        },
+        "description": "Process Result Object ID",
+        "required": true
       },
       "levelQuery": {
         "name": "level",
@@ -12045,6 +12245,43 @@
           }
         }
       },
+      "Activity-Party-Custom-Attribute-Type": {
+        "type": "string",
+        "enum": [
+          "STRING",
+          "INTEGER",
+          "FLOAT",
+          "BOOLEAN"
+        ]
+      },
+      "Activity-Party-Custom-Attribute": {
+        "type": "object",
+        "required": [
+          "type",
+          "value"
+        ],
+        "x-examples": {
+          "Example 1": {
+            "type": "STRING",
+            "value": "premium-credit-card"
+          }
+        },
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/Activity-Party-Custom-Attribute-Type"
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "Activity-Party-Custom-Attributes": {
+        "type": "object",
+        "description": "A set of key value pairs with a type provided. Do not store PII data in this field.\nValidation:\n      type: string\n      minLength: 1\n      maxLength: 64\n      pattern: '^[a-zA-Z][a-zA-Z0-9-]*$'\n",
+        "additionalProperties": {
+          "$ref": "#/components/schemas/Activity-Party-Custom-Attribute"
+        }
+      },
       "Party-Detail-Summary": {
         "type": "object",
         "description": "A summary of the party details\n",
@@ -12073,6 +12310,9 @@
             "description": "When the entity was created",
             "type": "string",
             "format": "date-time"
+          },
+          "customAttributes": {
+            "$ref": "#/components/schemas/Activity-Party-Custom-Attributes"
           }
         }
       },

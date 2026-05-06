@@ -15711,6 +15711,43 @@
           }
         }
       },
+      "Activity-Party-Custom-Attribute-Type": {
+        "type": "string",
+        "enum": [
+          "STRING",
+          "INTEGER",
+          "FLOAT",
+          "BOOLEAN"
+        ]
+      },
+      "Activity-Party-Custom-Attribute": {
+        "type": "object",
+        "required": [
+          "type",
+          "value"
+        ],
+        "x-examples": {
+          "Example 1": {
+            "type": "STRING",
+            "value": "premium-credit-card"
+          }
+        },
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/Activity-Party-Custom-Attribute-Type"
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "Activity-Party-Custom-Attributes": {
+        "type": "object",
+        "description": "A set of key value pairs with a type provided. Do not store PII data in this field.\nValidation:\n      type: string\n      minLength: 1\n      maxLength: 64\n      pattern: '^[a-zA-Z][a-zA-Z0-9-]*$'\n",
+        "additionalProperties": {
+          "$ref": "#/components/schemas/Activity-Party-Custom-Attribute"
+        }
+      },
       "Party-Detail-Summary": {
         "type": "object",
         "description": "A summary of the party details\n",
@@ -15739,6 +15776,9 @@
             "description": "When the entity was created",
             "type": "string",
             "format": "date-time"
+          },
+          "customAttributes": {
+            "$ref": "#/components/schemas/Activity-Party-Custom-Attributes"
           }
         }
       },
