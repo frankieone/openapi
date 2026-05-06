@@ -31,6 +31,10 @@
       "description": "Manage audit entries"
     },
     {
+      "name": "Customers",
+      "description": "Manage customer accounts"
+    },
+    {
       "name": "Request",
       "description": "Retrieve background request results"
     },
@@ -49,6 +53,10 @@
     {
       "name": "Workflows",
       "description": "Manage Workflows and Workflow Definitions"
+    },
+    {
+      "name": "Tags",
+      "description": "Query tags and tag mappings on objects"
     }
   ],
   "paths": {
@@ -94,6 +102,9 @@
           },
           {
             "$ref": "#/components/parameters/query_filter_channels"
+          },
+          {
+            "$ref": "#/components/parameters/query_filter_function_names"
           },
           {
             "$ref": "#/components/parameters/sort"
@@ -413,6 +424,526 @@
           },
           {
             "$ref": "#/components/parameters/X-Frankie-Username"
+          }
+        ]
+      }
+    },
+    "/v2/customers": {
+      "post": {
+        "summary": "Create a child customer account",
+        "description": "Creates a child customer account in the context of the calling account as the parent. Optionally configures default workflows for the child customer and provisions an initial set of users who will be invited via the supplied email addresses.",
+        "operationId": "createCustomer",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Create-Customer-Request"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Child customer account successfully created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Create-Customer-Result"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "Invalid EntityId": {
+                    "value": {
+                      "errorCode": "API-0400,",
+                      "errorMsg": "Multiple Errors: See Issues list",
+                      "details": [
+                        {
+                          "issue": "entityId in path must be of type uuid: \"test\"",
+                          "issueLocation": "VALIDATE-entityId"
+                        }
+                      ],
+                      "requestId": "01HM5XJ7VASZ3EJMB1VQGTBFJ4"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "Invalid authentication": {
+                    "value": {
+                      "errorCode": "AUTH-0002,",
+                      "errorMsg": "Unauthorized",
+                      "details": [
+                        {
+                          "issue": "Invalid Authentication provided. Access denied.",
+                          "issueLocation": "request"
+                        }
+                      ],
+                      "requestId": "00000000S6MNG7624K2TDXT1E3"
+                    }
+                  },
+                  "No Api-Key": {
+                    "value": {
+                      "errorCode": "AUTH-0401",
+                      "errorMsg": "Unauthorized",
+                      "details": [
+                        {
+                          "issue": "No api key provided. Access denied.",
+                          "issueLocation": "request"
+                        }
+                      ],
+                      "requestId": "00000001S6MNG7624K2TDXT1E3"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Api-Key"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-CustomerID"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-CustomerChildID"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-Channel"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-Username"
+          }
+        ],
+        "tags": [
+          "Customers"
+        ],
+        "security": [
+          {
+            "Api-Key": []
+          },
+          {
+            "jwt": [
+              "kyc:api"
+            ]
+          }
+        ]
+      }
+    },
+    "/v2/tags": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/Api-Key"
+        },
+        {
+          "$ref": "#/components/parameters/X-Frankie-CustomerID"
+        },
+        {
+          "$ref": "#/components/parameters/X-Frankie-CustomerChildID"
+        },
+        {
+          "$ref": "#/components/parameters/X-Frankie-Channel"
+        },
+        {
+          "$ref": "#/components/parameters/X-Frankie-Username"
+        }
+      ],
+      "get": {
+        "summary": "List tags",
+        "description": "Retrieve all tags matching the optional filter criteria. Results are scoped to the customer\ncontext provided in the request headers — including the customer's own tags, parent customer\ntags, and all SYSTEM tags. Sibling customer tags are excluded.\n\nResults are sorted in descending order by `updatedAt`.\n\nFiltering within a single parameter applies **OR** logic (e.g. `categories=FRAUD,SCAM` returns\ntags in either category). Filtering across different parameters applies **AND** logic\n(e.g. `categories=FRAUD&domains=ONBOARDING` returns tags that are both FRAUD and ONBOARDING).\n",
+        "operationId": "listTags",
+        "tags": [
+          "Tags"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/query_tag_types"
+          },
+          {
+            "$ref": "#/components/parameters/query_tag_categories"
+          },
+          {
+            "$ref": "#/components/parameters/query_tag_domains"
+          },
+          {
+            "$ref": "#/components/parameters/query_tag_ids"
+          },
+          {
+            "$ref": "#/components/parameters/page"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "requestId",
+                    "meta",
+                    "tags"
+                  ],
+                  "properties": {
+                    "requestId": {
+                      "$ref": "#/components/schemas/Request-ID"
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/List-Operation-Meta"
+                    },
+                    "tags": {
+                      "type": "array",
+                      "description": "List of tags matching the filter criteria.",
+                      "items": {
+                        "$ref": "#/components/schemas/Tag"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "Invalid EntityId": {
+                    "value": {
+                      "errorCode": "API-0400,",
+                      "errorMsg": "Multiple Errors: See Issues list",
+                      "details": [
+                        {
+                          "issue": "entityId in path must be of type uuid: \"test\"",
+                          "issueLocation": "VALIDATE-entityId"
+                        }
+                      ],
+                      "requestId": "01HM5XJ7VASZ3EJMB1VQGTBFJ4"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "Invalid authentication": {
+                    "value": {
+                      "errorCode": "AUTH-0002,",
+                      "errorMsg": "Unauthorized",
+                      "details": [
+                        {
+                          "issue": "Invalid Authentication provided. Access denied.",
+                          "issueLocation": "request"
+                        }
+                      ],
+                      "requestId": "00000000S6MNG7624K2TDXT1E3"
+                    }
+                  },
+                  "No Api-Key": {
+                    "value": {
+                      "errorCode": "AUTH-0401",
+                      "errorMsg": "Unauthorized",
+                      "details": [
+                        {
+                          "issue": "No api key provided. Access denied.",
+                          "issueLocation": "request"
+                        }
+                      ],
+                      "requestId": "00000001S6MNG7624K2TDXT1E3"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Api-Key": []
+          }
+        ]
+      }
+    },
+    "/v2/tag/mappings": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/Api-Key"
+        },
+        {
+          "$ref": "#/components/parameters/X-Frankie-CustomerID"
+        },
+        {
+          "$ref": "#/components/parameters/X-Frankie-CustomerChildID"
+        },
+        {
+          "$ref": "#/components/parameters/X-Frankie-Channel"
+        },
+        {
+          "$ref": "#/components/parameters/X-Frankie-Username"
+        }
+      ],
+      "get": {
+        "summary": "List tag mappings",
+        "description": "Retrieve tag mappings for objects in the FrankieOne ecosystem. Results are scoped to the\ncustomer context provided in the request headers. Child organisations cannot access mappings\nbelonging to sibling organisations.\n\nObjects with no tag mappings are excluded from the response.\n\nWhen no filters are provided, all tag mappings within the customer and child scope are returned,\npaginated and sorted by the object mapping's `updatedAt` descending (most recently updated first).\nWithin each object, tags are sorted by their mapping `createdAt` descending (newest first).\n\nFiltering within a single parameter applies **OR** logic (e.g. `objectTypes=ENTITY,TRANSACTION`\nreturns mappings for either type). Filtering across different parameters applies **AND** logic\n(e.g. `objectTypes=ENTITY&objectIds=abc,def` returns ENTITY mappings only for those IDs).\n\nDuplicate `objectIds` are de-duplicated before processing.\n",
+        "operationId": "listTagMappings",
+        "tags": [
+          "Tags"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/query_object_types"
+          },
+          {
+            "$ref": "#/components/parameters/query_object_ids"
+          },
+          {
+            "$ref": "#/components/parameters/page"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "requestId",
+                    "meta",
+                    "mappings"
+                  ],
+                  "properties": {
+                    "requestId": {
+                      "$ref": "#/components/schemas/Request-ID"
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/List-Operation-Meta"
+                    },
+                    "mappings": {
+                      "type": "array",
+                      "description": "Tag mappings grouped by object. Only objects that have at least one tag mapping are included. Sorted by object mapping updatedAt descending.",
+                      "items": {
+                        "$ref": "#/components/schemas/Tag-Mapped-Object"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "Invalid EntityId": {
+                    "value": {
+                      "errorCode": "API-0400,",
+                      "errorMsg": "Multiple Errors: See Issues list",
+                      "details": [
+                        {
+                          "issue": "entityId in path must be of type uuid: \"test\"",
+                          "issueLocation": "VALIDATE-entityId"
+                        }
+                      ],
+                      "requestId": "01HM5XJ7VASZ3EJMB1VQGTBFJ4"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "Invalid authentication": {
+                    "value": {
+                      "errorCode": "AUTH-0002,",
+                      "errorMsg": "Unauthorized",
+                      "details": [
+                        {
+                          "issue": "Invalid Authentication provided. Access denied.",
+                          "issueLocation": "request"
+                        }
+                      ],
+                      "requestId": "00000000S6MNG7624K2TDXT1E3"
+                    }
+                  },
+                  "No Api-Key": {
+                    "value": {
+                      "errorCode": "AUTH-0401",
+                      "errorMsg": "Unauthorized",
+                      "details": [
+                        {
+                          "issue": "No api key provided. Access denied.",
+                          "issueLocation": "request"
+                        }
+                      ],
+                      "requestId": "00000001S6MNG7624K2TDXT1E3"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Api-Key": []
           }
         ]
       }
@@ -3117,6 +3648,22 @@
         "description": "List of Channels to filter the audit events upon",
         "required": false
       },
+      "query_filter_function_names": {
+        "name": "functionNames",
+        "in": "query",
+        "style": "form",
+        "explode": false,
+        "schema": {
+          "type": "array",
+          "description": "List of Function Names to filter the audit events upon",
+          "items": {
+            "description": "Name of the Function",
+            "type": "string"
+          }
+        },
+        "description": "Query parameter that contains a list of Function Names to filter the audit events upon",
+        "required": false
+      },
       "sort": {
         "in": "query",
         "name": "sort",
@@ -3173,6 +3720,113 @@
           "type": "string",
           "example": "fred.flintstone@frankieone.com"
         }
+      },
+      "query_tag_types": {
+        "name": "types",
+        "in": "query",
+        "required": false,
+        "explode": false,
+        "style": "form",
+        "schema": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/Tag-Type"
+          }
+        },
+        "description": "Filter tags by type. Supports multiple comma-separated values (OR logic).",
+        "example": [
+          "SYSTEM",
+          "CUSTOMER"
+        ]
+      },
+      "query_tag_categories": {
+        "name": "categories",
+        "in": "query",
+        "required": false,
+        "explode": false,
+        "style": "form",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "description": "Filter tags by category. Supports multiple comma-separated values (OR logic).",
+        "example": [
+          "FRAUD",
+          "SCAM"
+        ]
+      },
+      "query_tag_domains": {
+        "name": "domains",
+        "in": "query",
+        "required": false,
+        "explode": false,
+        "style": "form",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "description": "Filter tags by domain. Supports multiple comma-separated values (OR logic).",
+        "example": [
+          "ACTIVITY_MONITORING",
+          "ONBOARDING"
+        ]
+      },
+      "query_tag_ids": {
+        "name": "tagIds",
+        "in": "query",
+        "required": false,
+        "explode": false,
+        "style": "form",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "description": "Filter by specific tag IDs. Supports multiple comma-separated values (OR logic).",
+        "example": [
+          "550e8400-e29b-41d4-a716-446655440000"
+        ]
+      },
+      "query_object_types": {
+        "name": "objectTypes",
+        "in": "query",
+        "required": false,
+        "explode": false,
+        "style": "form",
+        "schema": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/Object-Type"
+          }
+        },
+        "description": "Filter tag mappings by object type. Supports multiple comma-separated values (OR logic).",
+        "example": [
+          "ENTITY",
+          "TRANSACTION"
+        ]
+      },
+      "query_object_ids": {
+        "name": "objectIds",
+        "in": "query",
+        "required": false,
+        "explode": false,
+        "style": "form",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "description": "Filter tag mappings by object ID. Supports multiple comma-separated values (OR logic). Duplicate IDs are de-duplicated before processing.",
+        "example": [
+          "12345678-1234-1234-1234-123456789012"
+        ]
       },
       "serviceNameQuery": {
         "name": "serviceName",
@@ -5468,6 +6122,301 @@
           },
           "comment": {
             "$ref": "#/components/schemas/Comment"
+          }
+        }
+      },
+      "Customer-Child-ID": {
+        "type": "string",
+        "description": "All child customers are assigned an auto-generated UUID to ensure global uniqueness, represented as customerChildId.",
+        "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        "readOnly": true
+      },
+      "Customer": {
+        "type": "object",
+        "description": "A child customer account in the context of the calling account as the parent.",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "customerChildId": {
+            "$ref": "#/components/schemas/Customer-Child-ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "The display name of the child customer account.",
+            "example": "Example Child Account"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true,
+            "description": "The date and time the child customer account was created."
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true,
+            "description": "The date and time the child customer account was last updated."
+          }
+        }
+      },
+      "Default-Workflow": {
+        "type": "object",
+        "description": "A reference to a workflow that will be configured for the child customer by default.",
+        "required": [
+          "workflowDefinitionId",
+          "workflowName"
+        ],
+        "properties": {
+          "workflowDefinitionId": {
+            "type": "string",
+            "description": "Id reference of the workflow definition to associate with the child customer.",
+            "example": "customer-verification-workflow"
+          },
+          "workflowName": {
+            "type": "string",
+            "description": "Name of the workflow."
+          },
+          "workflowDisplayName": {
+            "type": "string",
+            "description": "The display name for the workflow. This field is optional, when the value exists workflow name displayed in portal will be the value of this field."
+          },
+          "workflowDefinitionVersion": {
+            "type": "string",
+            "description": "Reference version id used in our workflow builder.",
+            "example": "0"
+          },
+          "lifecyclePhase": {
+            "$ref": "#/components/schemas/Workflow-LifecyclePhaseEnum"
+          },
+          "monitoringType": {
+            "$ref": "#/components/schemas/Monitoring-Type"
+          }
+        }
+      },
+      "Initial-User": {
+        "type": "object",
+        "description": "A user to be provisioned in the newly created child customer account at the time of creation.",
+        "required": [
+          "name",
+          "email"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The full name of the user.",
+            "example": "Jane Doe"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "The user's email address. The user will receive an invitation to access the child customer account at this address.",
+            "example": "user@example.com"
+          },
+          "roles": {
+            "type": "array",
+            "description": "An optional list of role names to assign to the user. If omitted, the account default role will be applied.",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "admin"
+            ]
+          }
+        }
+      },
+      "Create-Customer-Request": {
+        "type": "object",
+        "description": "Request to create a child customer account in the context of the calling account as the parent.",
+        "required": [
+          "customer"
+        ],
+        "properties": {
+          "customer": {
+            "$ref": "#/components/schemas/Customer"
+          },
+          "defaultWorkflows": {
+            "type": "array",
+            "description": "Workflows that will be configured for the child customer by default.",
+            "items": {
+              "$ref": "#/components/schemas/Default-Workflow"
+            }
+          },
+          "initialUsers": {
+            "type": "array",
+            "description": "Optional list of users to provision in the newly created child customer account. Each user will be invited via the supplied email address.",
+            "items": {
+              "$ref": "#/components/schemas/Initial-User"
+            }
+          }
+        }
+      },
+      "Create-Customer-Result": {
+        "type": "object",
+        "description": "Response object for creating a child customer account.",
+        "properties": {
+          "requestId": {
+            "$ref": "#/components/schemas/Request-ID"
+          },
+          "customer": {
+            "$ref": "#/components/schemas/Customer"
+          },
+          "defaultWorkflows": {
+            "type": "array",
+            "description": "The workflows that have been configured for the child customer.",
+            "items": {
+              "$ref": "#/components/schemas/Default-Workflow"
+            }
+          },
+          "initialUsers": {
+            "type": "array",
+            "description": "The users that have been provisioned in the newly created child customer account.",
+            "items": {
+              "$ref": "#/components/schemas/Initial-User"
+            }
+          }
+        }
+      },
+      "Tag-Type": {
+        "description": "The type of the tag.\n- SYSTEM: A tag created by FrankieOne. The `createdBy` and `updatedBy` fields will be omitted for SYSTEM tags.\n- CUSTOMER: A tag created by the customer.\n",
+        "type": "string",
+        "enum": [
+          "SYSTEM",
+          "CUSTOMER"
+        ]
+      },
+      "Tag-Base": {
+        "type": "object",
+        "required": [
+          "tagId",
+          "label"
+        ],
+        "properties": {
+          "tagId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique identifier for the tag.",
+            "example": "12345678-1234-1234-1234-123456789012",
+            "readOnly": true
+          },
+          "label": {
+            "type": "string",
+            "description": "Human-readable name for the tag.",
+            "example": "ROMANCE_SCAM"
+          },
+          "description": {
+            "type": "string",
+            "description": "Optional description for the tag.",
+            "example": "Indicates a potential romance scam."
+          },
+          "category": {
+            "type": "string",
+            "description": "Category used to group tags.",
+            "example": "FRAUD"
+          },
+          "type": {
+            "$ref": "#/components/schemas/Tag-Type"
+          },
+          "domain": {
+            "type": "string",
+            "description": "Optional domain context for the tag.",
+            "example": "ACTIVITY_MONITORING"
+          }
+        }
+      },
+      "Tag-Meta": {
+        "type": "object",
+        "required": [
+          "createdAt",
+          "updatedAt"
+        ],
+        "properties": {
+          "createdBy": {
+            "type": "string",
+            "nullable": true,
+            "description": "The user who created the tag. Omitted for SYSTEM tags."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The date on which the tag was created."
+          },
+          "updatedBy": {
+            "type": "string",
+            "nullable": true,
+            "description": "The user who last updated the tag. Omitted for SYSTEM tags."
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The date on which the tag was last updated."
+          }
+        }
+      },
+      "Tag": {
+        "type": "object",
+        "required": [
+          "tagId",
+          "label",
+          "createdAt",
+          "updatedAt"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Tag-Base"
+          },
+          {
+            "$ref": "#/components/schemas/Tag-Meta"
+          }
+        ]
+      },
+      "Tag-Mapping": {
+        "type": "object",
+        "description": "A tag applied to an object, including the identifier for the specific mapping.",
+        "required": [
+          "mappingId"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Tag-Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "mappingId": {
+                "type": "string",
+                "format": "uuid",
+                "description": "Unique identifier for this tag-to-object mapping.",
+                "example": "12345678-1234-1234-1234-123456789012",
+                "readOnly": true
+              }
+            }
+          }
+        ]
+      },
+      "Tag-Mapped-Object": {
+        "type": "object",
+        "description": "An object and the tags mapped to it.",
+        "required": [
+          "objectId",
+          "objectType",
+          "tags"
+        ],
+        "properties": {
+          "objectId": {
+            "type": "string",
+            "description": "ID of the object (may be ULID or UUID).",
+            "example": "12345678-1234-1234-1234-123456789012"
+          },
+          "objectType": {
+            "$ref": "#/components/schemas/Object-Type"
+          },
+          "tags": {
+            "type": "array",
+            "description": "Tags applied to this object, sorted by mapping createdAt descending (newest first).",
+            "items": {
+              "$ref": "#/components/schemas/Tag-Mapping"
+            }
           }
         }
       },
