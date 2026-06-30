@@ -51,6 +51,10 @@
       "description": "Manage custom attributes for organizations"
     },
     {
+      "name": "Organization External References",
+      "description": "Manage external references for organizations"
+    },
+    {
       "name": "Organization Monitoring",
       "description": "Manage AML monitoring for organizations"
     },
@@ -3346,6 +3350,407 @@
         ]
       }
     },
+    "/v2/organizations/{entityId}/documents/{documentId}/analyses": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/entityId"
+        },
+        {
+          "$ref": "#/components/parameters/documentId"
+        }
+      ],
+      "get": {
+        "summary": "Get trust analyses results for a document",
+        "description": "Retrieve all trust analyses results for a given document belonging to an organization entity. Both currently valid (VALID) and stale (STALE) analyses are returned so that consumers can display analysis history and detect invalidation. Consumers that only want current results can filter on `status=VALID`.",
+        "operationId": "getOrganizationDocumentAnalyses",
+        "tags": [
+          "Organization Documents"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Api-Key"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-CustomerID"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-CustomerChildID"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-Channel"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-Username"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Organizations-Document-Analyses-Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "Invalid EntityId": {
+                    "value": {
+                      "errorCode": "API-0400,",
+                      "errorMsg": "Multiple Errors: See Issues list",
+                      "details": [
+                        {
+                          "issue": "entityId in path must be of type uuid: \"test\"",
+                          "issueLocation": "VALIDATE-entityId"
+                        }
+                      ],
+                      "requestId": "01HM5XJ7VASZ3EJMB1VQGTBFJ4"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "Invalid authentication": {
+                    "value": {
+                      "errorCode": "AUTH-0002,",
+                      "errorMsg": "Unauthorized",
+                      "details": [
+                        {
+                          "issue": "Invalid Authentication provided. Access denied.",
+                          "issueLocation": "request"
+                        }
+                      ],
+                      "requestId": "00000000S6MNG7624K2TDXT1E3"
+                    }
+                  },
+                  "No Api-Key": {
+                    "value": {
+                      "errorCode": "AUTH-0401",
+                      "errorMsg": "Unauthorized",
+                      "details": [
+                        {
+                          "issue": "No api key provided. Access denied.",
+                          "issueLocation": "request"
+                        }
+                      ],
+                      "requestId": "00000001S6MNG7624K2TDXT1E3"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "Forbidden": {
+                    "value": {
+                      "errorCode": "ENT-1010,",
+                      "errorMsg": "Forbidden",
+                      "details": [
+                        {
+                          "issue": "entityId",
+                          "issueLocation": "Cannot retrieve entityId (027d1e3d-95af-f19a-313a-3b869da9ce10)"
+                        }
+                      ],
+                      "requestId": "01HM5EM2QNNSC9K0PX9VC06HX3"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "Internal Server Error": {
+                    "value": {
+                      "errorCode": "SYS-1063,",
+                      "errorMsg": "Failed to generate KYC report",
+                      "requestId": "01HM5EM2QNNSC9K0PX9VC06HX3"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Api-Key": []
+          },
+          {
+            "jwt": [
+              "kyb:api"
+            ]
+          }
+        ]
+      }
+    },
+    "/v2/organizations/{entityId}/documents/{documentId}/analyses/{analysisId}/confirm": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/entityId"
+        },
+        {
+          "$ref": "#/components/parameters/documentId"
+        },
+        {
+          "$ref": "#/components/parameters/analysisId"
+        }
+      ],
+      "post": {
+        "summary": "Confirm a trust analysis result for a document",
+        "description": "Submit a human-reviewed confirmation of a trust analysis result. The confirmation payload is the corrected `DocumentAnalysisInformationAndReferences`, which may be identical to the original analysis (confirm-as-is) or contain customer corrections. A new CONFIRMATION result is created with the confirmed payload. If a prior CONFIRMATION exists for the same analysis, it is marked STALE; the original ANALYSIS result is preserved as an audit trail. The response returns the confirmed analysis with `isConfirmed=true` and `status=VALID`, in the same shape as a single item from the GET analyses response.",
+        "operationId": "confirmOrganizationDocumentAnalysis",
+        "tags": [
+          "Organization Documents"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Api-Key"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-CustomerID"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-CustomerChildID"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-Channel"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-Username"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Document-Analysis-Information-And-References"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Organizations-Document-Analysis-Confirmation-Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "Invalid EntityId": {
+                    "value": {
+                      "errorCode": "API-0400,",
+                      "errorMsg": "Multiple Errors: See Issues list",
+                      "details": [
+                        {
+                          "issue": "entityId in path must be of type uuid: \"test\"",
+                          "issueLocation": "VALIDATE-entityId"
+                        }
+                      ],
+                      "requestId": "01HM5XJ7VASZ3EJMB1VQGTBFJ4"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "Invalid authentication": {
+                    "value": {
+                      "errorCode": "AUTH-0002,",
+                      "errorMsg": "Unauthorized",
+                      "details": [
+                        {
+                          "issue": "Invalid Authentication provided. Access denied.",
+                          "issueLocation": "request"
+                        }
+                      ],
+                      "requestId": "00000000S6MNG7624K2TDXT1E3"
+                    }
+                  },
+                  "No Api-Key": {
+                    "value": {
+                      "errorCode": "AUTH-0401",
+                      "errorMsg": "Unauthorized",
+                      "details": [
+                        {
+                          "issue": "No api key provided. Access denied.",
+                          "issueLocation": "request"
+                        }
+                      ],
+                      "requestId": "00000001S6MNG7624K2TDXT1E3"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "Forbidden": {
+                    "value": {
+                      "errorCode": "ENT-1010,",
+                      "errorMsg": "Forbidden",
+                      "details": [
+                        {
+                          "issue": "entityId",
+                          "issueLocation": "Cannot retrieve entityId (027d1e3d-95af-f19a-313a-3b869da9ce10)"
+                        }
+                      ],
+                      "requestId": "01HM5EM2QNNSC9K0PX9VC06HX3"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "Internal Server Error": {
+                    "value": {
+                      "errorCode": "SYS-1063,",
+                      "errorMsg": "Failed to generate KYC report",
+                      "requestId": "01HM5EM2QNNSC9K0PX9VC06HX3"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Api-Key": []
+          },
+          {
+            "jwt": [
+              "kyb:api"
+            ]
+          }
+        ]
+      }
+    },
     "/v2/organizations/{entityId}/documents/{documentId}/attachments/{attachmentId}": {
       "parameters": [
         {
@@ -4460,6 +4865,177 @@
         ]
       }
     },
+    "/v2/organizations/{entityId}/externalreferences/{referenceId}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/entityId"
+        },
+        {
+          "$ref": "#/components/parameters/referenceId"
+        }
+      ],
+      "delete": {
+        "summary": "Delete an organization external reference",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "requestId": {
+                      "$ref": "#/components/schemas/Request-ID"
+                    },
+                    "entityId": {
+                      "$ref": "#/components/schemas/Entity-ID"
+                    },
+                    "referenceId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "Invalid EntityId": {
+                    "value": {
+                      "errorCode": "API-0400,",
+                      "errorMsg": "Multiple Errors: See Issues list",
+                      "details": [
+                        {
+                          "issue": "entityId in path must be of type uuid: \"test\"",
+                          "issueLocation": "VALIDATE-entityId"
+                        }
+                      ],
+                      "requestId": "01HM5XJ7VASZ3EJMB1VQGTBFJ4"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "Invalid authentication": {
+                    "value": {
+                      "errorCode": "AUTH-0002,",
+                      "errorMsg": "Unauthorized",
+                      "details": [
+                        {
+                          "issue": "Invalid Authentication provided. Access denied.",
+                          "issueLocation": "request"
+                        }
+                      ],
+                      "requestId": "00000000S6MNG7624K2TDXT1E3"
+                    }
+                  },
+                  "No Api-Key": {
+                    "value": {
+                      "errorCode": "AUTH-0401",
+                      "errorMsg": "Unauthorized",
+                      "details": [
+                        {
+                          "issue": "No api key provided. Access denied.",
+                          "issueLocation": "request"
+                        }
+                      ],
+                      "requestId": "00000001S6MNG7624K2TDXT1E3"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "operationId": "deleteOrganizationExternalReference",
+        "description": "Delete an organization's external reference with the given id.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Api-Key"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-CustomerID"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-CustomerChildID"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-Channel"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-Username"
+          }
+        ],
+        "tags": [
+          "Organization External References"
+        ],
+        "security": [
+          {
+            "Api-Key": []
+          },
+          {
+            "jwt": [
+              "kyb:api"
+            ]
+          }
+        ]
+      }
+    },
     "/v2/organizations/{entityId}/monitor": {
       "parameters": [
         {
@@ -5065,6 +5641,15 @@
         },
         "description": "Determines what level of detail to return in the response\n - meta: Return all metadata only, no links or base64 data\n - base64: Return all metadata and images as base64"
       },
+      "analysisId": {
+        "name": "analysisId",
+        "in": "path",
+        "schema": {
+          "$ref": "#/components/schemas/Analysis-ID"
+        },
+        "description": "Unique identifier of the trust analysis result being confirmed.",
+        "required": true
+      },
       "attachmentId": {
         "name": "attachmentId",
         "in": "path",
@@ -5091,6 +5676,15 @@
           "maxLength": 64
         },
         "description": "Unique key for a custom attribute",
+        "required": true
+      },
+      "referenceId": {
+        "name": "referenceId",
+        "in": "path",
+        "schema": {
+          "type": "string"
+        },
+        "description": "Unique external reference identifier",
         "required": true
       },
       "toggle-monitoring": {
@@ -5290,7 +5884,6 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time",
-            "readOnly": true,
             "description": "The date and time the address was last updated. ISO 8601 format."
           },
           "sourceId": {
@@ -5636,7 +6229,6 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time",
-            "readOnly": true,
             "description": "The date and time the phone number was last updated. ISO 8601 format."
           }
         }
@@ -5697,7 +6289,6 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time",
-            "readOnly": true,
             "description": "The date and time the email address was last updated. ISO 8601 format."
           }
         }
@@ -5989,6 +6580,24 @@
             "type": "string",
             "description": "A summary of what this external reference is and what it is used for.",
             "example": "This is the customer ID in the core banking system."
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "SYSTEM",
+              "CUSTOMER",
+              "ACCOUNT",
+              "OTHER"
+            ],
+            "default": "CUSTOMER",
+            "description": "The type of external reference."
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Key-value pairs for storing additional metadata about the external reference",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/External-Reference-Metadata"
+            }
           }
         }
       },
@@ -6030,7 +6639,6 @@
               "updatedAt": {
                 "type": "string",
                 "format": "date-time",
-                "readOnly": true,
                 "description": "The date and time the external reference was last updated. ISO 8601 format."
               }
             }
@@ -6590,6 +7198,14 @@
           },
           "type": {
             "$ref": "#/components/schemas/Document-Type"
+          },
+          "isDigital": {
+            "type": "boolean",
+            "description": "Indicator that this document is sourced via digital means."
+          },
+          "isExternallyVerified": {
+            "type": "boolean",
+            "description": "Indicator that this document has been externally verified outside of Frankie system."
           },
           "subtype": {
             "type": "string",
@@ -7960,9 +8576,23 @@
           "entityId": {
             "$ref": "#/components/schemas/Entity-ID"
           },
+          "entityType": {
+            "$ref": "#/components/schemas/Entity-Type"
+          },
           "name": {
             "type": "string",
             "description": "The name of the organization or the individual entity"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "schemaVersion": {
+            "type": "integer",
+            "description": "The schema version of this entity.",
+            "example": 2,
+            "readOnly": true
           },
           "addresses": {
             "type": "array",
@@ -7974,38 +8604,6 @@
           "country": {
             "type": "string",
             "description": "The nationality or country of the entity"
-          },
-          "shareholders": {
-            "type": "array",
-            "description": "The shareholders of a company. It includes details such as the names of the shareholders, the number of shares held by each shareholder, and their ownership percentages",
-            "items": {
-              "$ref": "#/components/schemas/Organization-Shareholder"
-            }
-          },
-          "shareInterests": {
-            "description": "The specific interests or holdings of shareholders in a company. It may include information about different classes or types of shares held by shareholders, such as ordinary shares, preference shares, or options",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Organization-Share-Interest"
-            }
-          },
-          "officials": {
-            "type": "array",
-            "description": "The individuals who hold official positions or roles within a company, such as directors or company secretaries. It includes details such as their names, positions, appointment dates, and other relevant information",
-            "items": {
-              "$ref": "#/components/schemas/Organization-Official"
-            }
-          },
-          "shareCapital": {
-            "description": "The total value of shares issued by the company to its holders. It typically includes both the nominal value of the shares as well as any premium paid by the shareholders.",
-            "$ref": "#/components/schemas/Organization-Share-Capital"
-          },
-          "indicators": {
-            "description": "The indicators that contribute to the risk of an organization or other parameters that needs to be looked at",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Indicator"
-            }
           },
           "sourceId": {
             "type": "string",
@@ -9119,6 +9717,55 @@
           }
         }
       },
+      "External-Reference-Upsert": {
+        "type": "object",
+        "description": "Used to upsert external references on an entity. All fields are optional to support matching by referenceId alone, by name alone, or by both. When creating a new external reference (no matching referenceId or name), name and value are required.",
+        "properties": {
+          "referenceId": {
+            "type": "string",
+            "description": "The unique identifier of an existing external reference. When provided, the reference is matched by this ID for update. If omitted, matching falls back to name-based lookup.",
+            "example": "24de15f64-5717-4562-b3fc-2c963f66e23e"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the external reference.",
+            "example": "CUSTOMER-REFERENCE"
+          },
+          "value": {
+            "type": "string",
+            "description": "The value of the external reference.",
+            "example": "CUST-00001342"
+          },
+          "description": {
+            "type": "string",
+            "description": "A summary of what this external reference is and what it is used for.",
+            "example": "This is the customer ID in the core banking system."
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "SYSTEM",
+              "CUSTOMER",
+              "ACCOUNT",
+              "OTHER"
+            ],
+            "default": "CUSTOMER",
+            "description": "The type of external reference."
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Key-value pairs for storing additional metadata about the external reference",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/External-Reference-Metadata"
+            }
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The date and time the external reference was last updated. ISO 8601 format."
+          }
+        }
+      },
       "Jurisdictional-Information-Update": {
         "type": "object",
         "description": "Basic organization details for specific jurisdictions that are available for update.",
@@ -9144,6 +9791,13 @@
           },
           "details": {
             "$ref": "#/components/schemas/Organization-Details-Update"
+          },
+          "externalReferences": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/External-Reference-Upsert"
+            },
+            "description": "A list of external references to upsert for the organization. References can be matched by referenceId, name, or both. New references (no match) require name and value."
           },
           "jurisdictionalInformation": {
             "$ref": "#/components/schemas/Jurisdictional-Information-Update"
@@ -9247,6 +9901,13 @@
           "details": {
             "$ref": "#/components/schemas/Organization-Details-Create"
           },
+          "externalReferences": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/External-Reference-Upsert"
+            },
+            "description": "A list of external references to add for the organization."
+          },
           "jurisdictionalInformation": {
             "$ref": "#/components/schemas/Jurisdictional-Information-Create"
           }
@@ -9299,6 +9960,15 @@
           }
         }
       },
+      "Workflow-Execution-Variables": {
+        "type": "object",
+        "additionalProperties": true,
+        "description": "A free-form map of key-value pairs passed to the workflow at execution time. Each key corresponds to a variable declared in the target workflow definition. The workflow engine validates types and applies defaults for missing variables. Use this to supply per-execution inputs (e.g. documentId, includeHistorical) without requiring per-field changes to the request schema.",
+        "example": {
+          "documentId": "92de15f6-5717-4562-b3fc-2c963f66def7",
+          "includeHistorical": true
+        }
+      },
       "Execute-Workflow-Request": {
         "type": "object",
         "description": "Contains the criteria used to invoke workflow for organization.",
@@ -9318,6 +9988,9 @@
           },
           "comment": {
             "$ref": "#/components/schemas/Comment"
+          },
+          "executionVariables": {
+            "$ref": "#/components/schemas/Workflow-Execution-Variables"
           }
         }
       },
@@ -10628,7 +11301,8 @@
           "ORGANIZATION_OWNERSHIP",
           "MATCHLIST",
           "VISA",
-          "ACTIVITY"
+          "ACTIVITY",
+          "DIGITAL_KYC"
         ],
         "readOnly": true
       },
@@ -10645,13 +11319,14 @@
         "properties": {
           "type": {
             "type": "string",
-            "description": "The type of supplementary data. Possible values:\n  - AML\n  - KYC_ADDRESS\n  - KYC_DOB\n  - KYC_GENDER\n  - KYC_NAME\n  - ID\n  - VISA\n  - NAME_VALIDATION\n  - KYB_ORGANIZATION\n  - KYB_ADDRESS_VERIFICATION\n  - KYB_NAME_VERIFICATION\n  - KYB_REGISTRATION_VERIFICATION\n  - KYB_TAX_VERIFICATION\n  - MATCHLIST\n  - DUPLICATE\n  - FRAUD_DEVICE\n  - FRAUD_EMAIL\n  - FRAUD_PHONE\n  - FRAUD_LOOKUP\n  - ACTIVITY_AML\n  - ACTIVITY_EVENT\n  - ACTIVITY_FRAUD\n",
+            "description": "The type of supplementary data. Possible values:\n  - AML\n  - KYC_ADDRESS\n  - KYC_DOB\n  - KYC_GENDER\n  - KYC_NAME\n  - KYC_FACE_VERIFICATION\n  - ID\n  - VISA\n  - NAME_VALIDATION\n  - KYB_ORGANIZATION\n  - KYB_ADDRESS_VERIFICATION\n  - KYB_NAME_VERIFICATION\n  - KYB_REGISTRATION_VERIFICATION\n  - KYB_TAX_VERIFICATION\n  - MATCHLIST\n  - DUPLICATE\n  - FRAUD_DEVICE\n  - FRAUD_EMAIL\n  - FRAUD_PHONE\n  - FRAUD_LOOKUP\n  - ACTIVITY_AML\n  - ACTIVITY_EVENT\n  - ACTIVITY_FRAUD\n  - DIGITAL_KYC_ID\n  - DIGITAL_KYC_NAME\n  - DIGITAL_KYC_DOB\n  - DIGITAL_KYC_ADDRESS\n",
             "enum": [
               "AML",
               "KYC_ADDRESS",
               "KYC_DOB",
               "KYC_GENDER",
               "KYC_NAME",
+              "KYC_FACE_VERIFICATION",
               "ID",
               "VISA",
               "NAME_VALIDATION",
@@ -10669,7 +11344,11 @@
               "FRAUD_LOOKUP",
               "ACTIVITY_AML",
               "ACTIVITY_EVENT",
-              "ACTIVITY_FRAUD"
+              "ACTIVITY_FRAUD",
+              "DIGITAL_KYC_ID",
+              "DIGITAL_KYC_NAME",
+              "DIGITAL_KYC_DOB",
+              "DIGITAL_KYC_ADDRESS"
             ]
           }
         }
@@ -11725,7 +12404,14 @@
           "AUDIT_EVENT",
           "EXTERNAL_REFERENCE",
           "RISK_ASSESSMENT",
-          "MATCHLIST"
+          "MATCHLIST",
+          "CUSTOMER",
+          "CUSTOMER_KEY",
+          "SERVICE",
+          "SECRET",
+          "USER",
+          "ACTIVITY",
+          "CASE"
         ]
       },
       "Supplementary-Data-Base-MatchStrength": {
@@ -11966,6 +12652,48 @@
                 "type": "string",
                 "format": "uuid",
                 "description": "The attachment ID of the selfie that was compared."
+              }
+            }
+          }
+        ]
+      },
+      "Supplementary-Data-KYC-Face-Verification": {
+        "type": "object",
+        "description": "Result of a KYC face verification check, indicating whether the face presented matches the provided identity document.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-IDV-Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "idDocumentId": {
+                "type": "string",
+                "format": "uuid",
+                "description": "The document ID of the identity document used for face verification."
+              },
+              "idDocumentScanId": {
+                "type": "string",
+                "format": "uuid",
+                "description": "The scan ID of the identity document used for face verification."
+              },
+              "selfieDocumentId": {
+                "type": "string",
+                "format": "uuid",
+                "description": "The document ID of the selfie used for face verification."
+              },
+              "selfieDocumentScanId": {
+                "type": "string",
+                "format": "uuid",
+                "description": "The scan ID of the selfie used for face verification."
+              },
+              "documentType": {
+                "type": "string",
+                "description": "The type of identity document presented."
+              },
+              "transactionId": {
+                "type": "string",
+                "description": "The provider's transaction reference."
               }
             }
           }
@@ -13500,6 +14228,336 @@
           }
         ]
       },
+      "Supplementary-Data-Digital-KYC-Issuer-Info": {
+        "type": "object",
+        "description": "Information about the issuer of the digital credential\n",
+        "properties": {
+          "commonName": {
+            "description": "The common name of the issuing authority\n",
+            "type": "string",
+            "example": "x15-sandbox IACA"
+          },
+          "trustedIssuerCertificateId": {
+            "description": "The certificate identifier of the trusted issuer\n",
+            "type": "string",
+            "example": "c6DQZMip5ezshYdzjn73LWQLwRNIPSG5MttdQdeFZj0="
+          }
+        }
+      },
+      "Supplementary-Data-Digital-KYC-Validity-Info": {
+        "type": "object",
+        "description": "Validity period of the digital credential\n",
+        "properties": {
+          "validFrom": {
+            "description": "The date and time from which the credential is valid\n",
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-04-29T05:21:05.000Z"
+          },
+          "validUntil": {
+            "description": "The date and time until which the credential is valid\n",
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-06-30T13:59:00.000Z"
+          }
+        }
+      },
+      "Supplementary-Data-Digital-KYC-Evidence": {
+        "type": "object",
+        "description": "A single verification check performed on the digital credential\n",
+        "properties": {
+          "checkId": {
+            "description": "Unique identifier of the verification check\n",
+            "type": "string",
+            "format": "uuid",
+            "example": "7c4a8d9e-3f21-4b56-a8e2-1d2f3c4b5a69"
+          },
+          "organization": {
+            "description": "The organization that performed the check\n",
+            "type": "string",
+            "example": "FrankieOne"
+          },
+          "checkMethod": {
+            "description": "The method used for the check\n",
+            "type": "string",
+            "example": "data"
+          },
+          "time": {
+            "description": "The date and time when the check was performed\n",
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-04-29T05:21:04Z"
+          }
+        }
+      },
+      "Supplementary-Data-Digital-KYC-Verification-Result": {
+        "type": "object",
+        "description": "The outcome of the digital credential verification\n",
+        "properties": {
+          "verified": {
+            "description": "Whether the digital credential was successfully verified\n",
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "Supplementary-Data-Digital-KYC-Data": {
+        "type": "object",
+        "description": "Common properties shared across all Digital KYC verification result types.\nContains credential metadata, issuer information, evidence, and verification outcome.\n",
+        "properties": {
+          "assuranceLevel": {
+            "description": "Assurance level of the digital credential\n",
+            "type": "string",
+            "example": "ip2+"
+          },
+          "docType": {
+            "description": "The document type of the digital credential\n",
+            "type": "string",
+            "example": "au.com.ventio.openid-ida.v0.1"
+          },
+          "policy": {
+            "description": "The policy or accreditation rules under which the digital identity was verified\n",
+            "type": "string",
+            "example": "Digital ID Accreditation Rules Division 2"
+          },
+          "procedure": {
+            "description": "The identity proofing procedure level used for verification\n",
+            "type": "string",
+            "example": "ip2+"
+          },
+          "issuerInfo": {
+            "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Issuer-Info"
+          },
+          "validityInfo": {
+            "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Validity-Info"
+          },
+          "evidence": {
+            "description": "Evidence of the verification checks performed on the digital credential\n",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Evidence"
+            }
+          },
+          "originalEntityId": {
+            "description": "The original entity identifier associated with this digital KYC check\n",
+            "type": "string",
+            "example": "e3a7b2c1-4d5f-6a89-b0cd-ef0123456789"
+          },
+          "trustFramework": {
+            "description": "The trust framework under which the digital identity verification was conducted\n",
+            "type": "string",
+            "example": "au_digi_id"
+          },
+          "verificationProcess": {
+            "description": "The verification process identifier for the digital identity check\n",
+            "type": "string",
+            "example": "28c667a5-498d-49a4-b41c-89fb7c2c1aae"
+          },
+          "metadata": {
+            "description": "Additional key-value pair metadata associated with the digital KYC result\n",
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "credentialId": {
+            "description": "The unique identifier of the digital credential\n",
+            "type": "string",
+            "example": "248F076E-2B23-48F2-9B11-8F067916F4C6"
+          },
+          "verificationResult": {
+            "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Verification-Result"
+          }
+        }
+      },
+      "Supplementary-Data-Digital-KYC-Claim-Value": {
+        "type": "object",
+        "description": "A typed claim value from a digital credential. The type field indicates\nthe data type of the value.\n",
+        "properties": {
+          "type": {
+            "description": "The data type of the claim value (e.g. string, date, dateTime, object)\n",
+            "type": "string"
+          },
+          "value": {
+            "description": "The claim value\n",
+            "type": "string"
+          }
+        }
+      },
+      "Supplementary-Data-Digital-KYC-ID-Claims": {
+        "type": "object",
+        "description": "The verified identity document claims extracted from the digital credential\n",
+        "properties": {
+          "document_type": {
+            "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Claim-Value"
+          },
+          "date_of_expiry": {
+            "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Claim-Value"
+          },
+          "date_of_issuance": {
+            "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Claim-Value"
+          },
+          "issuer": {
+            "description": "Details about the issuer of the identity document\n",
+            "type": "object",
+            "properties": {
+              "country_code": {
+                "description": "The ISO country code of the issuing country\n",
+                "type": "string",
+                "example": "AUS"
+              },
+              "country": {
+                "description": "The country of the issuing authority\n",
+                "type": "string",
+                "example": "AUS"
+              },
+              "jurisdiction": {
+                "description": "The jurisdiction or state of the issuing authority\n",
+                "type": "string",
+                "example": "VIC"
+              },
+              "name": {
+                "description": "The name of the issuing authority\n",
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "Supplementary-Data-Digital-KYC-ID": {
+        "type": "object",
+        "description": "Digital KYC identity document verification result. Contains the verified\nidentity document details from a digital credential along with the credential\nmetadata, issuer information, and verification outcome.\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Base"
+          },
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Data"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "claims": {
+                "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-ID-Claims"
+              }
+            }
+          }
+        ]
+      },
+      "Supplementary-Data-Digital-KYC-Name-Claims": {
+        "type": "object",
+        "description": "The verified name claims extracted from the digital credential\n",
+        "properties": {
+          "given_name": {
+            "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Claim-Value"
+          },
+          "family_name": {
+            "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Claim-Value"
+          },
+          "name": {
+            "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Claim-Value"
+          },
+          "other_names": {
+            "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Claim-Value"
+          }
+        }
+      },
+      "Supplementary-Data-Digital-KYC-Name": {
+        "type": "object",
+        "description": "Digital KYC name verification result. Contains the verified name claims\nfrom a digital credential along with the credential metadata, issuer\ninformation, and verification outcome.\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Base"
+          },
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Data"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "claims": {
+                "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Name-Claims"
+              }
+            }
+          }
+        ]
+      },
+      "Supplementary-Data-Digital-KYC-DoB-Claims": {
+        "type": "object",
+        "description": "The verified date of birth claim extracted from the digital credential\n",
+        "properties": {
+          "birthdate": {
+            "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Claim-Value"
+          }
+        }
+      },
+      "Supplementary-Data-Digital-KYC-DoB": {
+        "type": "object",
+        "description": "Digital KYC date of birth verification result. Contains the verified date\nof birth claim from a digital credential along with the credential metadata,\nissuer information, and verification outcome.\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Base"
+          },
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Data"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "claims": {
+                "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-DoB-Claims"
+              }
+            }
+          }
+        ]
+      },
+      "Supplementary-Data-Digital-KYC-Address-Claims": {
+        "type": "object",
+        "description": "The address claims extracted from the digital credential\n",
+        "properties": {
+          "street_address": {
+            "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Claim-Value"
+          },
+          "locality": {
+            "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Claim-Value"
+          },
+          "region": {
+            "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Claim-Value"
+          },
+          "postal_code": {
+            "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Claim-Value"
+          },
+          "country": {
+            "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Claim-Value"
+          },
+          "country_code": {
+            "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Claim-Value"
+          },
+          "formatted": {
+            "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Claim-Value"
+          }
+        }
+      },
+      "Supplementary-Data-Digital-KYC-Address": {
+        "type": "object",
+        "description": "Digital KYC address verification result. Contains the address claims from\na digital credential along with the credential metadata, issuer information,\nand verification outcome. Address claims may be unverified depending on the\ncredential source.\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Base"
+          },
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Data"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "claims": {
+                "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Address-Claims"
+              }
+            }
+          }
+        ]
+      },
       "Supplementary-Data": {
         "type": "object",
         "readOnly": true,
@@ -13556,6 +14614,9 @@
             "$ref": "#/components/schemas/Supplementary-Data-IDV-Facial-Liveness"
           },
           {
+            "$ref": "#/components/schemas/Supplementary-Data-KYC-Face-Verification"
+          },
+          {
             "$ref": "#/components/schemas/Supplementary-Data-IDV-OCR"
           },
           {
@@ -13584,6 +14645,18 @@
           },
           {
             "$ref": "#/components/schemas/Supplementary-Data-Fraud-Phone-Number"
+          },
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-ID"
+          },
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Name"
+          },
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-DoB"
+          },
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Address"
           }
         ],
         "discriminator": {
@@ -13606,6 +14679,7 @@
             "IDV_DOCUMENT": "#/components/schemas/Supplementary-Data-IDV-Document",
             "IDV_FACIAL_COMPARISON": "#/components/schemas/Supplementary-Data-IDV-Facial-Comparison",
             "IDV_FACIAL_LIVENESS": "#/components/schemas/Supplementary-Data-IDV-Facial-Liveness",
+            "KYC_FACE_VERIFICATION": "#/components/schemas/Supplementary-Data-KYC-Face-Verification",
             "IDV_OCR": "#/components/schemas/Supplementary-Data-IDV-OCR",
             "IDV_OCR_COMPARISON": "#/components/schemas/Supplementary-Data-IDV-OCR-Comparison",
             "MATCHLIST": "#/components/schemas/Supplementary-Data-Matchlist",
@@ -13615,7 +14689,11 @@
             "FRAUD_DEVICE": "#/components/schemas/Supplementary-Data-Fraud-Device",
             "FRAUD_EMAIL_ADDRESS": "#/components/schemas/Supplementary-Data-Fraud-Email-Address",
             "FRAUD_IP_ADDRESS": "#/components/schemas/Supplementary-Data-Fraud-IP-Address",
-            "FRAUD_PHONE_NUMBER": "#/components/schemas/Supplementary-Data-Fraud-Phone-Number"
+            "FRAUD_PHONE_NUMBER": "#/components/schemas/Supplementary-Data-Fraud-Phone-Number",
+            "DIGITAL_KYC_ID": "#/components/schemas/Supplementary-Data-Digital-KYC-ID",
+            "DIGITAL_KYC_NAME": "#/components/schemas/Supplementary-Data-Digital-KYC-Name",
+            "DIGITAL_KYC_DOB": "#/components/schemas/Supplementary-Data-Digital-KYC-DoB",
+            "DIGITAL_KYC_ADDRESS": "#/components/schemas/Supplementary-Data-Digital-KYC-Address"
           }
         }
       },
@@ -14148,6 +15226,9 @@
           },
           "comment": {
             "$ref": "#/components/schemas/Comment"
+          },
+          "executionVariables": {
+            "$ref": "#/components/schemas/Workflow-Execution-Variables"
           }
         }
       },
@@ -14280,6 +15361,790 @@
           },
           "document": {
             "$ref": "#/components/schemas/Document-Information"
+          },
+          "requestId": {
+            "$ref": "#/components/schemas/Request-ID"
+          }
+        }
+      },
+      "Analysis-ID": {
+        "type": "string",
+        "description": "An identifier to uniquely identify a specific instance of analysis.",
+        "format": "ulid",
+        "example": "01K3G4CCQ3DY3B1413S19M9QW1"
+      },
+      "Analysis-Validity-Status": {
+        "description": "Indicates whether this analysis is still authoritative for the document.\n- VALID: the analysis reflects the current state of its source data\n- STALE: the source data the analysis was produced from has since been updated\n- ERROR: the analysis did not complete successfully; see the errors field for details\n",
+        "type": "string",
+        "enum": [
+          "VALID",
+          "STALE",
+          "ERROR"
+        ]
+      },
+      "Document-Analysis-Type": {
+        "type": "string",
+        "description": "The type of document analysis to perform",
+        "enum": [
+          "TRUST_DOCUMENT"
+        ]
+      },
+      "Reference-ID": {
+        "type": "string",
+        "description": "An identifier for the reference where you can find out more information from where this data was obtained.\nLookup the ID in the reference map to obtain more information about the information the refwerence ID is associated with.\n"
+      },
+      "Value-String-Reference-IDs": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "description": "The value of the field",
+            "type": "string"
+          },
+          "referenceIds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Reference-ID"
+            }
+          }
+        }
+      },
+      "Date-Writeable": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Date-Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "normalized": {
+                "type": "string",
+                "format": "date",
+                "description": "full date in ISO8601 date format of \"YYYY-MM-DD\"",
+                "example": "1990-03-31"
+              }
+            }
+          }
+        ]
+      },
+      "Date-With-References": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Date-Writeable"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "referenceIds": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Reference-ID"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Establishment": {
+        "type": "object",
+        "description": "Information about the establishment of a trust deed",
+        "properties": {
+          "date": {
+            "$ref": "#/components/schemas/Date-With-References"
+          },
+          "country": {
+            "$ref": "#/components/schemas/Value-String-Reference-IDs"
+          },
+          "subdivision": {
+            "$ref": "#/components/schemas/Value-String-Reference-IDs"
+          }
+        }
+      },
+      "Certification": {
+        "type": "object",
+        "description": "Information about the certification of a trust deed",
+        "properties": {
+          "date": {
+            "$ref": "#/components/schemas/Date-With-References"
+          }
+        }
+      },
+      "Execution": {
+        "type": "object",
+        "description": "Information about the execution of a trust deed",
+        "properties": {
+          "date": {
+            "$ref": "#/components/schemas/Date-With-References"
+          }
+        }
+      },
+      "Entity-ID-Writeable-2": {
+        "type": "string",
+        "description": "Entity's are assigned an auto-generated UUID to ensure global uniqueness, represented as an entityId. The entityId allows for precise modification when required. \nTo modify an entity, set the entityId of the entity you wish to update in an update request call.",
+        "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+      },
+      "Entity-Type-Writeable-2": {
+        "type": "string",
+        "enum": [
+          "INDIVIDUAL",
+          "ORGANIZATION",
+          "UNKNOWN"
+        ],
+        "description": "Type of entity within Frankie. This can either be \"INDIVIDUAL\", \"ORGANIZATION\" or \"UNKNOWN\""
+      },
+      "Address-Writeable": {
+        "type": "object",
+        "description": "Address information in all available formats",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Address-Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "unstructuredLongForm": {
+                "type": "string",
+                "description": "Raw unformatted address as provided by the source. Not normalized or standardized."
+              }
+            }
+          }
+        ]
+      },
+      "Address-With-References": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Address-Writeable"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "referenceIds": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Reference-ID"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Base-Entity-With-References": {
+        "type": "object",
+        "properties": {
+          "entityId": {
+            "$ref": "#/components/schemas/Entity-ID-Writeable-2"
+          },
+          "entityType": {
+            "$ref": "#/components/schemas/Entity-Type-Writeable-2"
+          },
+          "addresses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Address-With-References"
+            },
+            "description": "A list containing all address information associated with the entity"
+          }
+        }
+      },
+      "Individual-Name-With-References": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Individual-Name"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "referenceIds": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Reference-ID"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Linked-Individual-With-References": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Base-Entity-With-References"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "dateOfBirth": {
+                "$ref": "#/components/schemas/Date-With-References"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "properties": {
+              "name": {
+                "$ref": "#/components/schemas/Individual-Name-With-References"
+              }
+            }
+          }
+        ]
+      },
+      "Code-Description-With-References": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Code-Description"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "referenceIds": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Reference-ID"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Organization-Registration-Details-With-References": {
+        "type": "object",
+        "properties": {
+          "registrationNumber": {
+            "description": "The registration number of the organization in the registry",
+            "type": "string"
+          },
+          "registrationNumberType": {
+            "description": "The type of the registration number, e.g. ACN, ABN, etc.",
+            "type": "string"
+          },
+          "registrationNumberDescription": {
+            "description": "The description of type of the registration number, e.g. Australian Company Number, Australian Business Number, etc.",
+            "type": "string"
+          },
+          "referenceIds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Reference-ID"
+            }
+          }
+        }
+      },
+      "Organization-Details-With-References": {
+        "type": "object",
+        "description": "Organization details about an organization",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/Code-Description-With-References"
+          },
+          "registrationDetails": {
+            "description": "This will contain a list of different registries the organization is registered in",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Organization-Registration-Details-With-References"
+            }
+          },
+          "name": {
+            "description": "The name as registered in the primary registry of the organization",
+            "$ref": "#/components/schemas/Value-String-Reference-IDs"
+          }
+        }
+      },
+      "Linked-Organization-With-References": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Base-Entity-With-References"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "details": {
+                "$ref": "#/components/schemas/Organization-Details-With-References"
+              }
+            }
+          }
+        ]
+      },
+      "Linked-Unknown-Entity-With-References": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Base-Entity-With-References"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "name": {
+                "description": "The name as registered in the primary registry of the organization",
+                "$ref": "#/components/schemas/Value-String-Reference-IDs"
+              }
+            }
+          }
+        ]
+      },
+      "Entity-ID-Type-With-References": {
+        "type": "object",
+        "properties": {
+          "entityId": {
+            "$ref": "#/components/schemas/Entity-ID-Writeable-2"
+          },
+          "entityType": {
+            "$ref": "#/components/schemas/Entity-Type-Writeable-2"
+          },
+          "referenceIds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Reference-ID"
+            }
+          }
+        }
+      },
+      "Trust-Type-Supported-Enum": {
+        "type": "string",
+        "description": "The supported types of trusts.",
+        "enum": [
+          "DISCRETIONARY",
+          "UNIT",
+          "SELF_MANAGED_SUPER_FUND"
+        ]
+      },
+      "Trust-Type-Enum": {
+        "type": "string",
+        "description": "The types of trusts. If the type cannot be determined, the value is UNKNOWN.",
+        "enum": [
+          "DISCRETIONARY",
+          "UNIT",
+          "SELF_MANAGED_SUPER_FUND",
+          "UNKNOWN"
+        ]
+      },
+      "Trust-Type-Identification": {
+        "type": "object",
+        "description": "The type information of the trust",
+        "properties": {
+          "provided": {
+            "$ref": "#/components/schemas/Trust-Type-Supported-Enum"
+          },
+          "detected": {
+            "$ref": "#/components/schemas/Trust-Type-Enum"
+          }
+        }
+      },
+      "Discretionary-Trust-Information": {
+        "type": "object",
+        "description": "Information specific to that of a discretionary trust",
+        "properties": {
+          "specifiedBeneficiaries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Entity-ID-Type-With-References"
+            }
+          },
+          "generalBeneficiaries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Value-String-Reference-IDs"
+            }
+          },
+          "appointors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Entity-ID-Type-With-References"
+            }
+          },
+          "protectors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Entity-ID-Type-With-References"
+            }
+          }
+        }
+      },
+      "Trust-Type-Specific-Information-Discretionary": {
+        "type": "object",
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/Trust-Type-Enum"
+          },
+          "discretionary": {
+            "$ref": "#/components/schemas/Discretionary-Trust-Information"
+          }
+        }
+      },
+      "Unit-Trust-Holding": {
+        "type": "object",
+        "description": "The amount of units held by an entity in a unit trust.",
+        "properties": {
+          "percentage": {
+            "type": "number",
+            "format": "float"
+          },
+          "count": {
+            "type": "integer"
+          }
+        }
+      },
+      "Unit-Trust-Holder": {
+        "type": "object",
+        "description": "A unit holder of a unit trust.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Entity-ID-Type-With-References"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "holding": {
+                "$ref": "#/components/schemas/Unit-Trust-Holding"
+              }
+            }
+          }
+        ]
+      },
+      "Value-Int-Reference-IDs": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "description": "The value of the field",
+            "type": "integer"
+          },
+          "referenceIds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Reference-ID"
+            }
+          }
+        }
+      },
+      "Unit-Trust-Information": {
+        "type": "object",
+        "description": "Information specific to that of a unit trust.",
+        "properties": {
+          "unitHolders": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Unit-Trust-Holder"
+            }
+          },
+          "totalUnits": {
+            "$ref": "#/components/schemas/Value-Int-Reference-IDs"
+          }
+        }
+      },
+      "Trust-Type-Specific-Information-Unit": {
+        "type": "object",
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/Trust-Type-Enum"
+          },
+          "unit": {
+            "$ref": "#/components/schemas/Unit-Trust-Information"
+          }
+        }
+      },
+      "SMSF-Member": {
+        "type": "object",
+        "description": "A member of a self managed superannuation fund",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Entity-ID-Type-With-References"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "unstructuredRole": {
+                "type": "string"
+              }
+            }
+          }
+        ]
+      },
+      "SMSF-Information": {
+        "type": "object",
+        "description": "Information specific to that of a self managed super fund",
+        "properties": {
+          "members": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SMSF-Member"
+            }
+          }
+        }
+      },
+      "Trust-Type-Specific-Information-SMSF": {
+        "type": "object",
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/Trust-Type-Enum"
+          },
+          "selfManagedSuperFund": {
+            "$ref": "#/components/schemas/SMSF-Information"
+          }
+        }
+      },
+      "Unknown-Trust-Information": {
+        "type": "object",
+        "description": "When a trust type cannot be identified, this object will contain information about why we were unable to classify the trust.\n\nTo move forward with a trust analsysis confirmation, a trust type must be identified. This can be set in the document analyze endpoint if the trust type is known ahead of time.\n",
+        "properties": {
+          "reasons": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Issue"
+            }
+          }
+        }
+      },
+      "Trust-Type-Specific-Information-Unknown": {
+        "type": "object",
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/Trust-Type-Enum"
+          },
+          "unknown": {
+            "$ref": "#/components/schemas/Unknown-Trust-Information"
+          }
+        }
+      },
+      "Trust-Type-Specific-Information": {
+        "type": "object",
+        "description": "Information specific to a type of Trust.\n\nIf the type is known, it should map to one of the following fields, with the others being null.\nIf the type cannot be discerned then information will be provided as to why we could not classify the trust.\n",
+        "discriminator": {
+          "propertyName": "type",
+          "mapping": {
+            "DISCRETIONARY": "#/components/schemas/Trust-Type-Specific-Information-Discretionary",
+            "UNIT": "#/components/schemas/Trust-Type-Specific-Information-Unit",
+            "SELF_MANAGED_SUPER_FUND": "#/components/schemas/Trust-Type-Specific-Information-SMSF",
+            "UNKNOWN": "#/components/schemas/Trust-Type-Specific-Information-Unknown"
+          }
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/Trust-Type-Specific-Information-Discretionary"
+          },
+          {
+            "$ref": "#/components/schemas/Trust-Type-Specific-Information-Unit"
+          },
+          {
+            "$ref": "#/components/schemas/Trust-Type-Specific-Information-SMSF"
+          },
+          {
+            "$ref": "#/components/schemas/Trust-Type-Specific-Information-Unknown"
+          }
+        ]
+      },
+      "Trust-Details-With-References": {
+        "type": "object",
+        "description": "The basic information that is applicable to any trust",
+        "properties": {
+          "name": {
+            "$ref": "#/components/schemas/Value-String-Reference-IDs"
+          },
+          "establishment": {
+            "$ref": "#/components/schemas/Establishment"
+          },
+          "certification": {
+            "$ref": "#/components/schemas/Certification"
+          },
+          "execution": {
+            "$ref": "#/components/schemas/Execution"
+          },
+          "linkedIndividuals": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Linked-Individual-With-References"
+            }
+          },
+          "linkedOrganizations": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Linked-Organization-With-References"
+            }
+          },
+          "linkedUnknownEntities": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Linked-Unknown-Entity-With-References"
+            }
+          },
+          "settlors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Entity-ID-Type-With-References"
+            }
+          },
+          "trustees": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Entity-ID-Type-With-References"
+            }
+          },
+          "type": {
+            "$ref": "#/components/schemas/Trust-Type-Identification"
+          },
+          "typeInformation": {
+            "$ref": "#/components/schemas/Trust-Type-Specific-Information"
+          }
+        }
+      },
+      "Document-Information-Trust": {
+        "type": "object",
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/Document-Analysis-Type"
+          },
+          "trust": {
+            "$ref": "#/components/schemas/Trust-Details-With-References"
+          }
+        }
+      },
+      "Reference-Location": {
+        "type": "object",
+        "description": "The location of a reference in a document",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "description": "The page number of the reference in the document"
+          }
+        }
+      },
+      "Reference": {
+        "type": "object",
+        "properties": {
+          "referenceId": {
+            "$ref": "#/components/schemas/Reference-ID"
+          },
+          "sourceId": {
+            "type": "string",
+            "description": "The source of the document from which the reference was extracted"
+          },
+          "location": {
+            "$ref": "#/components/schemas/Reference-Location"
+          }
+        }
+      },
+      "Organization-Document-Analysis-Result": {
+        "type": "object",
+        "description": "A single trust analysis result for a document, derived from a TRUST_ANALYSIS Process Result Object (PRO).",
+        "properties": {
+          "analysisId": {
+            "$ref": "#/components/schemas/Analysis-ID"
+          },
+          "attachmentId": {
+            "$ref": "#/components/schemas/Document-Attachment-ID"
+          },
+          "status": {
+            "$ref": "#/components/schemas/Analysis-Validity-Status"
+          },
+          "isConfirmed": {
+            "description": "Whether this analysis has been explicitly confirmed by a reviewer. False for analyses that are only the system-produced result and have not yet been confirmed. Derived from the underlying PRO subclass; clients cannot set this directly.",
+            "type": "boolean",
+            "readOnly": true
+          },
+          "documentInformation": {
+            "discriminator": {
+              "propertyName": "type",
+              "mapping": {
+                "TRUST_DOCUMENT": "#/components/schemas/Document-Information-Trust"
+              }
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Document-Information-Trust"
+              }
+            ]
+          },
+          "references": {
+            "description": "Map of reference identifiers to the source/page locations where the corresponding values were extracted in the analysed document.",
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Reference"
+            }
+          },
+          "errors": {
+            "description": "Any errors associated with the analysis. Present when the analysis failed.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Error-Base"
+            }
+          }
+        }
+      },
+      "Organizations-Document-Analyses-Response": {
+        "type": "object",
+        "required": [
+          "requestId"
+        ],
+        "properties": {
+          "entityId": {
+            "$ref": "#/components/schemas/Entity-ID"
+          },
+          "documentId": {
+            "$ref": "#/components/schemas/Document-ID"
+          },
+          "analyses": {
+            "description": "All trust analyses associated with the document, including both currently valid (VALID) and stale (STALE) results. Sorted from newest to oldest by creation time.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Organization-Document-Analysis-Result"
+            }
+          },
+          "requestId": {
+            "$ref": "#/components/schemas/Request-ID"
+          }
+        }
+      },
+      "Document-Analysis-Information-And-References": {
+        "type": "object",
+        "description": "Document information with references",
+        "properties": {
+          "references": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Reference"
+            }
+          },
+          "documentInformation": {
+            "discriminator": {
+              "propertyName": "type",
+              "mapping": {
+                "TRUST_DOCUMENT": "#/components/schemas/Document-Information-Trust"
+              }
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Document-Information-Trust"
+              }
+            ]
+          }
+        }
+      },
+      "Organizations-Document-Analysis-Confirmation-Response": {
+        "type": "object",
+        "required": [
+          "requestId"
+        ],
+        "properties": {
+          "analysis": {
+            "$ref": "#/components/schemas/Organization-Document-Analysis-Result"
           },
           "requestId": {
             "$ref": "#/components/schemas/Request-ID"

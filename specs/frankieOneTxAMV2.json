@@ -206,6 +206,167 @@
         }
       }
     },
+    "/v2/activities/classify": {
+      "post": {
+        "summary": "Classify activities",
+        "description": "Classify one or more activities by applying tags and optionally sending feedback to the\noriginating provider.\n\nTags are applied to every activity specified in `activityIds`. All tag and activity validations are\natomic — if any ID is invalid or inaccessible, the entire request fails with no partial application.\n\n**Tag constraints:**\n- Tags must have domain `ACTIVITY`; any other domain results in error.\n- Tags must not mix `FALSE_POSITIVE` category with other categories.\n- Tags are re-applied if the activity was previously classified (idempotent update).\n",
+        "operationId": "classifyActivities",
+        "tags": [
+          "Activities"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Api-Key"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-CustomerID"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-CustomerChildID"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-Channel"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-Username"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Classify-Activity-Req"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created — all activities tagged and provider feedback dispatched",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Classify-Activity-Res"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request — e.g. empty `activityIds` or `tagIds` arrays",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "Invalid authentication": {
+                    "value": {
+                      "errorCode": "AUTH-0002,",
+                      "errorMsg": "Unauthorized",
+                      "details": [
+                        {
+                          "issue": "Invalid Authentication provided. Access denied.",
+                          "issueLocation": "request"
+                        }
+                      ],
+                      "requestId": "00000000S6MNG7624K2TDXT1E3"
+                    }
+                  },
+                  "No Api-Key": {
+                    "value": {
+                      "errorCode": "AUTH-0401",
+                      "errorMsg": "Unauthorized",
+                      "details": [
+                        {
+                          "issue": "No api key provided. Access denied.",
+                          "issueLocation": "request"
+                        }
+                      ],
+                      "requestId": "00000001S6MNG7624K2TDXT1E3"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found — one or more activity or tag IDs do not exist or belong to a different customer",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity — mixed `FALSE_POSITIVE` and other categories, or tag domain is not `ACTIVITY`",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error — includes failure to dispatch feedback to the provider",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "Internal Server Error": {
+                    "value": {
+                      "errorCode": "SYS-1063,",
+                      "errorMsg": "Failed to generate KYC report",
+                      "requestId": "01HM5EM2QNNSC9K0PX9VC06HX3"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Api-Key": []
+          }
+        ]
+      }
+    },
     "/v2/individuals/{entityId}/activities": {
       "get": {
         "description": "Get a list of activities for an individual.",
@@ -837,6 +998,24 @@
             "type": "string",
             "description": "A summary of what this external reference is and what it is used for.",
             "example": "This is the customer ID in the core banking system."
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "SYSTEM",
+              "CUSTOMER",
+              "ACCOUNT",
+              "OTHER"
+            ],
+            "default": "CUSTOMER",
+            "description": "The type of external reference."
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Key-value pairs for storing additional metadata about the external reference",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/External-Reference-Metadata"
+            }
           }
         }
       },
@@ -878,7 +1057,6 @@
               "updatedAt": {
                 "type": "string",
                 "format": "date-time",
-                "readOnly": true,
                 "description": "The date and time the external reference was last updated. ISO 8601 format."
               }
             }
@@ -1192,7 +1370,6 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time",
-            "readOnly": true,
             "description": "The date and time the address was last updated. ISO 8601 format."
           },
           "sourceId": {
@@ -1360,7 +1537,6 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time",
-            "readOnly": true,
             "description": "The date and time the phone number was last updated. ISO 8601 format."
           }
         }
@@ -1421,7 +1597,6 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time",
-            "readOnly": true,
             "description": "The date and time the email address was last updated. ISO 8601 format."
           }
         }
@@ -2597,6 +2772,227 @@
           }
         ]
       },
+      "Comment": {
+        "type": "object",
+        "properties": {
+          "commentId": {
+            "type": "string",
+            "description": "Unique identifier for the comment",
+            "format": "ulid",
+            "example": "01K3G4CCQ3DY3B1413S19M9QW1",
+            "readOnly": true
+          },
+          "text": {
+            "type": "string",
+            "description": "The text content of the comment.",
+            "example": "Update after speaking to customer over the phone directly."
+          },
+          "entityId": {
+            "$ref": "#/components/schemas/Entity-ID-Writeable"
+          },
+          "entityType": {
+            "$ref": "#/components/schemas/Entity-Type-Writeable"
+          }
+        }
+      },
+      "Classify-Activity-Req": {
+        "type": "object",
+        "description": "Request to classify one or more activities with tags and optionally provide feedback to the originating provider.",
+        "required": [
+          "entityId",
+          "activityIds",
+          "tagIds"
+        ],
+        "properties": {
+          "entityId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The entity that owns the activities being classified.",
+            "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+          },
+          "activityIds": {
+            "type": "array",
+            "description": "IDs of the activities to classify. All activity IDs must exist and belong to the specified entity. If any are invalid or belong to a different tenant the entire request fails with 404 (to prevent data existence leakage).",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "format": "ulid"
+            },
+            "example": [
+              "01HN9XHZN6MGXM9JXG50K59Q85",
+              "01HN9XHZN6MGXM9JXG50K59Q86"
+            ]
+          },
+          "tagIds": {
+            "type": "array",
+            "description": "IDs of tags to apply as classifications to the specified activities. Retrieve available tag IDs\nvia GET /v2/tags (Core V2 API), filtering by relevant categories and domain\n(e.g. `?categories=FRAUD,MONEY_LAUNDERING,SCAM,TERRORISM_FINANCING,PROLIFERATION_FINANCING&domains=ACTIVITY`).\n\nAll tags must exist and be accessible to the customer (SYSTEM or owned CUSTOMER tags).\nDuplicate IDs are silently removed.\n\n**Ordering:** The first tag in the array is treated as the primary reason when sending feedback\nto providers that support only a single classification.\n\n**Validation rules:**\n\nTags with category `FALSE_POSITIVE` must not be mixed with tags from other categories\n(e.g. FRAUD, SCAM) — the intent cannot be reconciled and the request will be rejected with 422.\n\nTags with category `IN_REVIEW` follow the same mutual-exclusivity rule — `IN_REVIEW` tags do not\ntrigger provider feedback and must not be combined with non-`IN_REVIEW` tags.\n",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "example": [
+              "12345678-1234-1234-1234-123456789012",
+              "87654321-4321-4321-4321-210987654321"
+            ]
+          },
+          "comment": {
+            "description": "Optional comment to be recorded in the audit log for this classification.",
+            "$ref": "#/components/schemas/Comment"
+          }
+        }
+      },
+      "Object-Type": {
+        "description": "The type of object being annotated.",
+        "type": "string",
+        "enum": [
+          "ADDRESS",
+          "NAME",
+          "PHONE_NUMBER",
+          "EMAIL",
+          "DATE_OF_BIRTH",
+          "WEBSITE",
+          "SHAREHOLDER",
+          "OFFICIAL",
+          "UBO",
+          "REGISTRATION",
+          "SHAREHOLDING",
+          "SHARECAPITAL",
+          "DOCUMENT",
+          "DOCUMENT_ATTACHMENT",
+          "RESULT_PROCESS",
+          "RESULT_STEP",
+          "RESULT_WORKFLOW",
+          "SERVICE_PROFILE",
+          "AUDIT_EVENT",
+          "EXTERNAL_REFERENCE",
+          "RISK_ASSESSMENT",
+          "MATCHLIST",
+          "CUSTOMER",
+          "CUSTOMER_KEY",
+          "SERVICE",
+          "SECRET",
+          "USER",
+          "ACTIVITY",
+          "CASE"
+        ]
+      },
+      "Tag-Type": {
+        "description": "The type of the tag.\n- SYSTEM: A tag created by FrankieOne. The `createdBy` and `updatedBy` fields will be omitted for SYSTEM tags.\n- CUSTOMER: A tag created by the customer.\n",
+        "type": "string",
+        "enum": [
+          "SYSTEM",
+          "CUSTOMER"
+        ]
+      },
+      "Tag-Base": {
+        "type": "object",
+        "required": [
+          "tagId",
+          "label"
+        ],
+        "properties": {
+          "tagId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique identifier for the tag.",
+            "example": "12345678-1234-1234-1234-123456789012",
+            "readOnly": true
+          },
+          "label": {
+            "type": "string",
+            "description": "Human-readable name for the tag.",
+            "example": "ROMANCE_SCAM"
+          },
+          "description": {
+            "type": "string",
+            "description": "Optional description for the tag.",
+            "example": "Indicates a potential romance scam."
+          },
+          "category": {
+            "type": "string",
+            "description": "Category used to group tags.",
+            "example": "FRAUD"
+          },
+          "type": {
+            "$ref": "#/components/schemas/Tag-Type"
+          },
+          "domain": {
+            "type": "string",
+            "description": "Optional domain context for the tag.",
+            "example": "ACTIVITY_MONITORING"
+          }
+        }
+      },
+      "Tag-Mapping": {
+        "type": "object",
+        "description": "A tag applied to an object, including the identifier for the specific mapping.",
+        "required": [
+          "mappingId"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Tag-Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "mappingId": {
+                "type": "string",
+                "format": "uuid",
+                "description": "Unique identifier for this tag-to-object mapping.",
+                "example": "12345678-1234-1234-1234-123456789012",
+                "readOnly": true
+              }
+            }
+          }
+        ]
+      },
+      "Tag-Mapped-Object": {
+        "type": "object",
+        "description": "An object and the tags mapped to it.",
+        "required": [
+          "objectId",
+          "objectType",
+          "tags"
+        ],
+        "properties": {
+          "objectId": {
+            "type": "string",
+            "description": "ID of the object (may be ULID or UUID).",
+            "example": "12345678-1234-1234-1234-123456789012"
+          },
+          "objectType": {
+            "$ref": "#/components/schemas/Object-Type"
+          },
+          "tags": {
+            "type": "array",
+            "description": "Tags applied to this object, sorted by mapping createdAt descending (newest first).",
+            "items": {
+              "$ref": "#/components/schemas/Tag-Mapping"
+            }
+          }
+        }
+      },
+      "Classify-Activity-Res": {
+        "type": "object",
+        "required": [
+          "requestId",
+          "mappings"
+        ],
+        "properties": {
+          "requestId": {
+            "$ref": "#/components/schemas/Request-ID"
+          },
+          "mappings": {
+            "type": "array",
+            "description": "Tag mappings applied to each classified activity, grouped by activity object.",
+            "items": {
+              "$ref": "#/components/schemas/Tag-Mapped-Object"
+            }
+          }
+        }
+      },
       "Sort-Field-Enum": {
         "type": "string",
         "default": "ACTIVITY_AT",
@@ -2674,29 +3070,6 @@
         ],
         "description": "The status of the result.\n- FALSE_POSITIVE: When the result is determined to be false positive and the activity is within the risk profile to continue.\n- TRUE_POSITIVE_ACCEPT: When the result is determined to be true positive and the activity is within the risk profile to continue.\n- TRUE_POSITIVE_REJECT: When the result is determined to be true positive and the activity is NOT within the risk profile to continue.\n- IN_REVIEW: When the activity has been picked up for review.\n"
       },
-      "Comment": {
-        "type": "object",
-        "properties": {
-          "commentId": {
-            "type": "string",
-            "description": "Unique identifier for the comment",
-            "format": "ulid",
-            "example": "01K3G4CCQ3DY3B1413S19M9QW1",
-            "readOnly": true
-          },
-          "text": {
-            "type": "string",
-            "description": "The text content of the comment.",
-            "example": "Update after speaking to customer over the phone directly."
-          },
-          "entityId": {
-            "$ref": "#/components/schemas/Entity-ID-Writeable"
-          },
-          "entityType": {
-            "$ref": "#/components/schemas/Entity-Type-Writeable"
-          }
-        }
-      },
       "Update-Results-Req": {
         "type": "object",
         "required": [
@@ -2711,6 +3084,18 @@
               "type": "string",
               "format": "UUID"
             }
+          },
+          "tagIds": {
+            "type": "array",
+            "description": "Optional. Array of tag IDs to apply to the alert (process result) and its associated activity.\n\nTag IDs can be retrieved via the GET /v2/tags (Core V2 API) endpoint (filtered by `domains=ACTIVITY`).\n\nAll tags must exist and be accessible to the customer (SYSTEM or CUSTOMER-owned tags).\nDuplicate IDs are silently removed.\n\n**Ordering matters** — the first tag in the array is treated as the primary reason when sending\nfeedback to providers that only support a single classification (e.g. Sardine).\n\n**Validation rules:**\n\nTags categorised as `FALSE_POSITIVE` or `IN_REVIEW` must not be mixed with tags from other\ncategories — the intent cannot be reconciled and the request will be rejected with 400 Bad Request.\n",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "example": [
+              "12345678-1234-1234-1234-123456789012",
+              "87654321-4321-4321-4321-210987654321"
+            ]
           },
           "manualStatus": {
             "$ref": "#/components/schemas/Process-Result-Manual-StatusEnum-Activity"
@@ -2837,7 +3222,8 @@
           "ORGANIZATION_OWNERSHIP",
           "MATCHLIST",
           "VISA",
-          "ACTIVITY"
+          "ACTIVITY",
+          "DIGITAL_KYC"
         ],
         "readOnly": true
       },
@@ -2854,13 +3240,14 @@
         "properties": {
           "type": {
             "type": "string",
-            "description": "The type of supplementary data. Possible values:\n  - AML\n  - KYC_ADDRESS\n  - KYC_DOB\n  - KYC_GENDER\n  - KYC_NAME\n  - ID\n  - VISA\n  - NAME_VALIDATION\n  - KYB_ORGANIZATION\n  - KYB_ADDRESS_VERIFICATION\n  - KYB_NAME_VERIFICATION\n  - KYB_REGISTRATION_VERIFICATION\n  - KYB_TAX_VERIFICATION\n  - MATCHLIST\n  - DUPLICATE\n  - FRAUD_DEVICE\n  - FRAUD_EMAIL\n  - FRAUD_PHONE\n  - FRAUD_LOOKUP\n  - ACTIVITY_AML\n  - ACTIVITY_EVENT\n  - ACTIVITY_FRAUD\n",
+            "description": "The type of supplementary data. Possible values:\n  - AML\n  - KYC_ADDRESS\n  - KYC_DOB\n  - KYC_GENDER\n  - KYC_NAME\n  - KYC_FACE_VERIFICATION\n  - ID\n  - VISA\n  - NAME_VALIDATION\n  - KYB_ORGANIZATION\n  - KYB_ADDRESS_VERIFICATION\n  - KYB_NAME_VERIFICATION\n  - KYB_REGISTRATION_VERIFICATION\n  - KYB_TAX_VERIFICATION\n  - MATCHLIST\n  - DUPLICATE\n  - FRAUD_DEVICE\n  - FRAUD_EMAIL\n  - FRAUD_PHONE\n  - FRAUD_LOOKUP\n  - ACTIVITY_AML\n  - ACTIVITY_EVENT\n  - ACTIVITY_FRAUD\n  - DIGITAL_KYC_ID\n  - DIGITAL_KYC_NAME\n  - DIGITAL_KYC_DOB\n  - DIGITAL_KYC_ADDRESS\n",
             "enum": [
               "AML",
               "KYC_ADDRESS",
               "KYC_DOB",
               "KYC_GENDER",
               "KYC_NAME",
+              "KYC_FACE_VERIFICATION",
               "ID",
               "VISA",
               "NAME_VALIDATION",
@@ -2878,7 +3265,11 @@
               "FRAUD_LOOKUP",
               "ACTIVITY_AML",
               "ACTIVITY_EVENT",
-              "ACTIVITY_FRAUD"
+              "ACTIVITY_FRAUD",
+              "DIGITAL_KYC_ID",
+              "DIGITAL_KYC_NAME",
+              "DIGITAL_KYC_DOB",
+              "DIGITAL_KYC_ADDRESS"
             ]
           }
         }
@@ -4376,6 +4767,14 @@
           "type": {
             "$ref": "#/components/schemas/Document-Type"
           },
+          "isDigital": {
+            "type": "boolean",
+            "description": "Indicator that this document is sourced via digital means."
+          },
+          "isExternallyVerified": {
+            "type": "boolean",
+            "description": "Indicator that this document has been externally verified outside of Frankie system."
+          },
           "subtype": {
             "type": "string",
             "description": "The sub-type of the document, if relevant. This can include specific report or attestation types, e.g., FACIAL_COMPARISON (attestation) or KYC (report).",
@@ -5849,9 +6248,23 @@
           "entityId": {
             "$ref": "#/components/schemas/Entity-ID"
           },
+          "entityType": {
+            "$ref": "#/components/schemas/Entity-Type"
+          },
           "name": {
             "type": "string",
             "description": "The name of the organization or the individual entity"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "schemaVersion": {
+            "type": "integer",
+            "description": "The schema version of this entity.",
+            "example": 2,
+            "readOnly": true
           },
           "addresses": {
             "type": "array",
@@ -5863,38 +6276,6 @@
           "country": {
             "type": "string",
             "description": "The nationality or country of the entity"
-          },
-          "shareholders": {
-            "type": "array",
-            "description": "The shareholders of a company. It includes details such as the names of the shareholders, the number of shares held by each shareholder, and their ownership percentages",
-            "items": {
-              "$ref": "#/components/schemas/Organization-Shareholder"
-            }
-          },
-          "shareInterests": {
-            "description": "The specific interests or holdings of shareholders in a company. It may include information about different classes or types of shares held by shareholders, such as ordinary shares, preference shares, or options",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Organization-Share-Interest"
-            }
-          },
-          "officials": {
-            "type": "array",
-            "description": "The individuals who hold official positions or roles within a company, such as directors or company secretaries. It includes details such as their names, positions, appointment dates, and other relevant information",
-            "items": {
-              "$ref": "#/components/schemas/Organization-Official"
-            }
-          },
-          "shareCapital": {
-            "description": "The total value of shares issued by the company to its holders. It typically includes both the nominal value of the shares as well as any premium paid by the shareholders.",
-            "$ref": "#/components/schemas/Organization-Share-Capital"
-          },
-          "indicators": {
-            "description": "The indicators that contribute to the risk of an organization or other parameters that needs to be looked at",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Indicator-2"
-            }
           },
           "sourceId": {
             "type": "string",
@@ -6349,34 +6730,6 @@
           }
         ]
       },
-      "Object-Type": {
-        "description": "The type of object being annotated.",
-        "type": "string",
-        "enum": [
-          "ADDRESS",
-          "NAME",
-          "PHONE_NUMBER",
-          "EMAIL",
-          "DATE_OF_BIRTH",
-          "WEBSITE",
-          "SHAREHOLDER",
-          "OFFICIAL",
-          "UBO",
-          "REGISTRATION",
-          "SHAREHOLDING",
-          "SHARECAPITAL",
-          "DOCUMENT",
-          "DOCUMENT_ATTACHMENT",
-          "RESULT_PROCESS",
-          "RESULT_STEP",
-          "RESULT_WORKFLOW",
-          "SERVICE_PROFILE",
-          "AUDIT_EVENT",
-          "EXTERNAL_REFERENCE",
-          "RISK_ASSESSMENT",
-          "MATCHLIST"
-        ]
-      },
       "Supplementary-Data-Base-MatchStrength": {
         "type": "integer",
         "description": "Represents the standard match strength, scaled from 0 (no match) to 100 (exact match).\nIn some cases, a value of 50 may be interpreted as a \"partial\" match.\n",
@@ -6615,6 +6968,48 @@
                 "type": "string",
                 "format": "uuid",
                 "description": "The attachment ID of the selfie that was compared."
+              }
+            }
+          }
+        ]
+      },
+      "Supplementary-Data-KYC-Face-Verification": {
+        "type": "object",
+        "description": "Result of a KYC face verification check, indicating whether the face presented matches the provided identity document.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-IDV-Base"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "idDocumentId": {
+                "type": "string",
+                "format": "uuid",
+                "description": "The document ID of the identity document used for face verification."
+              },
+              "idDocumentScanId": {
+                "type": "string",
+                "format": "uuid",
+                "description": "The scan ID of the identity document used for face verification."
+              },
+              "selfieDocumentId": {
+                "type": "string",
+                "format": "uuid",
+                "description": "The document ID of the selfie used for face verification."
+              },
+              "selfieDocumentScanId": {
+                "type": "string",
+                "format": "uuid",
+                "description": "The scan ID of the selfie used for face verification."
+              },
+              "documentType": {
+                "type": "string",
+                "description": "The type of identity document presented."
+              },
+              "transactionId": {
+                "type": "string",
+                "description": "The provider's transaction reference."
               }
             }
           }
@@ -7167,6 +7562,336 @@
           }
         ]
       },
+      "Supplementary-Data-Digital-KYC-Issuer-Info": {
+        "type": "object",
+        "description": "Information about the issuer of the digital credential\n",
+        "properties": {
+          "commonName": {
+            "description": "The common name of the issuing authority\n",
+            "type": "string",
+            "example": "x15-sandbox IACA"
+          },
+          "trustedIssuerCertificateId": {
+            "description": "The certificate identifier of the trusted issuer\n",
+            "type": "string",
+            "example": "c6DQZMip5ezshYdzjn73LWQLwRNIPSG5MttdQdeFZj0="
+          }
+        }
+      },
+      "Supplementary-Data-Digital-KYC-Validity-Info": {
+        "type": "object",
+        "description": "Validity period of the digital credential\n",
+        "properties": {
+          "validFrom": {
+            "description": "The date and time from which the credential is valid\n",
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-04-29T05:21:05.000Z"
+          },
+          "validUntil": {
+            "description": "The date and time until which the credential is valid\n",
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-06-30T13:59:00.000Z"
+          }
+        }
+      },
+      "Supplementary-Data-Digital-KYC-Evidence": {
+        "type": "object",
+        "description": "A single verification check performed on the digital credential\n",
+        "properties": {
+          "checkId": {
+            "description": "Unique identifier of the verification check\n",
+            "type": "string",
+            "format": "uuid",
+            "example": "7c4a8d9e-3f21-4b56-a8e2-1d2f3c4b5a69"
+          },
+          "organization": {
+            "description": "The organization that performed the check\n",
+            "type": "string",
+            "example": "FrankieOne"
+          },
+          "checkMethod": {
+            "description": "The method used for the check\n",
+            "type": "string",
+            "example": "data"
+          },
+          "time": {
+            "description": "The date and time when the check was performed\n",
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-04-29T05:21:04Z"
+          }
+        }
+      },
+      "Supplementary-Data-Digital-KYC-Verification-Result": {
+        "type": "object",
+        "description": "The outcome of the digital credential verification\n",
+        "properties": {
+          "verified": {
+            "description": "Whether the digital credential was successfully verified\n",
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "Supplementary-Data-Digital-KYC-Data": {
+        "type": "object",
+        "description": "Common properties shared across all Digital KYC verification result types.\nContains credential metadata, issuer information, evidence, and verification outcome.\n",
+        "properties": {
+          "assuranceLevel": {
+            "description": "Assurance level of the digital credential\n",
+            "type": "string",
+            "example": "ip2+"
+          },
+          "docType": {
+            "description": "The document type of the digital credential\n",
+            "type": "string",
+            "example": "au.com.ventio.openid-ida.v0.1"
+          },
+          "policy": {
+            "description": "The policy or accreditation rules under which the digital identity was verified\n",
+            "type": "string",
+            "example": "Digital ID Accreditation Rules Division 2"
+          },
+          "procedure": {
+            "description": "The identity proofing procedure level used for verification\n",
+            "type": "string",
+            "example": "ip2+"
+          },
+          "issuerInfo": {
+            "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Issuer-Info"
+          },
+          "validityInfo": {
+            "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Validity-Info"
+          },
+          "evidence": {
+            "description": "Evidence of the verification checks performed on the digital credential\n",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Evidence"
+            }
+          },
+          "originalEntityId": {
+            "description": "The original entity identifier associated with this digital KYC check\n",
+            "type": "string",
+            "example": "e3a7b2c1-4d5f-6a89-b0cd-ef0123456789"
+          },
+          "trustFramework": {
+            "description": "The trust framework under which the digital identity verification was conducted\n",
+            "type": "string",
+            "example": "au_digi_id"
+          },
+          "verificationProcess": {
+            "description": "The verification process identifier for the digital identity check\n",
+            "type": "string",
+            "example": "28c667a5-498d-49a4-b41c-89fb7c2c1aae"
+          },
+          "metadata": {
+            "description": "Additional key-value pair metadata associated with the digital KYC result\n",
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "credentialId": {
+            "description": "The unique identifier of the digital credential\n",
+            "type": "string",
+            "example": "248F076E-2B23-48F2-9B11-8F067916F4C6"
+          },
+          "verificationResult": {
+            "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Verification-Result"
+          }
+        }
+      },
+      "Supplementary-Data-Digital-KYC-Claim-Value": {
+        "type": "object",
+        "description": "A typed claim value from a digital credential. The type field indicates\nthe data type of the value.\n",
+        "properties": {
+          "type": {
+            "description": "The data type of the claim value (e.g. string, date, dateTime, object)\n",
+            "type": "string"
+          },
+          "value": {
+            "description": "The claim value\n",
+            "type": "string"
+          }
+        }
+      },
+      "Supplementary-Data-Digital-KYC-ID-Claims": {
+        "type": "object",
+        "description": "The verified identity document claims extracted from the digital credential\n",
+        "properties": {
+          "document_type": {
+            "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Claim-Value"
+          },
+          "date_of_expiry": {
+            "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Claim-Value"
+          },
+          "date_of_issuance": {
+            "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Claim-Value"
+          },
+          "issuer": {
+            "description": "Details about the issuer of the identity document\n",
+            "type": "object",
+            "properties": {
+              "country_code": {
+                "description": "The ISO country code of the issuing country\n",
+                "type": "string",
+                "example": "AUS"
+              },
+              "country": {
+                "description": "The country of the issuing authority\n",
+                "type": "string",
+                "example": "AUS"
+              },
+              "jurisdiction": {
+                "description": "The jurisdiction or state of the issuing authority\n",
+                "type": "string",
+                "example": "VIC"
+              },
+              "name": {
+                "description": "The name of the issuing authority\n",
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "Supplementary-Data-Digital-KYC-ID": {
+        "type": "object",
+        "description": "Digital KYC identity document verification result. Contains the verified\nidentity document details from a digital credential along with the credential\nmetadata, issuer information, and verification outcome.\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Base"
+          },
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Data"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "claims": {
+                "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-ID-Claims"
+              }
+            }
+          }
+        ]
+      },
+      "Supplementary-Data-Digital-KYC-Name-Claims": {
+        "type": "object",
+        "description": "The verified name claims extracted from the digital credential\n",
+        "properties": {
+          "given_name": {
+            "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Claim-Value"
+          },
+          "family_name": {
+            "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Claim-Value"
+          },
+          "name": {
+            "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Claim-Value"
+          },
+          "other_names": {
+            "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Claim-Value"
+          }
+        }
+      },
+      "Supplementary-Data-Digital-KYC-Name": {
+        "type": "object",
+        "description": "Digital KYC name verification result. Contains the verified name claims\nfrom a digital credential along with the credential metadata, issuer\ninformation, and verification outcome.\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Base"
+          },
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Data"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "claims": {
+                "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Name-Claims"
+              }
+            }
+          }
+        ]
+      },
+      "Supplementary-Data-Digital-KYC-DoB-Claims": {
+        "type": "object",
+        "description": "The verified date of birth claim extracted from the digital credential\n",
+        "properties": {
+          "birthdate": {
+            "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Claim-Value"
+          }
+        }
+      },
+      "Supplementary-Data-Digital-KYC-DoB": {
+        "type": "object",
+        "description": "Digital KYC date of birth verification result. Contains the verified date\nof birth claim from a digital credential along with the credential metadata,\nissuer information, and verification outcome.\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Base"
+          },
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Data"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "claims": {
+                "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-DoB-Claims"
+              }
+            }
+          }
+        ]
+      },
+      "Supplementary-Data-Digital-KYC-Address-Claims": {
+        "type": "object",
+        "description": "The address claims extracted from the digital credential\n",
+        "properties": {
+          "street_address": {
+            "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Claim-Value"
+          },
+          "locality": {
+            "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Claim-Value"
+          },
+          "region": {
+            "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Claim-Value"
+          },
+          "postal_code": {
+            "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Claim-Value"
+          },
+          "country": {
+            "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Claim-Value"
+          },
+          "country_code": {
+            "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Claim-Value"
+          },
+          "formatted": {
+            "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Claim-Value"
+          }
+        }
+      },
+      "Supplementary-Data-Digital-KYC-Address": {
+        "type": "object",
+        "description": "Digital KYC address verification result. Contains the address claims from\na digital credential along with the credential metadata, issuer information,\nand verification outcome. Address claims may be unverified depending on the\ncredential source.\n",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Base"
+          },
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Data"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "claims": {
+                "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Address-Claims"
+              }
+            }
+          }
+        ]
+      },
       "Supplementary-Data": {
         "type": "object",
         "readOnly": true,
@@ -7223,6 +7948,9 @@
             "$ref": "#/components/schemas/Supplementary-Data-IDV-Facial-Liveness"
           },
           {
+            "$ref": "#/components/schemas/Supplementary-Data-KYC-Face-Verification"
+          },
+          {
             "$ref": "#/components/schemas/Supplementary-Data-IDV-OCR"
           },
           {
@@ -7251,6 +7979,18 @@
           },
           {
             "$ref": "#/components/schemas/Supplementary-Data-Fraud-Phone-Number"
+          },
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-ID"
+          },
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Name"
+          },
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-DoB"
+          },
+          {
+            "$ref": "#/components/schemas/Supplementary-Data-Digital-KYC-Address"
           }
         ],
         "discriminator": {
@@ -7273,6 +8013,7 @@
             "IDV_DOCUMENT": "#/components/schemas/Supplementary-Data-IDV-Document",
             "IDV_FACIAL_COMPARISON": "#/components/schemas/Supplementary-Data-IDV-Facial-Comparison",
             "IDV_FACIAL_LIVENESS": "#/components/schemas/Supplementary-Data-IDV-Facial-Liveness",
+            "KYC_FACE_VERIFICATION": "#/components/schemas/Supplementary-Data-KYC-Face-Verification",
             "IDV_OCR": "#/components/schemas/Supplementary-Data-IDV-OCR",
             "IDV_OCR_COMPARISON": "#/components/schemas/Supplementary-Data-IDV-OCR-Comparison",
             "MATCHLIST": "#/components/schemas/Supplementary-Data-Matchlist",
@@ -7282,7 +8023,11 @@
             "FRAUD_DEVICE": "#/components/schemas/Supplementary-Data-Fraud-Device",
             "FRAUD_EMAIL_ADDRESS": "#/components/schemas/Supplementary-Data-Fraud-Email-Address",
             "FRAUD_IP_ADDRESS": "#/components/schemas/Supplementary-Data-Fraud-IP-Address",
-            "FRAUD_PHONE_NUMBER": "#/components/schemas/Supplementary-Data-Fraud-Phone-Number"
+            "FRAUD_PHONE_NUMBER": "#/components/schemas/Supplementary-Data-Fraud-Phone-Number",
+            "DIGITAL_KYC_ID": "#/components/schemas/Supplementary-Data-Digital-KYC-ID",
+            "DIGITAL_KYC_NAME": "#/components/schemas/Supplementary-Data-Digital-KYC-Name",
+            "DIGITAL_KYC_DOB": "#/components/schemas/Supplementary-Data-Digital-KYC-DoB",
+            "DIGITAL_KYC_ADDRESS": "#/components/schemas/Supplementary-Data-Digital-KYC-Address"
           }
         }
       },
@@ -7535,6 +8280,13 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/Process-Result-Object"
+            }
+          },
+          "taggedObjects": {
+            "type": "array",
+            "description": "Current tags on both the alert (process result) and its associated activity, reflecting the state after this request. Present when tagIds were provided in the request.",
+            "items": {
+              "$ref": "#/components/schemas/Tag-Mapped-Object"
             }
           }
         }
