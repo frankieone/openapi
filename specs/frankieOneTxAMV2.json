@@ -608,6 +608,247 @@
         }
       }
     },
+    "/v2/organizations/{entityId}/activities": {
+      "get": {
+        "description": "Get a list of activities for an organization.",
+        "summary": "Get Organization Activities",
+        "operationId": "getOrganizationActivities",
+        "tags": [
+          "Activities"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/query_activity_types"
+          },
+          {
+            "$ref": "#/components/parameters/query_activity_result_classes"
+          },
+          {
+            "$ref": "#/components/parameters/query_activity_ids"
+          },
+          {
+            "$ref": "#/components/parameters/query_sort_field"
+          },
+          {
+            "$ref": "#/components/parameters/query_sort"
+          },
+          {
+            "$ref": "#/components/parameters/query_limit"
+          },
+          {
+            "$ref": "#/components/parameters/query_page"
+          },
+          {
+            "$ref": "#/components/parameters/query_after_activity_at"
+          },
+          {
+            "$ref": "#/components/parameters/query_before_activity_at"
+          },
+          {
+            "$ref": "#/components/parameters/Api-Key"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-CustomerID"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-CustomerChildID"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-Channel"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-Username"
+          },
+          {
+            "$ref": "#/components/parameters/path_entity_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Get-Activities-Res"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/organizations/{entityId}/results/activity": {
+      "patch": {
+        "description": "Update the status of activity process results for an organization.",
+        "summary": "Update Organization Results",
+        "operationId": "updateOrganizationActivityProcessResults",
+        "tags": [
+          "Results"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/path_entity_id"
+          },
+          {
+            "$ref": "#/components/parameters/Api-Key"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-CustomerID"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-CustomerChildID"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-Channel"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-Username"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Update-Results-Req"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Update-Results-Res"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v2/individuals/{entityId}/sessions": {
       "post": {
         "description": "Create a new session for an individual. This is only required for onboarding fraud checks where device data is required and at this stage \nit is NOT specifically needed for Transaction and Activity monitoring.\n",
@@ -5006,7 +5247,15 @@
           },
           "type": {
             "description": "The type of name",
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "PRIMARY",
+              "OTHER",
+              "TRADING_NAME",
+              "BUSINESS_NAME",
+              "REGISTERED_NAME",
+              "NAME_IN_ENGLISH"
+            ]
           },
           "validFrom": {
             "$ref": "#/components/schemas/Date",

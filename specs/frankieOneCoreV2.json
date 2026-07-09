@@ -85,7 +85,7 @@
       ],
       "get": {
         "summary": "List audit events",
-        "description": "List all audit events with filtering.",
+        "description": "List all audit events with filtering.\n\nNote that entityId and caseId is mutually exclusive and filtering for both at once will never return any results.\n",
         "parameters": [
           {
             "$ref": "#/components/parameters/query_filter_entity_id"
@@ -4107,7 +4107,6 @@
         "name": "entityId",
         "in": "query",
         "schema": {
-          "description": "Entity ID of entries to include in the response.",
           "type": "string",
           "format": "uuid",
           "example": "12345678-1234-1234-1234-123456789012"
@@ -11285,7 +11284,15 @@
           },
           "type": {
             "description": "The type of name",
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "PRIMARY",
+              "OTHER",
+              "TRADING_NAME",
+              "BUSINESS_NAME",
+              "REGISTERED_NAME",
+              "NAME_IN_ENGLISH"
+            ]
           },
           "validFrom": {
             "$ref": "#/components/schemas/Date",
