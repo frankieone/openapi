@@ -13807,7 +13807,15 @@
           },
           "type": {
             "description": "The type of name",
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "PRIMARY",
+              "OTHER",
+              "TRADING_NAME",
+              "BUSINESS_NAME",
+              "REGISTERED_NAME",
+              "NAME_IN_ENGLISH"
+            ]
           },
           "validFrom": {
             "$ref": "#/components/schemas/Date",
