@@ -203,7 +203,18 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "Api-Key": []
+          },
+          {
+            "jwt": [
+              "act:api",
+              "write:act:api"
+            ]
+          }
+        ]
       }
     },
     "/v2/activities/classify": {
@@ -363,6 +374,12 @@
         "security": [
           {
             "Api-Key": []
+          },
+          {
+            "jwt": [
+              "act:api",
+              "write:act:api"
+            ]
           }
         ]
       }
@@ -493,7 +510,18 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "Api-Key": []
+          },
+          {
+            "jwt": [
+              "act:api",
+              "read:act:api"
+            ]
+          }
+        ]
       }
     },
     "/v2/individuals/{entityId}/results/activity": {
@@ -605,7 +633,18 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "Api-Key": []
+          },
+          {
+            "jwt": [
+              "act:api",
+              "write:act:api"
+            ]
+          }
+        ]
       }
     },
     "/v2/organizations/{entityId}/activities": {
@@ -734,7 +773,18 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "Api-Key": []
+          },
+          {
+            "jwt": [
+              "act:api",
+              "read:act:api"
+            ]
+          }
+        ]
       }
     },
     "/v2/organizations/{entityId}/results/activity": {
@@ -846,7 +896,18 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "Api-Key": []
+          },
+          {
+            "jwt": [
+              "act:api",
+              "write:act:api"
+            ]
+          }
+        ]
       }
     },
     "/v2/individuals/{entityId}/sessions": {
@@ -958,7 +1019,18 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "Api-Key": []
+          },
+          {
+            "jwt": [
+              "act:api",
+              "write:act:api"
+            ]
+          }
+        ]
       }
     }
   },

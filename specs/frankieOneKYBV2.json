@@ -684,7 +684,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "write:kyb:api"
             ]
           }
         ]
@@ -885,7 +886,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "write:kyb:api"
             ]
           }
         ]
@@ -1092,7 +1094,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "write:kyb:api"
             ]
           }
         ]
@@ -1271,7 +1274,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "read:kyb:api"
             ]
           }
         ]
@@ -1464,7 +1468,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "read:kyb:api"
             ]
           }
         ]
@@ -1692,7 +1697,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "read:kyb:api"
             ]
           }
         ]
@@ -1863,7 +1869,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "read:kyb:api"
             ]
           }
         ]
@@ -2055,7 +2062,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "write:kyb:api"
             ]
           }
         ]
@@ -2250,7 +2258,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "write:kyb:api"
             ]
           }
         ]
@@ -2433,7 +2442,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "read:kyb:api"
             ]
           }
         ]
@@ -2634,7 +2644,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "write:kyb:api"
             ]
           }
         ]
@@ -2808,7 +2819,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "read:kyb:api"
             ]
           }
         ]
@@ -2980,7 +2992,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "read:kyb:api"
             ]
           }
         ]
@@ -3159,7 +3172,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "write:kyb:api"
             ]
           }
         ]
@@ -3344,7 +3358,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "write:kyb:api"
             ]
           }
         ]
@@ -3538,7 +3553,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "read:kyb:api"
             ]
           }
         ]
@@ -3745,7 +3761,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "write:kyb:api"
             ]
           }
         ]
@@ -3946,7 +3963,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "write:kyb:api"
             ]
           }
         ]
@@ -4247,7 +4265,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "write:kyb:api"
             ]
           }
         ]
@@ -4370,7 +4389,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "write:kyb:api"
             ]
           }
         ]
@@ -4477,7 +4497,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "read:kyb:api"
             ]
           }
         ]
@@ -4593,7 +4614,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "write:kyb:api"
             ]
           }
         ]
@@ -4721,7 +4743,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "write:kyb:api"
             ]
           }
         ]
@@ -4859,7 +4882,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "write:kyb:api"
             ]
           }
         ]
@@ -5030,7 +5054,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "write:kyb:api"
             ]
           }
         ]
@@ -5204,7 +5229,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "write:kyb:api"
             ]
           }
         ]
@@ -9575,6 +9601,12 @@
           },
           "entityType": {
             "type": "string",
+            "readOnly": true
+          },
+          "country": {
+            "type": "string",
+            "description": "ISO-3166-1 alpha-3 country code.\nFor individuals, the residential address country; for organizations, the registration country.\nOmitted if no country is known for this entity.",
+            "example": "AUS",
             "readOnly": true
           },
           "schemaVersion": {
@@ -15742,6 +15774,16 @@
           }
         }
       },
+      "Appointor": {
+        "type": "object",
+        "description": "The Appointer of a trust",
+        "$ref": "#/components/schemas/Entity-ID-Type-With-References"
+      },
+      "Protector": {
+        "type": "object",
+        "description": "The Protector of a trust",
+        "$ref": "#/components/schemas/Entity-ID-Type-With-References"
+      },
       "Discretionary-Trust-Information": {
         "type": "object",
         "description": "Information specific to that of a discretionary trust",
@@ -15761,13 +15803,13 @@
           "appointors": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/Entity-ID-Type-With-References"
+              "$ref": "#/components/schemas/Appointor"
             }
           },
           "protectors": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/Entity-ID-Type-With-References"
+              "$ref": "#/components/schemas/Protector"
             }
           }
         }
@@ -16065,6 +16107,18 @@
           "isConfirmed": {
             "description": "Whether this analysis has been explicitly confirmed by a reviewer. False for analyses that are only the system-produced result and have not yet been confirmed. Derived from the underlying PRO subclass; clients cannot set this directly.",
             "type": "boolean",
+            "readOnly": true
+          },
+          "createdAt": {
+            "description": "The date and time when the analysis was first produced.",
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "updatedAt": {
+            "description": "The date and time when the analysis was last updated.",
+            "type": "string",
+            "format": "date-time",
             "readOnly": true
           },
           "documentInformation": {

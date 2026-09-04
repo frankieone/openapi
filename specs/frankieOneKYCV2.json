@@ -217,7 +217,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -386,7 +387,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -551,7 +553,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "read:kyc:api"
             ]
           }
         ]
@@ -712,7 +715,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -882,7 +886,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "read:kyc:api"
             ]
           }
         ]
@@ -1107,7 +1112,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -1329,7 +1335,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -1552,7 +1559,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "read:kyc:api"
             ]
           }
         ]
@@ -1750,7 +1758,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "read:kyc:api"
             ]
           }
         ]
@@ -1925,7 +1934,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -2120,7 +2130,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -2303,7 +2314,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "read:kyc:api"
             ]
           }
         ]
@@ -2480,7 +2492,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -2662,7 +2675,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -2854,7 +2868,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -3046,7 +3061,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -3239,7 +3255,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -3432,7 +3449,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -3598,7 +3616,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -3826,7 +3845,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "read:kyc:api"
             ]
           }
         ]
@@ -3997,7 +4017,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "read:kyc:api"
             ]
           }
         ]
@@ -4168,7 +4189,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -4339,7 +4361,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -4510,7 +4533,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -4681,7 +4705,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -4852,7 +4877,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -5023,7 +5049,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -5191,7 +5218,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "read:kyc:api"
             ]
           }
         ]
@@ -5362,7 +5390,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -5551,7 +5580,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -5727,7 +5757,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -5876,7 +5907,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "read:kyc:api"
             ]
           }
         ]
@@ -6065,7 +6097,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -6227,7 +6260,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "read:kyc:api"
             ]
           }
         ]
@@ -6387,7 +6421,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -6563,7 +6598,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -6751,7 +6787,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -6946,7 +6983,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -7120,7 +7158,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -7283,7 +7322,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -7446,7 +7486,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -7609,7 +7650,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -7772,7 +7814,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -7930,7 +7973,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -10949,6 +10993,12 @@
           },
           "entityType": {
             "type": "string",
+            "readOnly": true
+          },
+          "country": {
+            "type": "string",
+            "description": "ISO-3166-1 alpha-3 country code.\nFor individuals, the residential address country; for organizations, the registration country.\nOmitted if no country is known for this entity.",
+            "example": "AUS",
             "readOnly": true
           },
           "schemaVersion": {
@@ -18370,6 +18420,13 @@
           },
           "workflowExecutionScope": {
             "$ref": "#/components/schemas/Workflow-Execution-ScopeEnum"
+          },
+          "countries": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "ISO-3166-1 alpha-3 country codes to filter Service Profiles by.\nIndividuals are matched on residential address country; organizations are matched on registration country.\nMultiple values are combined with OR."
           }
         }
       },
