@@ -217,7 +217,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -386,7 +387,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -551,7 +553,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "read:kyc:api"
             ]
           }
         ]
@@ -712,7 +715,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -882,7 +886,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "read:kyc:api"
             ]
           }
         ]
@@ -1107,7 +1112,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -1329,7 +1335,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -1349,7 +1356,214 @@
         {
           "$ref": "#/components/parameters/levelQuery"
         }
-      ]
+      ],
+      "post": {
+        "summary": "Evaluate a workflow for the given service profile using existing results",
+        "responses": {
+          "200": {
+            "description": "Evaluation request completed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "workflowResult": {
+                      "$ref": "#/components/schemas/Workflow-Result"
+                    },
+                    "serviceProfile": {
+                      "$ref": "#/components/schemas/Service-Profile"
+                    },
+                    "individual": {
+                      "$ref": "#/components/schemas/Individual"
+                    },
+                    "requestId": {
+                      "$ref": "#/components/schemas/Request-ID"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Asynchronous evaluation request accepted, use requestId to retrieve results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "requestId": {
+                      "$ref": "#/components/schemas/Request-ID"
+                    },
+                    "workflowExecutionId": {
+                      "$ref": "#/components/schemas/Workflow-Execution-ID"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "Invalid EntityId": {
+                    "value": {
+                      "errorCode": "API-0400,",
+                      "errorMsg": "Multiple Errors: See Issues list",
+                      "details": [
+                        {
+                          "issue": "entityId in path must be of type uuid: \"test\"",
+                          "issueLocation": "VALIDATE-entityId"
+                        }
+                      ],
+                      "requestId": "01HM5XJ7VASZ3EJMB1VQGTBFJ4"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "Invalid authentication": {
+                    "value": {
+                      "errorCode": "AUTH-0002,",
+                      "errorMsg": "Unauthorized",
+                      "details": [
+                        {
+                          "issue": "Invalid Authentication provided. Access denied.",
+                          "issueLocation": "request"
+                        }
+                      ],
+                      "requestId": "00000000S6MNG7624K2TDXT1E3"
+                    }
+                  },
+                  "No Api-Key": {
+                    "value": {
+                      "errorCode": "AUTH-0401",
+                      "errorMsg": "Unauthorized",
+                      "details": [
+                        {
+                          "issue": "No api key provided. Access denied.",
+                          "issueLocation": "request"
+                        }
+                      ],
+                      "requestId": "00000001S6MNG7624K2TDXT1E3"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "operationId": "evaluateWorkflow",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "comment": {
+                    "$ref": "#/components/schemas/Comment"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "Re-evaluate a workflow for the given service profile using only the current set of results, without gathering any new data.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/X-Frankie-CustomerID"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-CustomerChildID"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-Channel"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-Background"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-Username"
+          }
+        ],
+        "tags": [
+          "Individual Workflows"
+        ],
+        "security": [
+          {
+            "Api-Key": []
+          },
+          {
+            "jwt": [
+              "kyc:api",
+              "write:kyc:api"
+            ]
+          }
+        ]
+      }
     },
     "/v2/individuals/{entityId}/serviceprofiles/{serviceName}/workflows/{workflowName}/executions": {
       "parameters": [
@@ -1552,7 +1766,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "read:kyc:api"
             ]
           }
         ]
@@ -1750,7 +1965,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "read:kyc:api"
             ]
           }
         ]
@@ -1925,7 +2141,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -2120,7 +2337,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -2303,7 +2521,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "read:kyc:api"
             ]
           }
         ]
@@ -2480,7 +2699,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -2662,7 +2882,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -2854,7 +3075,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -3046,7 +3268,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -3239,7 +3462,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -3432,7 +3656,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -3598,7 +3823,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -3826,7 +4052,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "read:kyc:api"
             ]
           }
         ]
@@ -3997,7 +4224,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "read:kyc:api"
             ]
           }
         ]
@@ -4168,7 +4396,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -4339,7 +4568,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -4510,7 +4740,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -4681,7 +4912,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -4852,7 +5084,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -5023,7 +5256,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -5191,7 +5425,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "read:kyc:api"
             ]
           }
         ]
@@ -5362,7 +5597,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -5551,7 +5787,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -5727,7 +5964,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -5876,7 +6114,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "read:kyc:api"
             ]
           }
         ]
@@ -6065,7 +6304,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -6227,7 +6467,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "read:kyc:api"
             ]
           }
         ]
@@ -6387,7 +6628,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -6563,7 +6805,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -6751,7 +6994,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -6946,7 +7190,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -7120,7 +7365,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -7283,7 +7529,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -7446,7 +7693,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -7609,7 +7857,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -7772,7 +8021,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -7930,7 +8180,8 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api"
             ]
           }
         ]
@@ -10949,6 +11200,12 @@
           },
           "entityType": {
             "type": "string",
+            "readOnly": true
+          },
+          "country": {
+            "type": "string",
+            "description": "ISO-3166-1 alpha-3 country code.\nFor individuals, the residential address country; for organizations, the registration country.\nOmitted if no country is known for this entity.",
+            "example": "AUS",
             "readOnly": true
           },
           "schemaVersion": {
@@ -18370,6 +18627,13 @@
           },
           "workflowExecutionScope": {
             "$ref": "#/components/schemas/Workflow-Execution-ScopeEnum"
+          },
+          "countries": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "ISO-3166-1 alpha-3 country codes to filter Service Profiles by.\nIndividuals are matched on residential address country; organizations are matched on registration country.\nMultiple values are combined with OR."
           }
         }
       },

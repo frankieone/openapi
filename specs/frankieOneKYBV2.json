@@ -684,7 +684,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "write:kyb:api"
             ]
           }
         ]
@@ -885,7 +886,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "write:kyb:api"
             ]
           }
         ]
@@ -1092,7 +1094,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "write:kyb:api"
             ]
           }
         ]
@@ -1109,7 +1112,202 @@
         {
           "$ref": "#/components/parameters/workflowName"
         }
-      ]
+      ],
+      "post": {
+        "summary": "Evaluate a workflow for the given organization entityId using existing results",
+        "responses": {
+          "200": {
+            "description": "Evaluation request completed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Organizations-Execute-Workflow-Response"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Asynchronous evaluation request accepted, use workflowExecutionId to retrieve results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Organizations-Execute-Workflow-Response-Async"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "Invalid EntityId": {
+                    "value": {
+                      "errorCode": "API-0400,",
+                      "errorMsg": "Multiple Errors: See Issues list",
+                      "details": [
+                        {
+                          "issue": "entityId in path must be of type uuid: \"test\"",
+                          "issueLocation": "VALIDATE-entityId"
+                        }
+                      ],
+                      "requestId": "01HM5XJ7VASZ3EJMB1VQGTBFJ4"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "Invalid authentication": {
+                    "value": {
+                      "errorCode": "AUTH-0002,",
+                      "errorMsg": "Unauthorized",
+                      "details": [
+                        {
+                          "issue": "Invalid Authentication provided. Access denied.",
+                          "issueLocation": "request"
+                        }
+                      ],
+                      "requestId": "00000000S6MNG7624K2TDXT1E3"
+                    }
+                  },
+                  "No Api-Key": {
+                    "value": {
+                      "errorCode": "AUTH-0401",
+                      "errorMsg": "Unauthorized",
+                      "details": [
+                        {
+                          "issue": "No api key provided. Access denied.",
+                          "issueLocation": "request"
+                        }
+                      ],
+                      "requestId": "00000001S6MNG7624K2TDXT1E3"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "Forbidden": {
+                    "value": {
+                      "errorCode": "ENT-1010,",
+                      "errorMsg": "Forbidden",
+                      "details": [
+                        {
+                          "issue": "entityId",
+                          "issueLocation": "Cannot retrieve entityId (027d1e3d-95af-f19a-313a-3b869da9ce10)"
+                        }
+                      ],
+                      "requestId": "01HM5EM2QNNSC9K0PX9VC06HX3"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "operationId": "evaluateWorkflowWithEntityId",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Execute-Workflow-EntityId-Request"
+              }
+            }
+          }
+        },
+        "description": "Re-evaluate a workflow for the given organization entityId and service profile using only the current set of results, without gathering any new data.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/X-Frankie-CustomerID"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-CustomerChildID"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-Channel"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-Background"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-Username"
+          }
+        ],
+        "tags": [
+          "Organization Workflows"
+        ],
+        "security": [
+          {
+            "Api-Key": []
+          },
+          {
+            "jwt": [
+              "kyb:api",
+              "write:kyb:api"
+            ]
+          }
+        ]
+      }
     },
     "/v2/organizations/{entityId}/serviceprofiles/{serviceName}/workflows/{workflowName}/executions/{workflowExecutionId}": {
       "parameters": [
@@ -1271,7 +1469,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "read:kyb:api"
             ]
           }
         ]
@@ -1464,7 +1663,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "read:kyb:api"
             ]
           }
         ]
@@ -1692,7 +1892,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "read:kyb:api"
             ]
           }
         ]
@@ -1863,7 +2064,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "read:kyb:api"
             ]
           }
         ]
@@ -2055,7 +2257,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "write:kyb:api"
             ]
           }
         ]
@@ -2250,7 +2453,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "write:kyb:api"
             ]
           }
         ]
@@ -2433,7 +2637,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "read:kyb:api"
             ]
           }
         ]
@@ -2634,7 +2839,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "write:kyb:api"
             ]
           }
         ]
@@ -2808,7 +3014,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "read:kyb:api"
             ]
           }
         ]
@@ -2980,7 +3187,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "read:kyb:api"
             ]
           }
         ]
@@ -3159,7 +3367,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "write:kyb:api"
             ]
           }
         ]
@@ -3344,7 +3553,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "write:kyb:api"
             ]
           }
         ]
@@ -3538,7 +3748,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "read:kyb:api"
             ]
           }
         ]
@@ -3745,7 +3956,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "write:kyb:api"
             ]
           }
         ]
@@ -3946,7 +4158,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "write:kyb:api"
             ]
           }
         ]
@@ -4247,7 +4460,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "write:kyb:api"
             ]
           }
         ]
@@ -4370,7 +4584,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "write:kyb:api"
             ]
           }
         ]
@@ -4477,7 +4692,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "read:kyb:api"
             ]
           }
         ]
@@ -4593,7 +4809,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "write:kyb:api"
             ]
           }
         ]
@@ -4721,7 +4938,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "write:kyb:api"
             ]
           }
         ]
@@ -4859,7 +5077,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "write:kyb:api"
             ]
           }
         ]
@@ -5030,7 +5249,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "write:kyb:api"
             ]
           }
         ]
@@ -5204,7 +5424,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "write:kyb:api"
             ]
           }
         ]
@@ -9575,6 +9796,12 @@
           },
           "entityType": {
             "type": "string",
+            "readOnly": true
+          },
+          "country": {
+            "type": "string",
+            "description": "ISO-3166-1 alpha-3 country code.\nFor individuals, the residential address country; for organizations, the registration country.\nOmitted if no country is known for this entity.",
+            "example": "AUS",
             "readOnly": true
           },
           "schemaVersion": {
@@ -15742,6 +15969,16 @@
           }
         }
       },
+      "Appointor": {
+        "type": "object",
+        "description": "The Appointer of a trust",
+        "$ref": "#/components/schemas/Entity-ID-Type-With-References"
+      },
+      "Protector": {
+        "type": "object",
+        "description": "The Protector of a trust",
+        "$ref": "#/components/schemas/Entity-ID-Type-With-References"
+      },
       "Discretionary-Trust-Information": {
         "type": "object",
         "description": "Information specific to that of a discretionary trust",
@@ -15761,13 +15998,13 @@
           "appointors": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/Entity-ID-Type-With-References"
+              "$ref": "#/components/schemas/Appointor"
             }
           },
           "protectors": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/Entity-ID-Type-With-References"
+              "$ref": "#/components/schemas/Protector"
             }
           }
         }
@@ -16065,6 +16302,18 @@
           "isConfirmed": {
             "description": "Whether this analysis has been explicitly confirmed by a reviewer. False for analyses that are only the system-produced result and have not yet been confirmed. Derived from the underlying PRO subclass; clients cannot set this directly.",
             "type": "boolean",
+            "readOnly": true
+          },
+          "createdAt": {
+            "description": "The date and time when the analysis was first produced.",
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "updatedAt": {
+            "description": "The date and time when the analysis was last updated.",
+            "type": "string",
+            "format": "date-time",
             "readOnly": true
           },
           "documentInformation": {
