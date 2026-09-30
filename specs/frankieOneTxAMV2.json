@@ -203,7 +203,18 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "Api-Key": []
+          },
+          {
+            "jwt": [
+              "act:api",
+              "write:act:api"
+            ]
+          }
+        ]
       }
     },
     "/v2/activities/classify": {
@@ -363,6 +374,12 @@
         "security": [
           {
             "Api-Key": []
+          },
+          {
+            "jwt": [
+              "act:api",
+              "write:act:api"
+            ]
           }
         ]
       }
@@ -493,7 +510,18 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "Api-Key": []
+          },
+          {
+            "jwt": [
+              "act:api",
+              "read:act:api"
+            ]
+          }
+        ]
       }
     },
     "/v2/individuals/{entityId}/results/activity": {
@@ -605,7 +633,18 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "Api-Key": []
+          },
+          {
+            "jwt": [
+              "act:api",
+              "write:act:api"
+            ]
+          }
+        ]
       }
     },
     "/v2/organizations/{entityId}/activities": {
@@ -734,7 +773,18 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "Api-Key": []
+          },
+          {
+            "jwt": [
+              "act:api",
+              "read:act:api"
+            ]
+          }
+        ]
       }
     },
     "/v2/organizations/{entityId}/results/activity": {
@@ -846,7 +896,18 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "Api-Key": []
+          },
+          {
+            "jwt": [
+              "act:api",
+              "write:act:api"
+            ]
+          }
+        ]
       }
     },
     "/v2/individuals/{entityId}/sessions": {
@@ -958,7 +1019,18 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "Api-Key": []
+          },
+          {
+            "jwt": [
+              "act:api",
+              "write:act:api"
+            ]
+          }
+        ]
       }
     }
   },
@@ -1585,7 +1657,9 @@
           "OFFICIAL_CORRESPONDANCE",
           "PLACE_OF_BIRTH",
           "OFFICE_LOCALITY",
-          "AUTHORITATIVE_RESIDENTIAL"
+          "AUTHORITATIVE_RESIDENTIAL",
+          "REFORMATTED",
+          "ENRICHED"
         ]
       },
       "Address-StatusEnum": {
@@ -6125,6 +6199,44 @@
           }
         }
       },
+      "Credit-Indicators": {
+        "description": "Credit and court-action counts held against an organization by a credit bureau. These are point-in-time figures, so sourceId links to the information source that records when they were retrieved and from whom. Distinct from the indicators array, which flags data-quality issues with our own fetch rather than carrying provider data. Please reach out to your Customer Success Manager if you need these fields",
+        "type": "object",
+        "properties": {
+          "courtActionsCount": {
+            "description": "Number of court actions recorded against the organization",
+            "type": "integer"
+          },
+          "enquiriesCount": {
+            "description": "Number of times the organization's credit file has been accessed",
+            "type": "integer"
+          },
+          "mercantileEnquiriesCount": {
+            "description": "Number of enquiries made by a debt collection agency for the purpose of debt collection",
+            "type": "integer"
+          },
+          "directorsCount": {
+            "description": "Number of directors the provider holds for the organization. Provider-asserted, so it may differ from the officials array",
+            "type": "integer"
+          },
+          "directorsCourtActionsCount": {
+            "description": "Number of court actions recorded against the organization's directors",
+            "type": "integer"
+          },
+          "directorFailedBusinessCount": {
+            "description": "Number of prior failed businesses among the organization's directors",
+            "type": "integer"
+          },
+          "tradeReferencesCount": {
+            "description": "Number of trade credit references held for the organization",
+            "type": "integer"
+          },
+          "sourceId": {
+            "type": "string",
+            "description": "Where specific information was sourced. This is a reference to an informationSource object in the informationSources map."
+          }
+        }
+      },
       "Organization-Summary": {
         "allOf": [
           {
@@ -6176,6 +6288,9 @@
               },
               "jurisdictionalInformation": {
                 "$ref": "#/components/schemas/Jurisdictional-Information"
+              },
+              "creditIndicators": {
+                "$ref": "#/components/schemas/Credit-Indicators"
               },
               "updatedAt": {
                 "type": "string",

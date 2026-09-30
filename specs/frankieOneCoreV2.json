@@ -267,6 +267,17 @@
         "security": [
           {
             "Api-Key": []
+          },
+          {
+            "jwt": [
+              "core:api",
+              "read:core:api",
+              "kycutility_full",
+              "kyb:api",
+              "read:kyb:api",
+              "kyc:api",
+              "read:kyc:api"
+            ]
           }
         ]
       }
@@ -1081,7 +1092,10 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "read:kyc:api",
+              "core:api",
+              "read:core:api"
             ]
           }
         ]
@@ -1408,7 +1422,10 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api",
+              "core:api",
+              "write:core:api"
             ]
           }
         ]
@@ -1597,7 +1614,10 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api",
+              "core:api",
+              "write:core:api"
             ]
           }
         ]
@@ -1876,7 +1896,10 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "read:kyc:api",
+              "core:api",
+              "read:core:api"
             ]
           }
         ]
@@ -2042,7 +2065,10 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api",
+              "core:api",
+              "write:core:api"
             ]
           }
         ]
@@ -2230,7 +2256,10 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "read:kyc:api",
+              "core:api",
+              "read:core:api"
             ]
           }
         ]
@@ -2418,7 +2447,10 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api",
+              "core:api",
+              "write:core:api"
             ]
           }
         ]
@@ -2579,7 +2611,10 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "read:kyc:api",
+              "core:api",
+              "read:core:api"
             ]
           }
         ]
@@ -2766,7 +2801,10 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api",
+              "core:api",
+              "write:core:api"
             ]
           }
         ]
@@ -2949,7 +2987,10 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api",
+              "core:api",
+              "write:core:api"
             ]
           }
         ]
@@ -3276,7 +3317,10 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "read:kyc:api",
+              "core:api",
+              "read:core:api"
             ]
           }
         ]
@@ -3437,7 +3481,10 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api",
+              "core:api",
+              "write:core:api"
             ]
           }
         ]
@@ -3617,7 +3664,10 @@
           },
           {
             "jwt": [
-              "kyc:api"
+              "kyc:api",
+              "write:kyc:api",
+              "core:api",
+              "write:core:api"
             ]
           }
         ]
@@ -4335,7 +4385,7 @@
       },
       "Workflow-Execution-ResultEnum": {
         "type": "string",
-        "description": "Outcome of this workflow execution. Possible results:\n  - UNCHECKED: The workflow has not yet been run and has no result.\n  - IN_PROGRESS: The workflow is currently running and awaiting completion.\n  - REVIEW: The workflow produced results that require review. Check the risks and step results for more details.\n  - PASS: The workflow successfully completed with a PASS recommendation.\n  - FAIL: The workflow finished with a FAIL recommendation.\n  - COMPLETE: The workflow has finished and the results are considered complete. PASS/FAIL is not required.\n  - INCOMPLETE: The workflow has finished and the results are considered incomplete. PASS/FAIL is not required.\n  - NEEDS_APPROVAL: The workflow requires an approval process. Once approved, re-run the workflow.\n  - APPROVED: The workflow was approved, typically by an external source such as a human.\n  - REJECTED: The workflow was rejected, typically by an external source such as a human.\n  - BLOCKED: The workflow was blocked from completing. Manual review is required.\n  - CLEAR: The workflow completed with no issues raised. Often used for ongoing monitoring workflows.\n  - URGENT: The workflow completed with matters requiring urgent review. Often used for ongoing monitoring workflows that return sanctions or similarly critical items.\n  - MONITOR: The workflow completed and further monitoring is required. Should be manually reviewed.\n",
+        "description": "Outcome of this workflow execution. Possible results:\n  - UNCHECKED: The workflow has not yet been run and has no result.\n  - IN_PROGRESS: The workflow is currently running and awaiting completion.\n  - REVIEW: The workflow produced results that require review. Check the risks and step results for more details.\n  - PASS: The workflow successfully completed with a PASS recommendation.\n  - FAIL: The workflow finished with a FAIL recommendation.\n  - COMPLETE: The workflow has finished and the results are considered complete. PASS/FAIL is not required.\n  - INCOMPLETE: The workflow has finished and the results are considered incomplete. PASS/FAIL is not required.\n  - NEEDS_APPROVAL: The workflow requires an approval process. Once approved, re-run the workflow.\n  - APPROVED: The workflow was approved, typically by an external source such as a human.\n  - REJECTED: The workflow was rejected, typically by an external source such as a human.\n  - BLOCKED: The workflow was blocked from completing. Manual review is required.\n  - CLEAR: The workflow completed with no issues raised. Often used for ongoing monitoring workflows.\n  - URGENT: The workflow completed with matters requiring urgent review. Often used for ongoing monitoring workflows that return sanctions or similarly critical items.\n  - MONITOR: The workflow completed and further monitoring is required. Should be manually reviewed.\n  - AWAITING_CUSTOMER: The workflow is paused pending a response from the customer, outside of FrankieOne. Set manually by an operator; the workflow is not progressed automatically from this state.\n",
         "default": "UNCHECKED",
         "enum": [
           "UNCHECKED",
@@ -4351,7 +4401,8 @@
           "BLOCKED",
           "CLEAR",
           "URGENT",
-          "MONITOR"
+          "MONITOR",
+          "AWAITING_CUSTOMER"
         ]
       },
       "AuditEvent-Status": {
@@ -5870,21 +5921,13 @@
           }
         ]
       },
-      "Subscription-Type": {
+      "Organization-Subscription-Type": {
         "type": "string",
-        "description": "Specifies the type of service profile subscription. This value determines the category of the service profile subscription.",
+        "description": "Specifies the type of service profile subscription for an organisation. Contains every `Subscription-Type` value plus the subscription types that apply to organisations only.\n\n- `AML`: Anti-money laundering monitoring.\n- `ACTIVITY`: Activity monitoring.\n- `CONTINUOUS_KYB_AU`: Continuous KYB for Australian organisations (CreditorWatch notifications, including credit score changes). Requires the customer to have Continuous KYB enabled.",
         "enum": [
           "AML",
-          "ACTIVITY"
-        ]
-      },
-      "Monitoring-Type": {
-        "type": "string",
-        "description": "The type of workflow subscription. This determines which types are subscribing to a workflow.",
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Subscription-Type"
-          }
+          "ACTIVITY",
+          "CONTINUOUS_KYB_AU"
         ]
       },
       "Supplementary-Data-AuditEvent-Monitoring": {
@@ -5898,7 +5941,7 @@
             "type": "object",
             "properties": {
               "monitoringType": {
-                "$ref": "#/components/schemas/Monitoring-Type"
+                "$ref": "#/components/schemas/Organization-Subscription-Type"
               },
               "isEnabled": {
                 "type": "boolean",
@@ -6849,6 +6892,23 @@
             "$ref": "#/components/schemas/Comment"
           }
         }
+      },
+      "Subscription-Type": {
+        "type": "string",
+        "description": "Specifies the type of service profile subscription. This value determines the category of the service profile subscription.",
+        "enum": [
+          "AML",
+          "ACTIVITY"
+        ]
+      },
+      "Monitoring-Type": {
+        "type": "string",
+        "description": "The type of workflow subscription. This determines which types are subscribing to a workflow.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Subscription-Type"
+          }
+        ]
       },
       "Workflow-Step-Type": {
         "type": "string",
@@ -7856,6 +7916,13 @@
           },
           "workflowExecutionScope": {
             "$ref": "#/components/schemas/Workflow-Execution-ScopeEnum"
+          },
+          "countries": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "ISO-3166-1 alpha-3 country codes to filter Service Profiles by.\nIndividuals are matched on residential address country; organizations are matched on registration country.\nMultiple values are combined with OR."
           }
         }
       },
@@ -8257,7 +8324,7 @@
             "description": "Indicates whether the subscription is currently active and operational."
           },
           "type": {
-            "$ref": "#/components/schemas/Subscription-Type"
+            "$ref": "#/components/schemas/Organization-Subscription-Type"
           },
           "workflowName": {
             "type": "string",
@@ -8322,6 +8389,12 @@
           },
           "entityType": {
             "type": "string",
+            "readOnly": true
+          },
+          "country": {
+            "type": "string",
+            "description": "ISO-3166-1 alpha-3 country code.\nFor individuals, the residential address country; for organizations, the registration country.\nOmitted if no country is known for this entity.",
+            "example": "AUS",
             "readOnly": true
           },
           "schemaVersion": {
@@ -10060,7 +10133,9 @@
           "OFFICIAL_CORRESPONDANCE",
           "PLACE_OF_BIRTH",
           "OFFICE_LOCALITY",
-          "AUTHORITATIVE_RESIDENTIAL"
+          "AUTHORITATIVE_RESIDENTIAL",
+          "REFORMATTED",
+          "ENRICHED"
         ]
       },
       "Date-Type": {
@@ -12162,6 +12237,44 @@
           }
         }
       },
+      "Credit-Indicators": {
+        "description": "Credit and court-action counts held against an organization by a credit bureau. These are point-in-time figures, so sourceId links to the information source that records when they were retrieved and from whom. Distinct from the indicators array, which flags data-quality issues with our own fetch rather than carrying provider data. Please reach out to your Customer Success Manager if you need these fields",
+        "type": "object",
+        "properties": {
+          "courtActionsCount": {
+            "description": "Number of court actions recorded against the organization",
+            "type": "integer"
+          },
+          "enquiriesCount": {
+            "description": "Number of times the organization's credit file has been accessed",
+            "type": "integer"
+          },
+          "mercantileEnquiriesCount": {
+            "description": "Number of enquiries made by a debt collection agency for the purpose of debt collection",
+            "type": "integer"
+          },
+          "directorsCount": {
+            "description": "Number of directors the provider holds for the organization. Provider-asserted, so it may differ from the officials array",
+            "type": "integer"
+          },
+          "directorsCourtActionsCount": {
+            "description": "Number of court actions recorded against the organization's directors",
+            "type": "integer"
+          },
+          "directorFailedBusinessCount": {
+            "description": "Number of prior failed businesses among the organization's directors",
+            "type": "integer"
+          },
+          "tradeReferencesCount": {
+            "description": "Number of trade credit references held for the organization",
+            "type": "integer"
+          },
+          "sourceId": {
+            "type": "string",
+            "description": "Where specific information was sourced. This is a reference to an informationSource object in the informationSources map."
+          }
+        }
+      },
       "Organization-Summary": {
         "allOf": [
           {
@@ -12213,6 +12326,9 @@
               },
               "jurisdictionalInformation": {
                 "$ref": "#/components/schemas/Jurisdictional-Information"
+              },
+              "creditIndicators": {
+                "$ref": "#/components/schemas/Credit-Indicators"
               },
               "updatedAt": {
                 "type": "string",
