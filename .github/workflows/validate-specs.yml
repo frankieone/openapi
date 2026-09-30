@@ -1,0 +1,29 @@
+name: Validate specs
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: validate-specs
+    runs-on: ["self-hosted", "linux", "x64"]
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Check each spec parses as OpenAPI JSON
+        run: |
+          for f in specs/*.json; do
+            jq -e '.openapi and .paths' "$f" > /dev/null || { echo "::error file=$f::not a valid OpenAPI JSON document"; exit 1; }
+          done
+
+      # Same redocly version config-api-specification pins for its bundles.
+      - name: Lint specs
+        run: npx --yes @redocly/cli@2.53.3 lint --extends=minimal specs/*.json
