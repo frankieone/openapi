@@ -684,7 +684,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "write:kyb:api"
             ]
           }
         ]
@@ -885,7 +886,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "write:kyb:api"
             ]
           }
         ]
@@ -1092,7 +1094,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "write:kyb:api"
             ]
           }
         ]
@@ -1109,7 +1112,202 @@
         {
           "$ref": "#/components/parameters/workflowName"
         }
-      ]
+      ],
+      "post": {
+        "summary": "Evaluate a workflow for the given organization entityId using existing results",
+        "responses": {
+          "200": {
+            "description": "Evaluation request completed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Organizations-Execute-Workflow-Response"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Asynchronous evaluation request accepted, use workflowExecutionId to retrieve results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Organizations-Execute-Workflow-Response-Async"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "Invalid EntityId": {
+                    "value": {
+                      "errorCode": "API-0400,",
+                      "errorMsg": "Multiple Errors: See Issues list",
+                      "details": [
+                        {
+                          "issue": "entityId in path must be of type uuid: \"test\"",
+                          "issueLocation": "VALIDATE-entityId"
+                        }
+                      ],
+                      "requestId": "01HM5XJ7VASZ3EJMB1VQGTBFJ4"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "Invalid authentication": {
+                    "value": {
+                      "errorCode": "AUTH-0002,",
+                      "errorMsg": "Unauthorized",
+                      "details": [
+                        {
+                          "issue": "Invalid Authentication provided. Access denied.",
+                          "issueLocation": "request"
+                        }
+                      ],
+                      "requestId": "00000000S6MNG7624K2TDXT1E3"
+                    }
+                  },
+                  "No Api-Key": {
+                    "value": {
+                      "errorCode": "AUTH-0401",
+                      "errorMsg": "Unauthorized",
+                      "details": [
+                        {
+                          "issue": "No api key provided. Access denied.",
+                          "issueLocation": "request"
+                        }
+                      ],
+                      "requestId": "00000001S6MNG7624K2TDXT1E3"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "Forbidden": {
+                    "value": {
+                      "errorCode": "ENT-1010,",
+                      "errorMsg": "Forbidden",
+                      "details": [
+                        {
+                          "issue": "entityId",
+                          "issueLocation": "Cannot retrieve entityId (027d1e3d-95af-f19a-313a-3b869da9ce10)"
+                        }
+                      ],
+                      "requestId": "01HM5EM2QNNSC9K0PX9VC06HX3"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "operationId": "evaluateWorkflowWithEntityId",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Execute-Workflow-EntityId-Request"
+              }
+            }
+          }
+        },
+        "description": "Re-evaluate a workflow for the given organization entityId and service profile using only the current set of results, without gathering any new data.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/X-Frankie-CustomerID"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-CustomerChildID"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-Channel"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-Background"
+          },
+          {
+            "$ref": "#/components/parameters/X-Frankie-Username"
+          }
+        ],
+        "tags": [
+          "Organization Workflows"
+        ],
+        "security": [
+          {
+            "Api-Key": []
+          },
+          {
+            "jwt": [
+              "kyb:api",
+              "write:kyb:api"
+            ]
+          }
+        ]
+      }
     },
     "/v2/organizations/{entityId}/serviceprofiles/{serviceName}/workflows/{workflowName}/executions/{workflowExecutionId}": {
       "parameters": [
@@ -1271,7 +1469,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "read:kyb:api"
             ]
           }
         ]
@@ -1464,7 +1663,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "read:kyb:api"
             ]
           }
         ]
@@ -1692,7 +1892,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "read:kyb:api"
             ]
           }
         ]
@@ -1863,7 +2064,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "read:kyb:api"
             ]
           }
         ]
@@ -2055,7 +2257,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "write:kyb:api"
             ]
           }
         ]
@@ -2250,7 +2453,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "write:kyb:api"
             ]
           }
         ]
@@ -2433,7 +2637,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "read:kyb:api"
             ]
           }
         ]
@@ -2634,7 +2839,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "write:kyb:api"
             ]
           }
         ]
@@ -2808,7 +3014,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "read:kyb:api"
             ]
           }
         ]
@@ -2980,7 +3187,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "read:kyb:api"
             ]
           }
         ]
@@ -3159,7 +3367,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "write:kyb:api"
             ]
           }
         ]
@@ -3344,7 +3553,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "write:kyb:api"
             ]
           }
         ]
@@ -3538,7 +3748,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "read:kyb:api"
             ]
           }
         ]
@@ -3745,7 +3956,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "write:kyb:api"
             ]
           }
         ]
@@ -3946,7 +4158,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "write:kyb:api"
             ]
           }
         ]
@@ -4247,7 +4460,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "write:kyb:api"
             ]
           }
         ]
@@ -4370,7 +4584,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "write:kyb:api"
             ]
           }
         ]
@@ -4477,7 +4692,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "read:kyb:api"
             ]
           }
         ]
@@ -4593,7 +4809,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "write:kyb:api"
             ]
           }
         ]
@@ -4721,7 +4938,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "write:kyb:api"
             ]
           }
         ]
@@ -4859,7 +5077,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "write:kyb:api"
             ]
           }
         ]
@@ -5030,7 +5249,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "write:kyb:api"
             ]
           }
         ]
@@ -5118,6 +5338,31 @@
               }
             }
           },
+          "403": {
+            "description": "Forbidden. Returned when `CONTINUOUS_KYB_AU` is requested and the customer does not have Continuous KYB enabled (error code `VAL-403`).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "Continuous KYB not enabled": {
+                    "value": {
+                      "errorCode": "VAL-403",
+                      "errorMsg": "Continuous KYB (AU) is not enabled for this customer",
+                      "details": [
+                        {
+                          "issue": "CONTINUOUS_KYB_AU monitoring requires Continuous KYB (AU) to be enabled for the customer.",
+                          "issueLocation": "monitoringTypes"
+                        }
+                      ],
+                      "requestId": "01HM5EM2QNNSC9K0PX9VC06HX3"
+                    }
+                  }
+                }
+              }
+            }
+          },
           "404": {
             "description": "Not Found",
             "content": {
@@ -5174,7 +5419,7 @@
           }
         },
         "operationId": "patchOrganizationMonitoring",
-        "description": "Toggle monitoring on or off for a given organization e.g. AML monitoring. Use this endpoint to either:\n- Enable monitoring - System will start monitoring the organization for potential changes.\n- Disable monitoring - System will no longer monitor the organization for new potential matches and will no longer send alerts.\n\nThe endpoint will effectively manage the monitoring status of the organization.\nHaving monitoring status of a type enabled means that the organization is being monitored for that type.\nIf the organization has several services under the entity, the endpoint will manage the subscription status of the organization for each service for the types requested.\nRequest:\nThe request object contains the `entityId` and list of `monitoring` that are about to toggle.\nAlso, the request body contains comment to be added to audit logs\nResponse:\nThe response object contains the `requestId` and the `subscriptions` that associated with the organization.\nThe subscriptions object contains the type of monitoring and the details of the subscriptions.\nThe details of the subscriptions includes:\n  - service name\n  - service profile ID\n  - status of the subscription\n  - the workflows that will be executed by the type for the service profile.",
+        "description": "Toggle monitoring on or off for a given organization e.g. AML or Continuous KYB AU monitoring. Use this endpoint to either:\n- Enable monitoring - System will start monitoring the organization for potential changes.\n- Disable monitoring - System will no longer monitor the organization for new potential matches and will no longer send alerts.\n\nThe endpoint will effectively manage the monitoring status of the organization.\nHaving monitoring status of a type enabled means that the organization is being monitored for that type.\nIf the organization has several services under the entity, the endpoint will manage the subscription status of the organization for each service for the types requested.\nRequest:\nThe request object contains the `entityId` and list of `monitoring` that are about to toggle.\nAlso, the request body contains comment to be added to audit logs\nResponse:\nThe response object contains the `requestId` and the `subscriptions` that associated with the organization.\nThe subscriptions object contains the type of monitoring and the details of the subscriptions.\nThe details of the subscriptions includes:\n  - service name\n  - service profile ID\n  - status of the subscription\n  - the workflows that will be executed by the type for the service profile.\n\nContinuous KYB AU:\n`CONTINUOUS_KYB_AU` monitors Australian organisations through CreditorWatch notifications, including credit score changes.\nIt requires the customer to have Continuous KYB enabled. If the customer does not, a request that includes `CONTINUOUS_KYB_AU` returns 403 with error code `VAL-403`.\nThe `CONTINUOUS_KYB_AU` block in the response is only present when the customer has Continuous KYB enabled and the request included `CONTINUOUS_KYB_AU`.",
         "parameters": [
           {
             "$ref": "#/components/parameters/Api-Key"
@@ -5204,7 +5449,8 @@
           },
           {
             "jwt": [
-              "kyb:api"
+              "kyb:api",
+              "write:kyb:api"
             ]
           }
         ]
@@ -5704,7 +5950,7 @@
         "schema": {
           "type": "array",
           "items": {
-            "$ref": "#/components/schemas/Monitoring-Type"
+            "$ref": "#/components/schemas/Organization-Subscription-Type"
           }
         },
         "description": "The type of ongoing monitoring to be enabled/disabled for the given organization. Exclude this parameter to set the monitoring status for all types."
@@ -5793,7 +6039,9 @@
           "OFFICIAL_CORRESPONDANCE",
           "PLACE_OF_BIRTH",
           "OFFICE_LOCALITY",
-          "AUTHORITATIVE_RESIDENTIAL"
+          "AUTHORITATIVE_RESIDENTIAL",
+          "REFORMATTED",
+          "ENRICHED"
         ]
       },
       "Date-Type": {
@@ -8099,6 +8347,44 @@
           }
         }
       },
+      "Credit-Indicators": {
+        "description": "Credit and court-action counts held against an organization by a credit bureau. These are point-in-time figures, so sourceId links to the information source that records when they were retrieved and from whom. Distinct from the indicators array, which flags data-quality issues with our own fetch rather than carrying provider data. Please reach out to your Customer Success Manager if you need these fields",
+        "type": "object",
+        "properties": {
+          "courtActionsCount": {
+            "description": "Number of court actions recorded against the organization",
+            "type": "integer"
+          },
+          "enquiriesCount": {
+            "description": "Number of times the organization's credit file has been accessed",
+            "type": "integer"
+          },
+          "mercantileEnquiriesCount": {
+            "description": "Number of enquiries made by a debt collection agency for the purpose of debt collection",
+            "type": "integer"
+          },
+          "directorsCount": {
+            "description": "Number of directors the provider holds for the organization. Provider-asserted, so it may differ from the officials array",
+            "type": "integer"
+          },
+          "directorsCourtActionsCount": {
+            "description": "Number of court actions recorded against the organization's directors",
+            "type": "integer"
+          },
+          "directorFailedBusinessCount": {
+            "description": "Number of prior failed businesses among the organization's directors",
+            "type": "integer"
+          },
+          "tradeReferencesCount": {
+            "description": "Number of trade credit references held for the organization",
+            "type": "integer"
+          },
+          "sourceId": {
+            "type": "string",
+            "description": "Where specific information was sourced. This is a reference to an informationSource object in the informationSources map."
+          }
+        }
+      },
       "Organization-Summary": {
         "allOf": [
           {
@@ -8150,6 +8436,9 @@
               },
               "jurisdictionalInformation": {
                 "$ref": "#/components/schemas/Jurisdictional-Information"
+              },
+              "creditIndicators": {
+                "$ref": "#/components/schemas/Credit-Indicators"
               },
               "updatedAt": {
                 "type": "string",
@@ -8957,7 +9246,7 @@
       },
       "Workflow-Execution-ResultEnum": {
         "type": "string",
-        "description": "Outcome of this workflow execution. Possible results:\n  - UNCHECKED: The workflow has not yet been run and has no result.\n  - IN_PROGRESS: The workflow is currently running and awaiting completion.\n  - REVIEW: The workflow produced results that require review. Check the risks and step results for more details.\n  - PASS: The workflow successfully completed with a PASS recommendation.\n  - FAIL: The workflow finished with a FAIL recommendation.\n  - COMPLETE: The workflow has finished and the results are considered complete. PASS/FAIL is not required.\n  - INCOMPLETE: The workflow has finished and the results are considered incomplete. PASS/FAIL is not required.\n  - NEEDS_APPROVAL: The workflow requires an approval process. Once approved, re-run the workflow.\n  - APPROVED: The workflow was approved, typically by an external source such as a human.\n  - REJECTED: The workflow was rejected, typically by an external source such as a human.\n  - BLOCKED: The workflow was blocked from completing. Manual review is required.\n  - CLEAR: The workflow completed with no issues raised. Often used for ongoing monitoring workflows.\n  - URGENT: The workflow completed with matters requiring urgent review. Often used for ongoing monitoring workflows that return sanctions or similarly critical items.\n  - MONITOR: The workflow completed and further monitoring is required. Should be manually reviewed.\n",
+        "description": "Outcome of this workflow execution. Possible results:\n  - UNCHECKED: The workflow has not yet been run and has no result.\n  - IN_PROGRESS: The workflow is currently running and awaiting completion.\n  - REVIEW: The workflow produced results that require review. Check the risks and step results for more details.\n  - PASS: The workflow successfully completed with a PASS recommendation.\n  - FAIL: The workflow finished with a FAIL recommendation.\n  - COMPLETE: The workflow has finished and the results are considered complete. PASS/FAIL is not required.\n  - INCOMPLETE: The workflow has finished and the results are considered incomplete. PASS/FAIL is not required.\n  - NEEDS_APPROVAL: The workflow requires an approval process. Once approved, re-run the workflow.\n  - APPROVED: The workflow was approved, typically by an external source such as a human.\n  - REJECTED: The workflow was rejected, typically by an external source such as a human.\n  - BLOCKED: The workflow was blocked from completing. Manual review is required.\n  - CLEAR: The workflow completed with no issues raised. Often used for ongoing monitoring workflows.\n  - URGENT: The workflow completed with matters requiring urgent review. Often used for ongoing monitoring workflows that return sanctions or similarly critical items.\n  - MONITOR: The workflow completed and further monitoring is required. Should be manually reviewed.\n  - AWAITING_CUSTOMER: The workflow is paused pending a response from the customer, outside of FrankieOne. Set manually by an operator; the workflow is not progressed automatically from this state.\n",
         "default": "UNCHECKED",
         "enum": [
           "UNCHECKED",
@@ -8973,7 +9262,8 @@
           "BLOCKED",
           "CLEAR",
           "URGENT",
-          "MONITOR"
+          "MONITOR",
+          "AWAITING_CUSTOMER"
         ]
       },
       "Profile-ID": {
@@ -9494,6 +9784,15 @@
           }
         }
       },
+      "Organization-Subscription-Type": {
+        "type": "string",
+        "description": "Specifies the type of service profile subscription for an organisation. Contains every `Subscription-Type` value plus the subscription types that apply to organisations only.\n\n- `AML`: Anti-money laundering monitoring.\n- `ACTIVITY`: Activity monitoring.\n- `CONTINUOUS_KYB_AU`: Continuous KYB for Australian organisations (CreditorWatch notifications, including credit score changes). Requires the customer to have Continuous KYB enabled.",
+        "enum": [
+          "AML",
+          "ACTIVITY",
+          "CONTINUOUS_KYB_AU"
+        ]
+      },
       "Service-Profile-Subscription": {
         "type": "object",
         "properties": {
@@ -9510,7 +9809,7 @@
             "description": "Indicates whether the subscription is currently active and operational."
           },
           "type": {
-            "$ref": "#/components/schemas/Subscription-Type"
+            "$ref": "#/components/schemas/Organization-Subscription-Type"
           },
           "workflowName": {
             "type": "string",
@@ -9575,6 +9874,12 @@
           },
           "entityType": {
             "type": "string",
+            "readOnly": true
+          },
+          "country": {
+            "type": "string",
+            "description": "ISO-3166-1 alpha-3 country code.\nFor individuals, the residential address country; for organizations, the registration country.\nOmitted if no country is known for this entity.",
+            "example": "AUS",
             "readOnly": true
           },
           "schemaVersion": {
@@ -15742,6 +16047,16 @@
           }
         }
       },
+      "Appointor": {
+        "type": "object",
+        "description": "The Appointer of a trust",
+        "$ref": "#/components/schemas/Entity-ID-Type-With-References"
+      },
+      "Protector": {
+        "type": "object",
+        "description": "The Protector of a trust",
+        "$ref": "#/components/schemas/Entity-ID-Type-With-References"
+      },
       "Discretionary-Trust-Information": {
         "type": "object",
         "description": "Information specific to that of a discretionary trust",
@@ -15761,13 +16076,13 @@
           "appointors": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/Entity-ID-Type-With-References"
+              "$ref": "#/components/schemas/Appointor"
             }
           },
           "protectors": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/Entity-ID-Type-With-References"
+              "$ref": "#/components/schemas/Protector"
             }
           }
         }
@@ -16067,6 +16382,18 @@
             "type": "boolean",
             "readOnly": true
           },
+          "createdAt": {
+            "description": "The date and time when the analysis was first produced.",
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "updatedAt": {
+            "description": "The date and time when the analysis was last updated.",
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
           "documentInformation": {
             "discriminator": {
               "propertyName": "type",
@@ -16165,6 +16492,11 @@
           "flowId": {
             "type": "string",
             "example": "example-flow-id"
+          },
+          "customerRef": {
+            "description": "External customer reference for this hosted onboarding session. Stored against the session so events originating from it can be correlated back to the caller's own record.",
+            "type": "string",
+            "example": "a52468ea-1942-4d96-8ad5-abaa24a37a2b"
           }
         },
         "required": [
@@ -16423,11 +16755,38 @@
           }
         }
       },
+      "Organizations-Patch-Monitoring-Subscriptions-CONTINUOUS_KYB_AU-Response": {
+        "type": "object",
+        "description": "The subscription details for Continuous KYB AU monitoring (CreditorWatch notifications, including credit score changes).\nThis block is only present when the customer has Continuous KYB enabled and the request included `CONTINUOUS_KYB_AU` in `monitoringTypes`.",
+        "properties": {
+          "subscriptions": {
+            "type": "array",
+            "description": "The list of Continuous KYB AU monitoring subscriptions",
+            "items": {
+              "$ref": "#/components/schemas/Organizations-Patch-Monitoring-Subscriptions-Details-Response"
+            }
+          },
+          "providers": {
+            "type": "array",
+            "description": "The providers that will be affected by the subscription, e.g. `creditorwatch`",
+            "items": {
+              "type": "string",
+              "description": "The provider name"
+            }
+          },
+          "status": {
+            "$ref": "#/components/schemas/Subscription-Status"
+          }
+        }
+      },
       "Organizations-Patch-Monitoring-Subscriptions-Response": {
         "type": "object",
         "properties": {
           "AML": {
             "$ref": "#/components/schemas/Organizations-Patch-Monitoring-Subscriptions-AML-Response"
+          },
+          "CONTINUOUS_KYB_AU": {
+            "$ref": "#/components/schemas/Organizations-Patch-Monitoring-Subscriptions-CONTINUOUS_KYB_AU-Response"
           }
         }
       },
