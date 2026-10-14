@@ -6210,13 +6210,13 @@
           {
             "type": "object",
             "properties": {
-              "action": {
+              "assigneeAction": {
                 "type": "string",
                 "enum": [
                   "ASSIGN",
                   "UNASSIGN"
                 ],
-                "description": "Whether the assignee was set or cleared."
+                "description": "Whether the assignee was set or cleared.\n\nDeliberately not named `action`: `action` is already used by other\nsupplementaryData variants (e.g. Matchlist BLOCK/ALERT/ALLOW/REVIEW/NONE), and\ngenerated clients that flatten the variants by property name would collide.\nSame reason Supplementary-Data-AuditEvent-Document uses `actionDocument`."
               },
               "previousAssignee": {
                 "type": "string",
@@ -6225,7 +6225,7 @@
               },
               "newAssignee": {
                 "type": "string",
-                "description": "Assignee after the change. Absent when action is UNASSIGN.",
+                "description": "Assignee after the change. Absent when assigneeAction is UNASSIGN.",
                 "example": "asmith@bank.com"
               }
             }
@@ -6304,9 +6304,13 @@
           {
             "type": "object",
             "properties": {
-              "action": {
+              "caseDocumentAction": {
                 "type": "string",
-                "description": "Describes the type of action taken on the case document."
+                "enum": [
+                  "CREATE",
+                  "REMOVE"
+                ],
+                "description": "Whether the document was added to or removed from the case.\n\nDeliberately not named `action`: `action` is already used by other\nsupplementaryData variants (e.g. Matchlist BLOCK/ALERT/ALLOW/REVIEW/NONE), and\ngenerated clients that flatten the variants by property name would collide.\nSame reason Supplementary-Data-AuditEvent-Case-Assignee-Change uses\n`assigneeAction`."
               },
               "documentId": {
                 "type": "string",

@@ -39,6 +39,10 @@
       "description": "Manage documents for individuals"
     },
     {
+      "name": "Individual Reports",
+      "description": "Generate and retrieve reports on an individual"
+    },
+    {
       "name": "Individual Workflows",
       "description": "Manage workflows and executions for individuals"
     },
@@ -7196,6 +7200,13 @@
           }
         ]
       }
+    },
+    "/v2/individuals/{entityId}/reports": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/entityId"
+        }
+      ]
     },
     "/v2/individuals/{entityId}/monitor": {
       "parameters": [
